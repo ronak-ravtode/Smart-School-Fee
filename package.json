@@ -1,0 +1,25 @@
+{
+  "name": "smart-school-fintech-root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"api,web\" -c \"yellow,cyan\" \"pnpm --filter smart-school-api dev\" \"pnpm --filter web dev\"",
+    "api:dev": "pnpm --filter smart-school-api dev",
+    "web:dev": "pnpm --filter web dev",
+    "db:migrate": "pnpm --filter smart-school-api db:migrate",
+    "db:generate": "pnpm --filter smart-school-api db:generate",
+    "db:studio": "pnpm --filter smart-school-api db:studio",
+    "test": "node apps/api/verify_day1.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "prisma",
+      "@prisma/client",
+      "@prisma/engines",
+      "bcryptjs",
+      "tesseract.js"
+    ]
+  }
+}
