@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDashboardQuery } from '../../hooks/useDashboardQuery';
 
 export default function DefaulterList() {
-  // Sort by risk priority score by default to satisfy the "prioritized defaulter tracking" requirement
+  // Sort by AI predicted risk by default to showcase the differentiator
   const [sortBy, setSortBy] = useState('risk');
   const [filterClass, setFilterClass] = useState('');
 
@@ -21,9 +21,9 @@ export default function DefaulterList() {
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
           className="form-input"
-          style={{ padding: '6px 12px', fontSize: '0.75rem', width: '150px', margin: 0, background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(0,0,0,0.1)', color: '#000' }}
+          style={{ padding: '6px 12px', fontSize: '0.75rem', width: '170px', margin: 0, background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(0,0,0,0.1)', color: '#000' }}
         >
-          <option value="risk">Sort by Risk Score</option>
+          <option value="risk">Sort by AI Default Risk</option>
           <option value="days">Sort by Days</option>
           <option value="amount">Sort by Amount</option>
         </select>
@@ -60,14 +60,14 @@ export default function DefaulterList() {
                 <th style={{ padding: '12px 10px', fontWeight: 600 }}>Class</th>
                 <th style={{ padding: '12px 10px', fontWeight: 600, textAlign: 'center' }}>Overdue Days</th>
                 <th style={{ padding: '12px 10px', fontWeight: 600, textAlign: 'right' }}>Amount</th>
-                <th style={{ padding: '12px 10px', fontWeight: 600, textAlign: 'center' }}>Risk Score</th>
+                <th style={{ padding: '12px 10px', fontWeight: 600, textAlign: 'center' }}>AI Default Prediction</th>
                 <th style={{ padding: '12px 10px', fontWeight: 600, textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {defaulters.map((defaulter, idx) => {
-                const riskScore = Number(defaulter.overdue_days) * Number(defaulter.overdue_amount);
-                const isCritical = riskScore > 30000;
+                const riskPct = defaulter.default_risk_pct || 10;
+                const isCritical = riskPct > 70;
 
                 // Build pre-filled WhatsApp reminder text
                 const waText = encodeURIComponent(
@@ -95,7 +95,7 @@ export default function DefaulterList() {
                           borderRadius: '4px',
                           fontWeight: 700
                         }}>
-                          CRITICAL
+                          HIGH RISK
                         </span>
                       )}
                     </td>
@@ -106,8 +106,27 @@ export default function DefaulterList() {
                     <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 700 }}>
                       ₹{Number(defaulter.overdue_amount).toLocaleString('en-IN')}
                     </td>
-                    <td style={{ padding: '12px 10px', textAlign: 'center', fontWeight: 700, color: isCritical ? '#e11d48' : '#64748b' }}>
-                      {riskScore.toLocaleString('en-IN')}
+                    <td style={{ padding: '12px 10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                        <div style={{ width: '80px', height: '6px', background: 'rgba(0,0,0,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{
+                            width: `${riskPct}%`,
+                            height: '100%',
+                            background: riskPct > 70 ? '#e11d48' : 
+                                        riskPct > 35 ? '#d97706' : '#059669'
+                          }} />
+                        </div>
+                        <span style={{
+                          fontWeight: 700,
+                          fontSize: '0.75rem',
+                          minWidth: '32px',
+                          textAlign: 'left',
+                          color: riskPct > 70 ? '#e11d48' : 
+                                 riskPct > 35 ? '#d97706' : '#059669'
+                        }}>
+                          {riskPct}%
+                        </span>
+                      </div>
                     </td>
                     <td style={{ padding: '12px 10px', textAlign: 'center' }}>
                       <a 

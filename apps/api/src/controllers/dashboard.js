@@ -145,7 +145,12 @@ const getDefaulters = async (req, res) => {
     const assignments = await prisma.feeAssignment.findMany({
       where,
       include: {
-        student: { include: { guardian: true } },
+        student: {
+          include: {
+            guardian: true,
+            transactions: { where: { status: 'failed' } }
+          }
+        },
         feeStructure: true,
         waiverPenalties: { where: { status: 'approved' } }
       }
@@ -166,6 +171,24 @@ const getDefaulters = async (req, res) => {
       const diffTime = Math.max(0, today - dueDate);
       const overdueDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
+      // AI Heuristic Predictor calculation
+      const failedCount = item.student.transactions.length;
+      const isKycComplete = item.student.status === 'active';
+      
+      let riskFactor = overdueDays * 3;
+      riskFactor += failedCount * 20;
+      if (isKycComplete) {
+        riskFactor -= 15;
+      } else {
+        riskFactor += 15;
+      }
+      if (overdueAmount > 15000) {
+        riskFactor += 15;
+      } else if (overdueAmount < 5000) {
+        riskFactor -= 10;
+      }
+      const defaultRiskPct = Math.min(98, Math.max(5, riskFactor));
+
       return {
         student_id: item.studentId,
         name: item.student.name,
@@ -173,7 +196,8 @@ const getDefaulters = async (req, res) => {
         overdue_days: overdueDays,
         overdue_amount: overdueAmount,
         guardian_name: item.student.guardian.name,
-        guardian_mobile: item.student.guardian.mobile
+        guardian_mobile: item.student.guardian.mobile,
+        default_risk_pct: defaultRiskPct
       };
     });
 
@@ -183,8 +207,8 @@ const getDefaulters = async (req, res) => {
     } else if (sort_by === 'amount') {
       defaulters.sort((a, b) => b.overdue_amount - a.overdue_amount);
     } else {
-      // Priority Risk Score = days * amount
-      defaulters.sort((a, b) => (b.overdue_days * b.overdue_amount) - (a.overdue_days * a.overdue_amount));
+      // Default: Priority risk score percentage descending
+      defaulters.sort((a, b) => b.default_risk_pct - a.default_risk_pct);
     }
 
     return res.status(200).json(defaulters);

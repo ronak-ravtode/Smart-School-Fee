@@ -13,15 +13,71 @@ export default function Reports() {
     end_date: endDate
   }, 5000);
 
+  const handleExportCSV = () => {
+    if (!report) return;
+
+    // Build standard CSV format string
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += 'SMART SCHOOL FINTECH - REVENUE & COLLECTION LEDGER REPORT\r\n';
+    csvContent += `Generated On,${new Date().toLocaleString()}\r\n`;
+    csvContent += `Filters,Class: ${classFilter || 'All Standards'}, Start Date: ${startDate || 'N/A'}, End Date: ${endDate || 'N/A'}\r\n\r\n`;
+    
+    csvContent += 'FINANCIAL LEDGER SUMMARY\r\n';
+    csvContent += `Total Revenue Collected,INR ${Number(report.total_collected).toFixed(2)}\r\n`;
+    csvContent += `Total Pending Balances,INR ${Number(report.total_pending).toFixed(2)}\r\n\r\n`;
+
+    csvContent += 'COLLECTION BREAKDOWN BY CATEGORY\r\n';
+    csvContent += 'Fee Category,Collected Amount (INR)\r\n';
+    
+    if (report.breakdown && report.breakdown.length > 0) {
+      report.breakdown.forEach(item => {
+        csvContent += `${item.type.toUpperCase()},${Number(item.total).toFixed(2)}\r\n`;
+      });
+    } else {
+      csvContent += 'No category breakdown available for current filter set\r\n';
+    }
+
+    // Trigger dynamic browser download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `SmartSchool_Financial_Report_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="frosted-glass-card" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 5px 0', color: '#0f172a' }}>
-          Revenue & Collection Reports Ledger
-        </h2>
-        <p style={{ color: '#475569', fontSize: '0.8rem', margin: 0 }}>
-          Generate, filter, and review ledger balances matching custom academic year periods and grades.
-        </p>
+      
+      {/* Header and Export Action */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+        <div>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 5px 0', color: '#0f172a' }}>
+            Revenue & Collection Reports Ledger
+          </h2>
+          <p style={{ color: '#475569', fontSize: '0.8rem', margin: 0 }}>
+            Generate, filter, and review ledger balances matching custom academic year periods and grades.
+          </p>
+        </div>
+        <button
+          onClick={handleExportCSV}
+          disabled={!report || loading}
+          className="btn"
+          style={{
+            padding: '8px 16px',
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            background: 'linear-gradient(135deg, #4f46e5, #06b6d4)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)'
+          }}
+        >
+          📥 Export Report (CSV)
+        </button>
       </div>
 
       {/* Query Filters */}

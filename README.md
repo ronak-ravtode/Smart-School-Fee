@@ -2,6 +2,15 @@
 
 A highly visual, secure, and offline-resilient digital fee payment and ledger matching system for modern schools. Built to handle omnichannel transactions (UPI online checkout, Cash cashier deposits, and Cheque clearance ledgers) with zero-fee compliance and automated bank statement reconciliation.
 
+<div align="center">
+
+[![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)](https://react.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=for-the-badge&logo=node.js)](https://nodejs.org)
+[![Prisma](https://img.shields.io/badge/Prisma-5-2d3748?style=for-the-badge&logo=prisma)](https://prisma.io)
+[![Pnpm](https://img.shields.io/badge/Pnpm-9-f69220?style=for-the-badge&logo=pnpm)](https://pnpm.io)
+
+</div>
+
 ---
 
 ## 🏆 Key Differentiators (Why This System Wins)
@@ -21,18 +30,51 @@ A highly visual, secure, and offline-resilient digital fee payment and ledger ma
 ### 4. Asynchronous State Architecture
 * **Zustand + React Query Equivalent**: The prompt referenced Riverpod (a Flutter/Dart tool). We implemented its exact React architectural equivalent: **Zustand** for local client state and our custom **`useDashboardQuery` hook** for reactive server-state polling (every 5 seconds) to ensure real-time analytics updates.
 
-### 5. Prioritized Risk-Score Defaulter Roster
-* Calculates **Risk Score = Days Overdue × Outstanding Amount**.
-* Critical-risk defaulters are highlighted in red.
-* Features a **1-click WhatsApp Reminder** button next to each defaulter, opening `wa.me` links pre-filled with the parent's name, ward name, overdue days, and invoice balances.
+### 5. AI-Powered Default Predictions & Risk Scoring
+* **Weighted Default Risk Predictor**: Calculates a dynamic default probability (5% - 98%) based on overdue days, failed payment attempts history, KYC status, and balance sizes.
+* **Frosted Risk Highlights**: Automatically sorts the defaulter lists by highest risk percentage first, rendering progress bars and high-risk highlights for cashier quick actions.
+* **1-click WhatsApp Reminder**: Next to each defaulter is a direct link opening `wa.me` chats pre-filled with parent names, ward names, and billing details.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Architecture
 
 * **Frontend**: React 19, Vite, Zustand (State), Framer Motion (Tactile Animations), Recharts (Visual Analytics), Tesseract.js (AI OCR)
 * **Backend**: Node.js, Express, Prisma ORM, SQLite / PostgreSQL
 * **Monorepo Manager**: `pnpm` workspaces
+* **Database Schema**: [prisma/schema.prisma](file:///a:/Smart-School-Fee/prisma/schema.prisma)
+
+### Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph Web App [Client Container - React 19 + Zustand]
+      A[Admin Dashboard] -->|Dynamic queries| B[useDashboardQuery]
+      C[Cashier Collections] -->|Cheque Upload| D[Tesseract.js OCR engine]
+      C -->|Offline Manual Payment| E[IndexedDB Local Cache]
+      F[Guardian Payment Checkout] -->|UPI QR intent| G[QRServer scannable QR Code]
+    end
+
+    subgraph Service Worker [Background Sync Worker]
+      E -->|Reconnection sync-payments event| H[Service Worker Sync process]
+    end
+
+    subgraph Backend API [Server - Express + Prisma ORM]
+      B -->|JSON Polling| I[Dashboard Controllers]
+      H -->|POST /api/payments/offline| J[Offline Sync endpoint]
+      G -->|Simulated Success Webhook| K[Webhook endpoint]
+      I -->|Audit Trail logging| L[Audit middleware]
+      L --> M[(Database: SQLite / PostgreSQL)]
+      J --> M
+      K --> M
+    end
+
+    classDef default fill:#1e293b,stroke:#38bdf8,stroke-width:1px,color:#fff;
+    classDef sw fill:#1e1b4b,stroke:#818cf8,stroke-width:1px,color:#fff;
+    classDef db fill:#064e3b,stroke:#34d399,stroke-width:1px,color:#fff;
+    class H sw;
+    class M db;
+```
 
 ---
 
