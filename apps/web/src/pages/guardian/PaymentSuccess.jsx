@@ -69,6 +69,11 @@ export default function PaymentSuccess({ onNavigate }) {
     }
   };
 
+  const handleGoBack = () => {
+    window.history.replaceState({}, document.title, '/');
+    onNavigate('dashboard');
+  };
+
   return (
     <div className="auth-wrapper" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div className="glass-panel glass-panel-glow" style={{ maxWidth: '500px', width: '100%', padding: '40px', textAlign: 'center' }}>
@@ -121,7 +126,7 @@ export default function PaymentSuccess({ onNavigate }) {
                 type="button"
                 className="btn btn-secondary" 
                 style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-                onClick={() => onNavigate('dashboard')}
+                onClick={handleGoBack}
               >
                 Return to Dashboard
               </button>
@@ -144,7 +149,7 @@ export default function PaymentSuccess({ onNavigate }) {
               type="button"
               className="btn" 
               style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-              onClick={() => onNavigate('dashboard')}
+              onClick={handleGoBack}
             >
               Back to Dashboard
             </button>
@@ -166,7 +171,7 @@ export default function PaymentSuccess({ onNavigate }) {
               type="button"
               className="btn" 
               style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-              onClick={() => onNavigate('dashboard')}
+              onClick={handleGoBack}
             >
               Back to Dashboard
             </button>

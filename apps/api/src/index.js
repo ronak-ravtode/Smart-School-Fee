@@ -14,6 +14,8 @@ const authController = require('./controllers/auth');
 const feeController = require('./controllers/fee');
 const kycController = require('./controllers/kyc');
 const paymentsController = require('./controllers/payments');
+const chequesController = require('./controllers/cheques');
+const reconController = require('./controllers/reconciliation');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -197,6 +199,56 @@ app.post(
   authenticate,
   checkRole(['admin', 'cashier']),
   paymentsController.collectManual
+);
+
+// === OFFLINE COLLECTION & RECONCILIATION ROUTES ===
+app.post(
+  '/api/payments/offline',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  paymentsController.collectOffline
+);
+app.post(
+  '/api/payments/offline/sync',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  paymentsController.syncOffline
+);
+app.put(
+  '/api/payments/:id/deposit',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  paymentsController.depositCash
+);
+app.get(
+  '/api/cheques',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  chequesController.getCheques
+);
+app.put(
+  '/api/cheques/:id/deposit',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  chequesController.depositCheque
+);
+app.put(
+  '/api/cheques/:id/bounce',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  chequesController.bounceCheque
+);
+app.put(
+  '/api/cheques/:id/clear',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  chequesController.clearCheque
+);
+app.post(
+  '/api/reconciliation/upload',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  reconController.uploadStatement
 );
 
 // Protected Cashier Testing Route (RBAC verification)

@@ -175,6 +175,36 @@ const approveKYC = async (req, res) => {
         }
       });
 
+      // 3. Auto-assign standard-wise (class-wise) fee structures
+      const feeStructures = await tx.feeStructure.findMany({
+        where: {
+          OR: [
+            { appliesTo: 'all' },
+            { appliesTo: s.class },
+            { appliesTo: s.class.split('-')[0] }
+          ]
+        }
+      });
+
+      for (const fs of feeStructures) {
+        const existing = await tx.feeAssignment.findFirst({
+          where: {
+            studentId: s.id,
+            feeStructureId: fs.id
+          }
+        });
+        if (!existing) {
+          await tx.feeAssignment.create({
+            data: {
+              studentId: s.id,
+              feeStructureId: fs.id,
+              dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days limit
+              status: 'pending'
+            }
+          });
+        }
+      }
+
       return s;
     });
 
@@ -240,6 +270,36 @@ const overrideKYC = async (req, res) => {
           ocrFlagged: false
         }
       });
+
+      // 3. Auto-assign standard-wise (class-wise) fee structures
+      const feeStructures = await tx.feeStructure.findMany({
+        where: {
+          OR: [
+            { appliesTo: 'all' },
+            { appliesTo: s.class },
+            { appliesTo: s.class.split('-')[0] }
+          ]
+        }
+      });
+
+      for (const fs of feeStructures) {
+        const existing = await tx.feeAssignment.findFirst({
+          where: {
+            studentId: s.id,
+            feeStructureId: fs.id
+          }
+        });
+        if (!existing) {
+          await tx.feeAssignment.create({
+            data: {
+              studentId: s.id,
+              feeStructureId: fs.id,
+              dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days limit
+              status: 'pending'
+            }
+          });
+        }
+      }
 
       return s;
     });

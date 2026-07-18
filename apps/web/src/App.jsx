@@ -10,6 +10,12 @@ import PaymentSuccess from './pages/guardian/PaymentSuccess';
 import Receipts from './pages/guardian/Receipts';
 import axios from 'axios';
 
+// Cashier & Reconciliation imports
+import Collections from './pages/cashier/Collections';
+import OfflineQueue from './pages/cashier/OfflineQueue';
+import Deposits from './pages/cashier/Deposits';
+import Reconciliation from './pages/admin/Reconciliation';
+
 export default function App() {
   const { user, token, logout, submitConsent, successMessage, error, clearAlerts } = useAuthStore();
   const [page, setPage] = useState('login');
@@ -23,6 +29,7 @@ export default function App() {
   const [expandedLogId, setExpandedLogId] = useState(null);
   const [adminTab, setAdminTab] = useState('cashiers');
   const [guardianTab, setGuardianTab] = useState('wards');
+  const [cashierTab, setCashierTab] = useState('collect');
 
   const getLogDetails = (log) => {
     try {
@@ -323,6 +330,14 @@ export default function App() {
                 >
                   Pending Approvals
                 </button>
+                <button 
+                  type="button"
+                  className={`btn ${adminTab === 'reconciliation' ? '' : 'btn-secondary'}`}
+                  style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                  onClick={() => setAdminTab('reconciliation')}
+                >
+                  Bank Reconciliation
+                </button>
               </div>
 
               {adminTab === 'cashiers' && (
@@ -527,21 +542,57 @@ export default function App() {
                 <Approvals />
               )}
 
+              {adminTab === 'reconciliation' && (
+                <Reconciliation />
+              )}
+
             </div>
           )}
 
           {/* CASHIER PANEL */}
           {user.role === 'cashier' && (
-            <div className="glass-panel" style={{ padding: '40px', textAlign: 'center' }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>Cashier Desk Console</h2>
-              <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 24px auto' }}>
-                You have cashier-level credentials. You are authorized to collect fees and generate invoices, but structural school changes (like fee modifications or class definitions) are locked.
-              </p>
-              <div style={{ display: 'inline-block', padding: '24px 48px', background: 'rgba(99, 102, 241, 0.1)', border: '1px dashed var(--primary)', borderRadius: '15px' }}>
-                <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--primary)' }}>
-                  Ready to process fee payments (Awaiting Day 2 payment features...)
-                </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+              
+              {/* Cashier Dashboard Sub-Navigation Tabs */}
+              <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '15px', marginBottom: '10px' }}>
+                <button 
+                  type="button"
+                  className={`btn ${cashierTab === 'collect' ? '' : 'btn-secondary'}`}
+                  style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                  onClick={() => setCashierTab('collect')}
+                >
+                  Collect Fees
+                </button>
+                <button 
+                  type="button"
+                  className={`btn ${cashierTab === 'queue' ? '' : 'btn-secondary'}`}
+                  style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                  onClick={() => setCashierTab('queue')}
+                >
+                  Offline Queue
+                </button>
+                <button 
+                  type="button"
+                  className={`btn ${cashierTab === 'cheques' ? '' : 'btn-secondary'}`}
+                  style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                  onClick={() => setCashierTab('cheques')}
+                >
+                  Cheque Deposits
+                </button>
               </div>
+
+              {cashierTab === 'collect' && (
+                <Collections />
+              )}
+
+              {cashierTab === 'queue' && (
+                <OfflineQueue />
+              )}
+
+              {cashierTab === 'cheques' && (
+                <Deposits />
+              )}
+
             </div>
           )}
 

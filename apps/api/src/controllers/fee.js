@@ -211,12 +211,58 @@ const getFeeAssignments = async (req, res) => {
         student: true,
         feeStructure: {
           include: { academicYear: true }
-        }
+        },
+        waiverPenalties: true
       },
       orderBy: { dueDate: 'asc' }
     });
 
-    return res.status(200).json(assignments);
+    // Check for overdue assignments and apply late payment penalty dynamically
+    const now = new Date();
+    const checkedAssignments = [];
+
+    for (const assignment of assignments) {
+      if (
+        (assignment.status === 'pending' || assignment.status === 'overdue') &&
+        now > new Date(assignment.dueDate)
+      ) {
+        // Check if a late payment penalty is already applied to this assignment
+        const hasLatePenalty = assignment.waiverPenalties.some(
+          wp => wp.type === 'penalty' && wp.reason.includes('Late payment charge')
+        );
+
+        if (!hasLatePenalty) {
+          // Apply ₹500 late payment penalty
+          await prisma.waiverPenalty.create({
+            data: {
+              feeAssignmentId: assignment.id,
+              amount: 500.00,
+              type: 'penalty',
+              reason: 'Late payment charge (Overdue 30 days limit)'
+            }
+          });
+          
+          // Update assignment status to overdue
+          const updated = await prisma.feeAssignment.update({
+            where: { id: assignment.id },
+            data: { status: 'overdue' },
+            include: {
+              student: true,
+              feeStructure: {
+                include: { academicYear: true }
+              },
+              waiverPenalties: true
+            }
+          });
+          
+          checkedAssignments.push(updated);
+          continue;
+        }
+      }
+      checkedAssignments.push(assignment);
+    }
+
+    return res.status(200).json(checkedAssignments);
   } catch (error) {
     console.error('Get fee assignments error:', error);
     return res.status(500).json({ error: 'Internal server error' });

@@ -597,11 +597,217 @@ const collectManual = async (req, res) => {
   }
 };
 
+const collectOffline = async (req, res) => {
+  try {
+    const { student_id, fee_assignment_id, amount, method, cheque_no, bank, idempotency_key } = req.body;
+    const actorId = req.user.id;
+
+    if (!fee_assignment_id || !method || !idempotency_key) {
+      return res.status(400).json({ error: 'fee_assignment_id, method and idempotency_key are required' });
+    }
+
+    if (method !== 'CASH' && method !== 'CHEQUE') {
+      return res.status(400).json({ error: 'Offline collection only supports CASH or CHEQUE' });
+    }
+
+    // 1. Check Idempotency Key
+    const existingTx = await prisma.transaction.findUnique({
+      where: { idempotencyKey: idempotency_key },
+      include: { chequeRecords: true }
+    });
+
+    if (existingTx) {
+      return res.status(200).json(existingTx);
+    }
+
+    const assignment = await prisma.feeAssignment.findUnique({
+      where: { id: Number(fee_assignment_id) },
+      include: {
+        student: { include: { guardian: true } },
+        feeStructure: true
+      }
+    });
+
+    if (!assignment) {
+      return res.status(404).json({ error: 'Fee assignment not found' });
+    }
+
+    let transaction;
+
+    await prisma.$transaction(async (tx) => {
+      // Generate receipt number if CASH
+      let receiptNumber = null;
+      if (method === 'CASH') {
+        const currentYear = new Date().getFullYear();
+        const lastTx = await tx.transaction.findFirst({
+          where: {
+            status: 'success',
+            NOT: { receiptNumber: null }
+          },
+          orderBy: { receiptNumber: 'desc' }
+        });
+
+        let nextNum = 1;
+        if (lastTx && lastTx.receiptNumber) {
+          const parts = lastTx.receiptNumber.split('-');
+          if (parts.length === 3 && parts[1] === currentYear.toString()) {
+            nextNum = parseInt(parts[2], 10) + 1;
+          }
+        }
+        receiptNumber = `REC-${currentYear}-${String(nextNum).padStart(4, '0')}`;
+      }
+
+      transaction = await tx.transaction.create({
+        data: {
+          studentId: assignment.studentId,
+          feeAssignmentId: assignment.id,
+          amount: Number(amount || assignment.feeStructure.amount),
+          method,
+          status: method === 'CASH' ? 'success' : 'pending',
+          receiptNumber,
+          idempotencyKey: idempotency_key
+        }
+      });
+
+      if (method === 'CHEQUE') {
+        await tx.chequeRecord.create({
+          data: {
+            transactionId: transaction.id,
+            chequeNo: cheque_no || '',
+            bank: bank || '',
+            depositStatus: 'deposit_pending'
+          }
+        });
+      }
+
+      if (method === 'CASH') {
+        await tx.feeAssignment.update({
+          where: { id: assignment.id },
+          data: { status: 'paid' }
+        });
+
+        const receiptBase64 = await generateReceiptBase64(
+          transaction,
+          assignment.student,
+          assignment.student.guardian,
+          assignment.feeStructure
+        );
+
+        await tx.receipt.create({
+          data: {
+            transactionId: transaction.id,
+            receiptNumber,
+            fileUrl: receiptBase64
+          }
+        });
+      }
+
+      await tx.auditLog.create({
+        data: {
+          actorId,
+          actorRole: req.user.role,
+          action: 'collect_offline_payment',
+          entity: 'transaction',
+          entityId: transaction.id,
+          before: null,
+          after: { transactionId: transaction.id, method, amount: transaction.amount, idempotency_key }
+        }
+      });
+    });
+
+    return res.status(201).json(transaction);
+
+  } catch (error) {
+    console.error('Collect offline payment error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const syncOffline = async (req, res) => {
+  try {
+    const { payments } = req.body;
+    if (!payments || !Array.isArray(payments)) {
+      return res.status(200).json({ synced: true, count: 0 });
+    }
+
+    let count = 0;
+    for (const payment of payments) {
+      try {
+        const mockReq = {
+          body: {
+            student_id: payment.student_id,
+            fee_assignment_id: payment.fee_assignment_id,
+            amount: payment.amount,
+            method: payment.method,
+            cheque_no: payment.cheque_no,
+            bank: payment.bank,
+            idempotency_key: payment.idempotency_key
+          },
+          user: req.user
+        };
+
+        let mockResStatus = 200;
+        const mockRes = {
+          status: (code) => {
+            mockResStatus = code;
+            return mockRes;
+          },
+          json: (data) => {
+            return mockRes;
+          }
+        };
+
+        await collectOffline(mockReq, mockRes);
+        if (mockResStatus === 200 || mockResStatus === 201) {
+          count++;
+        }
+      } catch (err) {
+        console.error('Sync item failure:', err);
+      }
+    }
+
+    return res.status(200).json({ synced: true, count });
+  } catch (error) {
+    console.error('Sync offline payments error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const depositCash = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const transaction = await prisma.transaction.update({
+      where: { id: Number(id) },
+      data: { depositedAt: new Date() }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        actorId: req.user.id,
+        actorRole: req.user.role,
+        action: 'deposit_cash',
+        entity: 'transaction',
+        entityId: transaction.id,
+        before: { id: transaction.id, depositedAt: null },
+        after: { id: transaction.id, depositedAt: transaction.depositedAt }
+      }
+    });
+
+    return res.status(200).json(transaction);
+  } catch (error) {
+    console.error('Deposit cash error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   initiatePayment,
   handleWebhook,
   verifyPayment,
   getReceipt,
   getTransactions,
-  collectManual
+  collectManual,
+  collectOffline,
+  syncOffline,
+  depositCash
 };
