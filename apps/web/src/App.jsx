@@ -15,6 +15,8 @@ import Collections from './pages/cashier/Collections';
 import OfflineQueue from './pages/cashier/OfflineQueue';
 import Deposits from './pages/cashier/Deposits';
 import Reconciliation from './pages/admin/Reconciliation';
+import Dashboard from './pages/admin/Dashboard';
+import Expenses from './pages/admin/Expenses';
 
 export default function App() {
   const { user, token, logout, submitConsent, successMessage, error, clearAlerts } = useAuthStore();
@@ -27,7 +29,7 @@ export default function App() {
   const [cashiersList, setCashiersList] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [expandedLogId, setExpandedLogId] = useState(null);
-  const [adminTab, setAdminTab] = useState('cashiers');
+  const [adminTab, setAdminTab] = useState('dashboard');
   const [guardianTab, setGuardianTab] = useState('wards');
   const [cashierTab, setCashierTab] = useState('collect');
 
@@ -308,6 +310,14 @@ export default function App() {
               <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '15px', marginBottom: '10px' }}>
                 <button 
                   type="button"
+                  className={`btn ${adminTab === 'dashboard' ? '' : 'btn-secondary'}`}
+                  style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                  onClick={() => setAdminTab('dashboard')}
+                >
+                  Analytics Dashboard
+                </button>
+                <button 
+                  type="button"
                   className={`btn ${adminTab === 'cashiers' ? '' : 'btn-secondary'}`}
                   style={{ padding: '8px 20px', fontSize: '0.85rem' }}
                   onClick={() => setAdminTab('cashiers')}
@@ -337,6 +347,14 @@ export default function App() {
                   onClick={() => setAdminTab('reconciliation')}
                 >
                   Bank Reconciliation
+                </button>
+                <button 
+                  type="button"
+                  className={`btn ${adminTab === 'expenses' ? '' : 'btn-secondary'}`}
+                  style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                  onClick={() => setAdminTab('expenses')}
+                >
+                  Maintenance Expenses
                 </button>
               </div>
 
@@ -534,6 +552,10 @@ export default function App() {
                 </div>
               )}
 
+              {adminTab === 'dashboard' && (
+                <Dashboard />
+              )}
+
               {adminTab === 'fees' && (
                 <FeeSetup />
               )}
@@ -544,6 +566,10 @@ export default function App() {
 
               {adminTab === 'reconciliation' && (
                 <Reconciliation />
+              )}
+
+              {adminTab === 'expenses' && (
+                <Expenses />
               )}
 
             </div>

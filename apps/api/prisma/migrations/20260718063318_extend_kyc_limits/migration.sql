@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "student_kyc" ALTER COLUMN "bank_account" SET DATA TYPE VARCHAR(255),
+ALTER COLUMN "ifsc" SET DATA TYPE VARCHAR(255);

@@ -308,3 +308,49 @@ body {
   text-align: center;
   margin-bottom: 24px;
 }
+
+/* Day 5 — Dashboard UI Styles */
+.pastel-gradient-bg {
+  background: linear-gradient(135deg, #ffafcc 0%, #bde0fe 50%, #a2d2ff 100%) !important;
+  color: #0f172a !important;
+  min-height: 100vh;
+}
+
+.frosted-glass-card {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+.frosted-glass-dark {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  color: #f8fafc;
+}
+
+.dashboard-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.dashboard-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 25px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+

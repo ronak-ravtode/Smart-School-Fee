@@ -16,6 +16,9 @@ const kycController = require('./controllers/kyc');
 const paymentsController = require('./controllers/payments');
 const chequesController = require('./controllers/cheques');
 const reconController = require('./controllers/reconciliation');
+const waiversController = require('./controllers/waivers');
+const refundsController = require('./controllers/refunds');
+const expensesController = require('./controllers/expenses');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -249,6 +252,60 @@ app.post(
   authenticate,
   checkRole(['admin', 'cashier']),
   reconController.uploadStatement
+);
+
+// === WAIVER & PENALTY ROUTES ===
+app.post(
+  '/api/waivers',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  waiversController.createWaiverPenalty
+);
+app.put(
+  '/api/waivers/:id/approve',
+  authenticate,
+  checkRole(['admin']),
+  waiversController.approveWaiverPenalty
+);
+app.put(
+  '/api/waivers/:id/reject',
+  authenticate,
+  checkRole(['admin']),
+  waiversController.rejectWaiverPenalty
+);
+app.get(
+  '/api/waivers',
+  authenticate,
+  checkRole(['admin', 'cashier']),
+  waiversController.getWaiversPenalties
+);
+
+// === REFUND & STAGE 2 KYC ROUTES ===
+app.post(
+  '/api/refunds',
+  authenticate,
+  checkRole(['admin']),
+  refundsController.initiateRefund
+);
+app.post(
+  '/api/students/kyc/stage2',
+  authenticate,
+  checkRole(['guardian', 'admin']),
+  kycController.submitStage2KYC
+);
+
+// === MAINTENANCE EXPENSES ROUTES ===
+app.post(
+  '/api/expenses',
+  authenticate,
+  checkRole(['admin']),
+  expensesController.createExpense
+);
+app.get(
+  '/api/expenses',
+  authenticate,
+  checkRole(['admin']),
+  expensesController.getExpenses
 );
 
 // Protected Cashier Testing Route (RBAC verification)

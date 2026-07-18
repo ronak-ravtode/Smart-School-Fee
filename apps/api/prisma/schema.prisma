@@ -20,6 +20,7 @@ model Guardian {
   cashierRecords     Cashier[] @relation("CashierUser")
   createdCashiers    Cashier[] @relation("CashierCreatedBy")
   approvedWaiverPenalties WaiverPenalty[] @relation("ApprovedWaiverPenalties")
+  maintenanceExpenses     MaintenanceExpense[]
 
   @@map("guardians")
 }
@@ -97,6 +98,12 @@ model StudentKYC {
   ocrFlagged     Boolean   @default(false) @map("ocr_flagged")
   verifiedAt     DateTime? @map("verified_at") @db.Timestamp()
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp()
+
+  // Banking details (Stage 2 KYC, populated on demand)
+  bankAccount       String?   @map("bank_account") @db.VarChar(255) // Encrypted string
+  ifsc              String?   @db.VarChar(255) // Encrypted string
+  passbookPhotoUrl  String?   @map("passbook_photo_url") @db.VarChar(255)
+  isBankingComplete Boolean   @default(false) @map("is_banking_complete")
 
   @@map("student_kyc")
 }
@@ -181,10 +188,26 @@ model WaiverPenalty {
   amount          Decimal       @db.Decimal(10, 2)
   type            String        @db.VarChar(20) // 'waiver', 'penalty'
   reason          String        @db.VarChar(255)
+  status          String        @default("pending") @db.VarChar(20) // 'pending', 'approved', 'rejected'
+  rejectionReason String?       @map("rejection_reason") @db.VarChar(255)
   approvedById    Int?          @map("approved_by_id")
   approvedBy      Guardian?     @relation("ApprovedWaiverPenalties", fields: [approvedById], references: [id])
   approvedAt      DateTime?     @map("approved_at") @db.Timestamp()
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamp()
 
   @@map("waivers_penalties")
+}
+
+
+model MaintenanceExpense {
+  id          Int      @id @default(autoincrement())
+  description String   @db.VarChar(255)
+  amount      Decimal  @db.Decimal(10, 2)
+  date        DateTime @db.Date
+  category    String   @db.VarChar(50) // 'watchman', 'cleaning', 'utilities', 'repairs', 'other'
+  createdById Int      @map("created_by_id")
+  createdBy   Guardian @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  @@map("maintenance_expenses")
 }

@@ -1,5 +1,6 @@
 const prisma = require('../config/db');
 const { logAudit } = require('../middlewares/audit');
+const { encrypt } = require('../utils/crypto');
 
 // Helper to check string match (case-insensitive, ignores minor spaces)
 const isNameMatch = (name1, name2) => {
@@ -326,10 +327,63 @@ const overrideKYC = async (req, res) => {
   }
 };
 
+const submitStage2KYC = async (req, res) => {
+  try {
+    const { student_id, bank_account, ifsc, passbook_photo_url } = req.body;
+
+    if (!student_id || !bank_account || !ifsc) {
+      return res.status(400).json({ error: 'student_id, bank_account, and ifsc are required' });
+    }
+
+    const studentKYC = await prisma.studentKYC.findUnique({
+      where: { studentId: Number(student_id) }
+    });
+
+    if (!studentKYC) {
+      return res.status(404).json({ error: 'Student Stage 1 KYC not found' });
+    }
+
+    // Encrypt sensitive banking fields
+    const encryptedBankAccount = encrypt(bank_account);
+    const encryptedIfsc = encrypt(ifsc);
+
+    const updated = await prisma.studentKYC.update({
+      where: { studentId: Number(student_id) },
+      data: {
+        bankAccount: encryptedBankAccount,
+        ifsc: encryptedIfsc,
+        passbookPhotoUrl: passbook_photo_url || null,
+        isBankingComplete: true
+      }
+    });
+
+    // Log to Audit Log
+    await logAudit({
+      actorId: req.user.id,
+      actorRole: req.user.role,
+      action: 'submit_stage2_kyc',
+      entity: 'student_kyc',
+      entityId: updated.id,
+      before: studentKYC,
+      after: updated
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Stage 2 banking details submitted successfully',
+      kycRecord: updated
+    });
+
+  } catch (error) {
+    console.error('Submit stage 2 KYC error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 const getAllStudents = async (req, res) => {
   try {
     const students = await prisma.student.findMany({
-      include: { guardian: true }
+      include: { guardian: true, kycRecord: true }
     });
     return res.status(200).json(students);
   } catch (error) {
@@ -343,5 +397,6 @@ module.exports = {
   getPendingApprovals,
   approveKYC,
   overrideKYC,
-  getAllStudents
+  getAllStudents,
+  submitStage2KYC
 };

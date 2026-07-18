@@ -1,23 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Stage2KYC from './Stage2KYC';
 
 export default function Receipts() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  // Bank form overlay states
+  const [kycStudentId, setKycStudentId] = useState(null);
+  const [checkingTx, setCheckingTx] = useState(null);
+
+  const fetchTransactions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/payments/transactions', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTransactions(res.data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load transaction history ledger.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const res = await axios.get('/api/payments/transactions');
-        setTransactions(res.data);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load transaction history ledger.');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTransactions();
   }, []);
 
@@ -36,8 +46,35 @@ export default function Receipts() {
     }
   };
 
-  // Filter out pending/failed transactions for receipt list (only show success or cleared)
-  const successfulTxns = transactions.filter(t => t.status === 'success');
+  const handleRequestRefund = async (tx) => {
+    setError(null);
+    setSuccess(null);
+    setCheckingTx(tx);
+
+    try {
+      const token = localStorage.getItem('token');
+      // Query if this student has Stage 2 KYC complete. 
+      // We can check this by hitting our list or checking the student details.
+      const res = await fetch(`/api/guardians/students`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const students = await res.json();
+      const match = students.find(s => s.id === tx.studentId);
+
+      if (match && match.kycRecord && match.kycRecord.isBankingComplete) {
+        setSuccess(`Stage 2 KYC is complete for ${tx.student.name}. Please contact the school admin to process your refund.`);
+      } else {
+        // Open Stage 2 KYC form
+        setKycStudentId(tx.studentId);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Failed to verify Stage 2 KYC status.');
+    }
+  };
+
+  // Filter out pending/failed transactions for receipt list (only show success or reversed)
+  const successfulTxns = transactions.filter(t => t.status === 'success' || t.status === 'reversed');
 
   return (
     <div className="glass-panel" style={{ padding: '40px' }}>
@@ -49,6 +86,25 @@ export default function Receipts() {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
+
+      {/* Stage 2 KYC Overlay */}
+      {kycStudentId && (
+        <div style={{ marginBottom: '20px' }}>
+          <div className="alert alert-error" style={{ marginBottom: '15px' }}>
+            ⚠️ Stage 2 KYC (Banking Details) is required to process refunds. Please complete the form below.
+          </div>
+          <Stage2KYC
+            studentId={kycStudentId}
+            onSuccess={() => {
+              setKycStudentId(null);
+              setSuccess('Banking details submitted! Please notify the school administrator to release your refund.');
+              fetchTransactions();
+            }}
+            onCancel={() => setKycStudentId(null)}
+          />
+        </div>
+      )}
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
@@ -68,14 +124,14 @@ export default function Receipts() {
                 <th style={{ padding: '15px' }}>Student (Ward)</th>
                 <th style={{ padding: '15px' }}>Fee Particulars</th>
                 <th style={{ padding: '15px' }}>Method</th>
-                <th style={{ padding: '15px' }}>Amount Paid</th>
+                <th style={{ padding: '15px' }}>Amount</th>
                 <th style={{ padding: '15px', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {successfulTxns.map((tx) => (
                 <tr key={tx.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                  <td style={{ padding: '15px', fontWeight: '700', color: 'var(--secondary)', fontFamily: 'monospace' }}>
+                  <td style={{ padding: '15px', fontWeight: '700', color: tx.status === 'reversed' ? 'var(--error)' : 'var(--secondary)', fontFamily: 'monospace' }}>
                     {tx.receiptNumber}
                   </td>
                   <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
@@ -86,22 +142,39 @@ export default function Receipts() {
                     {tx.feeAssignment.feeStructure.name}
                   </td>
                   <td style={{ padding: '15px' }}>
-                    <span className="badge" style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(255,255,255,0.05)', color: 'white' }}>
+                    <span className="badge" style={{ fontSize: '0.65rem', padding: '2px 6px', background: tx.status === 'reversed' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)', color: tx.status === 'reversed' ? 'var(--error)' : 'white' }}>
                       {tx.method}
                     </span>
                   </td>
-                  <td style={{ padding: '15px', fontWeight: 700, color: 'var(--success)' }}>
-                    ₹{Number(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  <td style={{ padding: '15px', fontWeight: 700, color: tx.status === 'reversed' ? 'var(--error)' : 'var(--success)' }}>
+                    {tx.status === 'reversed' ? '-' : ''}₹{Number(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
                   <td style={{ padding: '15px', textAlign: 'right' }}>
-                    <button
-                      type="button"
-                      className="btn"
-                      style={{ padding: '8px 16px', fontSize: '0.8rem' }}
-                      onClick={() => handleDownloadReceipt(tx.id, tx.receiptNumber)}
-                    >
-                      Download PDF
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button
+                        type="button"
+                        className="btn"
+                        style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                        onClick={() => handleDownloadReceipt(tx.id, tx.receiptNumber)}
+                      >
+                        Download PDF
+                      </button>
+                      {tx.status === 'success' && (
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '8px 16px', fontSize: '0.8rem', border: '1px solid var(--error)', color: 'var(--error)' }}
+                          onClick={() => handleRequestRefund(tx)}
+                        >
+                          Request Refund
+                        </button>
+                      )}
+                      {tx.status === 'reversed' && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--error)', fontStyle: 'italic', display: 'flex', alignItems: 'center' }}>
+                          Refunded
+                        </span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
