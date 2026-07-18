@@ -37,6 +37,22 @@ A highly visual, secure, and offline-resilient digital fee payment and ledger ma
 
 ---
 
+## 📸 Visual Tour & Screenshots
+
+### 📊 Admin Interactive Analytics Dashboard
+![Admin Dashboard](docs/admin_dashboard.png)
+
+### 🤖 AI-Powered Defaulter Risk Heuristics
+![Defaulters List with AI Predictions](docs/defaulters_list.png)
+
+### 📥 Category Revenue Reports & CSV Exporter
+![Reports Panel](docs/reports_panel.png)
+
+### 📷 Cheque OCR Scanner Terminal
+![Cashier Collections](docs/cashier_collections.png)
+
+---
+
 ## 🛠️ Tech Stack & Architecture
 
 * **Frontend**: React 19, Vite, Zustand (State), Framer Motion (Tactile Animations), Recharts (Visual Analytics), Tesseract.js (AI OCR)

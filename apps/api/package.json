@@ -8,6 +8,7 @@
     "start": "node src/index.js",
     "db:migrate": "prisma migrate dev --name init",
     "db:generate": "prisma generate",
+    "db:seed": "prisma db seed",
     "db:studio": "prisma studio"
   },
   "dependencies": {
@@ -24,5 +25,8 @@
   "devDependencies": {
     "nodemon": "^3.1.0",
     "prisma": "^5.12.1"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }
