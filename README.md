@@ -125,6 +125,95 @@ Open **`http://localhost:3000`** in your browser!
 ---
 
 ## 🔐 Credentials for Evaluators
-* **Admin Login**: Mobile `9265218085` (Verification OTP is printed inside your server terminal log).
-* **Cashier Login**: Mobile `9898989898`
-* **Guardian Login**: Mobile `9696969696`
+* **Admin Login**: Mobile `9265218085` · Password `password123` (OTP is also printed in the server terminal).
+* **Cashier Login**: Mobile `9898989898` · Password `password123`
+* **Guardian Login**: Mobile `9696969696` · Password `password123`
+
+---
+
+## 🔌 API Endpoints
+
+All protected routes require `Authorization: Bearer <token>` header.
+
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| `POST` | `/api/auth/signup` | Register guardian / staff account | Public |
+| `POST` | `/api/auth/login` | Login & receive OTP | Public |
+| `POST` | `/api/auth/verify-otp` | Verify OTP → receive JWT | Public |
+| `POST` | `/api/auth/forgot-password` | Request password-reset OTP | Public |
+| `POST` | `/api/auth/reset-password` | Set new password with OTP | Public |
+| `POST` | `/api/auth/consent` | Submit DPDP data-privacy consent | Guardian |
+| `GET`  | `/api/guardians/students` | List guardian's enrolled children | Guardian |
+| `GET`  | `/api/admin/cashiers` | List all cashier accounts | Admin |
+| `GET`  | `/api/admin/audit-logs` | Full tamper-proof audit trail | Admin |
+| `GET`  | `/api/admin/students` | Full student roster with KYC status | Admin, Cashier |
+| `GET`  | `/api/academic-years` | List academic years | All |
+| `GET`  | `/api/fees/structures` | List versioned fee structures | All |
+| `POST` | `/api/fees/structures` | Create a new fee component | Admin |
+| `PUT`  | `/api/fees/structures/:id` | Update / re-version a fee | Admin |
+| `POST` | `/api/fees/assignments` | Assign fee to a student | Admin, Cashier |
+| `GET`  | `/api/fees/assignments` | List all fee assignments | All |
+| `POST` | `/api/students/kyc` | Submit Stage 1 KYC (Aadhaar / cert) | Guardian |
+| `POST` | `/api/students/kyc/stage2` | Submit Stage 2 banking KYC | Guardian |
+| `POST` | `/api/admin/approvals/:id/verify` | Approve KYC record | Admin |
+| `POST` | `/api/admin/approvals/:id/override` | Override OCR mismatch flag | Admin |
+| `POST` | `/api/payments/initiate` | Create UPI checkout order | Guardian |
+| `POST` | `/api/payments/webhook` | UPI gateway callback (HMAC-verified) | Public |
+| `GET`  | `/api/payments/verify` | Poll / promote pending order to success | All |
+| `GET`  | `/api/payments/receipt` | Download base-64 PDF receipt | All |
+| `GET`  | `/api/payments/transactions` | List all transactions | All |
+| `POST` | `/api/payments/collect-manual` | Cashier cash / cheque manual entry | Admin, Cashier |
+| `POST` | `/api/payments/offline` | Background Sync offline payment upload | Admin, Cashier |
+| `PUT`  | `/api/payments/:id/deposit` | Mark in-hand cash as deposited | Admin, Cashier |
+| `GET`  | `/api/cheques` | List all cheque records | Admin, Cashier |
+| `PUT`  | `/api/cheques/:id/deposit` | Mark cheque as sent to bank | Admin, Cashier |
+| `PUT`  | `/api/cheques/:id/bounce` | Record bounce + apply ₹500 penalty | Admin, Cashier |
+| `PUT`  | `/api/cheques/:id/clear` | Clear cheque → auto-generate receipt | Admin, Cashier |
+| `POST` | `/api/reconciliation/upload` | Upload CSV bank statement for matching | Admin, Cashier |
+| `POST` | `/api/waivers` | Create fee waiver / penalty | Admin, Cashier |
+| `PUT`  | `/api/waivers/:id/approve` | Approve waiver request | Admin |
+| `PUT`  | `/api/waivers/:id/reject` | Reject waiver request | Admin |
+| `GET`  | `/api/waivers` | List all waivers & penalties | Admin, Cashier |
+| `POST` | `/api/refunds` | Initiate fee refund reversal | Admin |
+| `POST` | `/api/expenses` | Log maintenance expense | Admin |
+| `GET`  | `/api/expenses` | List maintenance expenses | Admin |
+| `GET`  | `/api/dashboard/metrics` | Real-time KPI cards (bank bal, cash, pending) | Admin |
+| `GET`  | `/api/dashboard/revenue-breakdown` | Revenue by fee type for Recharts | Admin |
+| `GET`  | `/api/dashboard/defaulters` | AI risk-scored overdue student list | Admin |
+| `GET`  | `/api/dashboard/reports` | Filtered ledger reports for CSV export | Admin |
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run backend unit tests (Jest)
+pnpm --filter smart-school-api test
+
+# Run end-to-end integration suite (no external deps required)
+node apps/api/verify_day7.js
+```
+
+The backend test suite (`apps/api/tests/backend.test.js`) covers:
+- **Fee engine** – late fee calculation with grace period logic
+- **AI Default Risk Predictor** – weighted heuristic output bounds
+- **Receipt number sequencer** – collision-safe sequential generation
+- **UPI deep-link builder** – NPCI-compliant URL encoding
+- **Idempotency key format** – offline payment deduplication
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature/your-feature`.
+3. Commit your changes: `git commit -m 'feat: add some feature'`.
+4. Push to the branch: `git push origin feature/your-feature`.
+5. Open a Pull Request — describe the change and link any related issues.
+
+Please ensure that:
+- All existing tests still pass (`pnpm --filter smart-school-api test`).
+- New features include corresponding unit tests.
+- API routes are documented in the table above.
