@@ -19,6 +19,7 @@ const reconController = require('./controllers/reconciliation');
 const waiversController = require('./controllers/waivers');
 const refundsController = require('./controllers/refunds');
 const expensesController = require('./controllers/expenses');
+const dashboardController = require('./controllers/dashboard');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -306,6 +307,32 @@ app.get(
   authenticate,
   checkRole(['admin']),
   expensesController.getExpenses
+);
+
+// === DASHBOARD WIRING ROUTES ===
+app.get(
+  '/api/dashboard/metrics',
+  authenticate,
+  checkRole(['admin']),
+  dashboardController.getMetrics
+);
+app.get(
+  '/api/dashboard/revenue-breakdown',
+  authenticate,
+  checkRole(['admin']),
+  dashboardController.getRevenueBreakdown
+);
+app.get(
+  '/api/dashboard/defaulters',
+  authenticate,
+  checkRole(['admin']),
+  dashboardController.getDefaulters
+);
+app.get(
+  '/api/dashboard/reports',
+  authenticate,
+  checkRole(['admin']),
+  dashboardController.getReports
 );
 
 // Protected Cashier Testing Route (RBAC verification)

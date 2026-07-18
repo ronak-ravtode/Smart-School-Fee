@@ -95,7 +95,7 @@ body {
 .form-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #cbd5e1;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }

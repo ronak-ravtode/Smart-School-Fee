@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, animate } from 'framer-motion';
 
 export default function BalanceCard({ title, value, icon, color = 'rgba(99, 102, 241, 0.1)' }) {
   // Format to Indian Rupee (INR) currency format
@@ -10,6 +10,24 @@ export default function BalanceCard({ title, value, icon, color = 'rgba(99, 102,
       maximumFractionDigits: 0
     }).format(val);
   };
+
+  const valRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (valRef.current) {
+      const node = valRef.current;
+      const startVal = 0;
+      const endVal = Number(value) || 0;
+      const controls = animate(startVal, endVal, {
+        duration: 1.2,
+        ease: 'easeOut',
+        onUpdate(latest) {
+          node.textContent = formatCurrency(latest);
+        }
+      });
+      return () => controls.stop();
+    }
+  }, [value]);
 
   return (
     <motion.div
@@ -65,14 +83,12 @@ export default function BalanceCard({ title, value, icon, color = 'rgba(99, 102,
       </div>
 
       <div style={{ zIndex: 1 }}>
-        <motion.p 
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.1, type: 'spring' }}
+        <p 
+          ref={valRef}
           style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}
         >
           {formatCurrency(value)}
-        </motion.p>
+        </p>
         <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', display: 'block' }}>
           Real-time ledger value
         </span>

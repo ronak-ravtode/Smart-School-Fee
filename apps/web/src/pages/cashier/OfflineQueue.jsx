@@ -79,9 +79,9 @@ export default function OfflineQueue() {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }} className="glass-panel">
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '30px', color: '#ffffff' }} className="glass-panel">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Offline Collections Queue</h2>
+        <h2 style={{ fontSize: '1.25rem', margin: 0, color: '#ffffff' }}>Offline Collections Queue</h2>
         <span style={{
           fontSize: '0.75rem',
           padding: '4px 10px',
@@ -94,7 +94,7 @@ export default function OfflineQueue() {
         </span>
       </div>
 
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
+      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '20px' }}>
         Queued payments collected in cash or cheque while the cashier terminal was disconnected. 
         They will auto-sync when connection is restored, or you can trigger a manual sync below.
       </p>
@@ -106,7 +106,7 @@ export default function OfflineQueue() {
       )}
 
       {queue.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
           ✓ All collections are in sync. Local queue is empty!
         </div>
       ) : (
@@ -114,7 +114,7 @@ export default function OfflineQueue() {
           <div style={{ overflowX: 'auto', marginBottom: '20px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
+                <tr style={{ borderBottom: '1px solid var(--glass-border)', color: '#cbd5e1' }}>
                   <th style={{ padding: '12px' }}>Method</th>
                   <th style={{ padding: '12px' }}>Amount</th>
                   <th style={{ padding: '12px' }}>Details</th>
@@ -127,12 +127,12 @@ export default function OfflineQueue() {
                   <tr key={item.idempotency_key} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                     <td style={{ padding: '12px', fontWeight: 600 }}>{item.method}</td>
                     <td style={{ padding: '12px' }}>₹{Number(item.amount).toLocaleString('en-IN')}</td>
-                    <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
+                    <td style={{ padding: '12px', color: '#cbd5e1' }}>
                       {item.method === 'CHEQUE' 
                         ? `Bank: ${item.bank} (No: ${item.cheque_no})` 
                         : 'Cash Collection'}
                     </td>
-                    <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
+                    <td style={{ padding: '12px', color: '#cbd5e1' }}>
                       {new Date(item.timestamp).toLocaleTimeString()}
                     </td>
                     <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '0.75rem' }}>

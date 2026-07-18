@@ -113,9 +113,9 @@ export default function Deposits() {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }} className="glass-panel">
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Cheque Lifecycle Manager</h2>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '25px' }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '30px', color: '#ffffff' }} className="glass-panel">
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px', color: '#ffffff' }}>Cheque Lifecycle Manager</h2>
+      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '25px' }}>
         View registered cheques, submit them for clearing at the bank, and process bounces.
       </p>
 
@@ -129,10 +129,11 @@ export default function Deposits() {
           border: '1px solid var(--glass-border)',
           borderRadius: '8px',
           padding: '20px',
-          marginBottom: '20px'
+          marginBottom: '20px',
+          color: '#ffffff'
         }}>
           <form onSubmit={handleBounceSubmit}>
-            <h3 style={{ fontSize: '1rem', marginTop: 0 }}>Report Cheque Bounce</h3>
+            <h3 style={{ fontSize: '1rem', marginTop: 0, color: '#ffffff' }}>Report Cheque Bounce</h3>
             <div className="form-group">
               <label className="form-label">Reason for Bounce</label>
               <input
@@ -158,13 +159,13 @@ export default function Deposits() {
 
       <div style={{ overflowX: 'auto' }}>
         {cheques.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+          <div style={{ textAlign: 'center', padding: '40px 0', color: '#cbd5e1' }}>
             No cheques registered in the system.
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
+              <tr style={{ borderBottom: '1px solid var(--glass-border)', color: '#cbd5e1' }}>
                 <th style={{ padding: '12px' }}>Student</th>
                 <th style={{ padding: '12px' }}>Bank</th>
                 <th style={{ padding: '12px' }}>Cheque No.</th>

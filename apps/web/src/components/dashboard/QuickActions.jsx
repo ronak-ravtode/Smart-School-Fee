@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function QuickActions({ actions }) {
+export default function QuickActions({ onAction }) {
+  const actions = ['Waive Fee', 'Send Reminder', 'Add Expense'];
+
   return (
     <div style={{
       position: 'fixed',
@@ -35,7 +37,7 @@ export default function QuickActions({ actions }) {
             boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
             cursor: 'pointer'
           }}
-          onClick={() => alert(`Triggered action: ${action}`)}
+          onClick={() => onAction(action)}
         >
           {action}
         </motion.button>

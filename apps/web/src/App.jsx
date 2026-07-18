@@ -553,7 +553,7 @@ export default function App() {
               )}
 
               {adminTab === 'dashboard' && (
-                <Dashboard />
+                <Dashboard setAdminTab={setAdminTab} />
               )}
 
               {adminTab === 'fees' && (

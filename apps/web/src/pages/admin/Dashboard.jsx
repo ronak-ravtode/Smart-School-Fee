@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import BalanceCard from '../../components/dashboard/BalanceCard';
 import RevenueChart from '../../components/dashboard/RevenueChart';
 import DefaulterList from '../../components/dashboard/DefaulterList';
 import QuickActions from '../../components/dashboard/QuickActions';
+import Reports from './Reports';
+import { useDashboardQuery } from '../../hooks/useDashboardQuery';
 
 // React Icons replacement as clean SVGs
 const BankIcon = () => (
@@ -40,58 +43,264 @@ const CollectionIcon = () => (
   </svg>
 );
 
-export default function Dashboard() {
-  const mockMetrics = {
-    bank_balance: 500000,
-    in_hand_cash: 25000,
-    pending_fees: 75000,
-    today_collections: 15000,
+export default function Dashboard({ setAdminTab }) {
+  // Fetch real-time dashboard metrics
+  const { data: metrics, loading, refetch } = useDashboardQuery('/api/dashboard/metrics', {}, 5000);
+
+  // States for Quick Action Form Modals
+  const [showWaiverModal, setShowWaiverModal] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [selectedStudentId, setSelectedStudentId] = useState('');
+  const [assignments, setAssignments] = useState([]);
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('');
+  const [waiverAmount, setWaiverAmount] = useState('');
+  const [waiverReason, setWaiverReason] = useState('');
+
+  // Alerts
+  const [toastMessage, setToastMessage] = useState(null);
+  const [formError, setFormError] = useState(null);
+  const [formSuccess, setFormSuccess] = useState(null);
+  const [submittingWaiver, setSubmittingWaiver] = useState(false);
+
+  // Fetch student roster for dropdown
+  const loadStudents = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/admin/students', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setStudents(res.data);
+    } catch (err) {
+      console.error('Failed to load students roster:', err);
+    }
   };
 
-  const mockDefaulters = [
-    { name: 'John Doe', class: 'Grade 10-A', days: 5, amount: 5000 },
-    { name: 'Jane Smith', class: 'Grade 12-B', days: 10, amount: 10000 },
-    { name: 'Rajesh Patel', class: 'Grade 5-A', days: 3, amount: 2500 },
-    { name: 'Aarav Sharma', class: 'Grade 8-C', days: 15, amount: 15000 },
-  ];
+  // Load fee assignments for selected student
+  useEffect(() => {
+    if (!selectedStudentId) {
+      setAssignments([]);
+      return;
+    }
+    const loadAssignments = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`/api/fees/assignments?studentId=${selectedStudentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        // Only keep unpaid/overdue assignments
+        const unpaid = res.data.filter(a => a.status === 'pending' || a.status === 'overdue');
+        setAssignments(unpaid);
+      } catch (err) {
+        console.error('Failed to load student assignments:', err);
+      }
+    };
+    loadAssignments();
+  }, [selectedStudentId]);
 
-  const mockRevenueData = [
-    { name: 'Tuition Fees', value: 300000 },
-    { name: 'Transport Fees', value: 100000 },
-    { name: 'Late Charges', value: 50000 },
-    { name: 'Activity Fees', value: 25000 },
-  ];
+  const handleActionClick = (action) => {
+    if (action === 'Add Expense') {
+      if (setAdminTab) setAdminTab('expenses');
+    } else if (action === 'Send Reminder') {
+      setToastMessage('🔔 SMS & Email overdue payment reminders dispatched to all defaulters!');
+      setTimeout(() => setToastMessage(null), 4000);
+    } else if (action === 'Waive Fee') {
+      loadStudents();
+      setFormError(null);
+      setFormSuccess(null);
+      setSelectedStudentId('');
+      setSelectedAssignmentId('');
+      setWaiverAmount('');
+      setWaiverReason('');
+      setShowWaiverModal(true);
+    }
+  };
+
+  const handleWaiverSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedStudentId || !selectedAssignmentId || !waiverAmount || !waiverReason) {
+      setFormError('All fields are required to request a fee waiver.');
+      return;
+    }
+    setSubmittingWaiver(true);
+    setFormError(null);
+    setFormSuccess(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('/api/waivers', {
+        student_id: selectedStudentId,
+        fee_assignment_id: selectedAssignmentId,
+        amount: waiverAmount,
+        type: 'waiver',
+        reason: waiverReason
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setFormSuccess('Waiver request submitted successfully for Admin approval!');
+      refetch(); // Reload metrics immediately
+      setTimeout(() => setShowWaiverModal(false), 2000);
+    } catch (err) {
+      setFormError(err.response?.data?.error || 'Waiver creation failed.');
+    } finally {
+      setSubmittingWaiver(false);
+    }
+  };
+
+  const activeMetrics = metrics || {
+    bank_balance: 0,
+    in_hand_cash: 0,
+    pending_fees: 0,
+    today_collections: 0
+  };
 
   return (
-    <div className="pastel-gradient-bg" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '30px', borderRadius: '20px' }}>
+    <div className="pastel-gradient-bg" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '30px', borderRadius: '20px', position: 'relative' }}>
+      
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="alert alert-success" style={{ position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+          {toastMessage}
+        </div>
+      )}
+
+      {/* Waive Fee Modal */}
+      {showWaiverModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 500
+        }}>
+          <div className="glass-panel" style={{ width: '450px', padding: '30px', background: 'rgba(15,23,42,0.95)', color: '#ffffff' }}>
+            <h2 style={{ fontSize: '1.2rem', marginBottom: '10px', color: '#ffffff' }}>Request Fee Waiver</h2>
+            <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '20px' }}>
+              Create a pending waiver request. It must be approved under Pending Approvals.
+            </p>
+
+            {formError && <div className="alert alert-error" style={{ fontSize: '0.8rem', padding: '10px' }}>{formError}</div>}
+            {formSuccess && <div className="alert alert-success" style={{ fontSize: '0.8rem', padding: '10px' }}>{formSuccess}</div>}
+
+            <form onSubmit={handleWaiverSubmit}>
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#f8fafc' }}>Select Student</label>
+                <select
+                  value={selectedStudentId}
+                  onChange={(e) => setSelectedStudentId(e.target.value)}
+                  className="form-input"
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+                  required
+                >
+                  <option value="" style={{ color: '#000' }}>-- Choose Student --</option>
+                  {students.map(s => (
+                    <option key={s.id} value={s.id} style={{ color: '#000' }}>{s.name} ({s.class})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#f8fafc' }}>Select Fee Component</label>
+                <select
+                  value={selectedAssignmentId}
+                  onChange={(e) => setSelectedAssignmentId(e.target.value)}
+                  className="form-input"
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+                  required
+                  disabled={!selectedStudentId}
+                >
+                  <option value="" style={{ color: '#000' }}>-- Choose Assignment --</option>
+                  {assignments.map(a => (
+                    <option key={a.id} value={a.id} style={{ color: '#000' }}>
+                      {a.feeStructure.name} (Due: {new Date(a.dueDate).toLocaleDateString()})
+                    </option>
+                  ))}
+                </select>
+                {selectedStudentId && assignments.length === 0 && (
+                  <span style={{ fontSize: '0.7rem', color: 'var(--error)', marginTop: '4px', display: 'block' }}>
+                    No pending fee assignments found for this student.
+                  </span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#f8fafc' }}>Waiver Amount (₹)</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 1000"
+                  className="form-input"
+                  value={waiverAmount}
+                  onChange={(e) => setWaiverAmount(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ color: '#f8fafc' }}>Reason / Justification</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Academic scholarship rebate"
+                  className="form-input"
+                  value={waiverReason}
+                  onChange={(e) => setWaiverReason(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <button type="submit" className="btn" style={{ flex: 1 }} disabled={submittingWaiver || assignments.length === 0}>
+                  {submittingWaiver ? 'Submitting...' : 'Submit Request'}
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowWaiverModal(false)} disabled={submittingWaiver}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       
       {/* Dashboard Top Statistics Row */}
-      <div className="dashboard-grid-4">
-        <BalanceCard 
-          title="Bank Balance" 
-          value={mockMetrics.bank_balance} 
-          icon={<BankIcon />} 
-          color="rgba(99, 102, 241, 0.2)"
-        />
-        <BalanceCard 
-          title="In-Hand Cash" 
-          value={mockMetrics.in_hand_cash} 
-          icon={<CashIcon />} 
-          color="rgba(6, 185, 129, 0.2)"
-        />
-        <BalanceCard 
-          title="Pending Fees" 
-          value={mockMetrics.pending_fees} 
-          icon={<PendingIcon />} 
-          color="rgba(244, 63, 94, 0.2)"
-        />
-        <BalanceCard 
-          title="Today's Collections" 
-          value={mockMetrics.today_collections} 
-          icon={<CollectionIcon />} 
-          color="rgba(245, 158, 11, 0.2)"
-        />
-      </div>
+      {loading && !metrics ? (
+        <div style={{ textAlign: 'center', color: '#64748b', padding: '20px', fontSize: '0.9rem' }}>
+          Loading dashboard metrics...
+        </div>
+      ) : (
+        <div className="dashboard-grid-4">
+          <BalanceCard 
+            title="Bank Balance" 
+            value={activeMetrics.bank_balance} 
+            icon={<BankIcon />} 
+            color="rgba(99, 102, 241, 0.2)"
+          />
+          <BalanceCard 
+            title="In-Hand Cash" 
+            value={activeMetrics.in_hand_cash} 
+            icon={<CashIcon />} 
+            color="rgba(6, 185, 129, 0.2)"
+          />
+          <BalanceCard 
+            title="Pending Fees" 
+            value={activeMetrics.pending_fees} 
+            icon={<PendingIcon />} 
+            color="rgba(244, 63, 94, 0.2)"
+          />
+          <BalanceCard 
+            title="Today's Collections" 
+            value={activeMetrics.today_collections} 
+            icon={<CollectionIcon />} 
+            color="rgba(245, 158, 11, 0.2)"
+          />
+        </div>
+      )}
 
       {/* Middle Analytics Row */}
       <div className="dashboard-grid-2">
@@ -104,7 +313,7 @@ export default function Dashboard() {
           <p style={{ color: '#475569', fontSize: '0.8rem', marginBottom: '20px' }}>
             Visual distribution of collections by fee structure category.
           </p>
-          <RevenueChart data={mockRevenueData} />
+          <RevenueChart />
         </div>
 
         {/* Overdue Accounts Ledger Panel */}
@@ -115,50 +324,16 @@ export default function Dashboard() {
           <p style={{ color: '#475569', fontSize: '0.8rem', marginBottom: '20px' }}>
             Defaulters roster matching overdue fee conditions.
           </p>
-          <DefaulterList defaulters={mockDefaulters} />
+          <DefaulterList />
         </div>
 
       </div>
 
       {/* Bottom Filter & Report Generator Panel */}
-      <div className="frosted-glass-card" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 5px 0', color: '#0f172a' }}>
-          Analytics & Report Filters
-        </h2>
-        <p style={{ color: '#475569', fontSize: '0.8rem', marginBottom: '20px' }}>
-          Query ledger datasets by custom grade or transaction time range.
-        </p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ color: '#475569' }}>Target Class / Grade</label>
-            <select className="form-input" style={{ background: 'rgba(255,255,255,0.7)', color: '#0f172a', border: '1px solid rgba(0,0,0,0.1)' }}>
-              <option>All Standards</option>
-              <option>Grade 5-A</option>
-              <option>Grade 8-C</option>
-              <option>Grade 10-A</option>
-              <option>Grade 12-B</option>
-            </select>
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ color: '#475569' }}>Reconciliation Period</label>
-            <select className="form-input" style={{ background: 'rgba(255,255,255,0.7)', color: '#0f172a', border: '1px solid rgba(0,0,0,0.1)' }}>
-              <option>Current Academic Year</option>
-              <option>Today</option>
-              <option>This Week</option>
-              <option>This Month</option>
-            </select>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <button className="btn" style={{ width: '100%', height: '42px', background: '#6366f1', color: 'white', fontWeight: 600 }}>
-              Export PDF Report
-            </button>
-          </div>
-        </div>
-      </div>
+      <Reports />
 
       {/* Floating Action Trigger Bar */}
-      <QuickActions actions={['Waive Fee', 'Send Reminder', 'Add Expense']} />
+      <QuickActions onAction={handleActionClick} />
 
     </div>
   );

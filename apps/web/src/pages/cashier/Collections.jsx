@@ -163,9 +163,9 @@ export default function Collections() {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }} className="glass-panel">
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Record Manual Collection</h2>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '25px' }}>
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '30px', color: '#ffffff' }} className="glass-panel">
+      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px', color: '#ffffff' }}>Record Manual Collection</h2>
+      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '25px' }}>
         Record cash or cheque collections for student accounts. Works 100% offline.
       </p>
 
