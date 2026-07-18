@@ -145,7 +145,7 @@ const getDefaulters = async (req, res) => {
     const assignments = await prisma.feeAssignment.findMany({
       where,
       include: {
-        student: true,
+        student: { include: { guardian: true } },
         feeStructure: true,
         waiverPenalties: { where: { status: 'approved' } }
       }
@@ -171,15 +171,20 @@ const getDefaulters = async (req, res) => {
         name: item.student.name,
         class: item.student.class,
         overdue_days: overdueDays,
-        overdue_amount: overdueAmount
+        overdue_amount: overdueAmount,
+        guardian_name: item.student.guardian.name,
+        guardian_mobile: item.student.guardian.mobile
       };
     });
 
     // Sort accordingly
     if (sort_by === 'days') {
       defaulters.sort((a, b) => b.overdue_days - a.overdue_days);
-    } else {
+    } else if (sort_by === 'amount') {
       defaulters.sort((a, b) => b.overdue_amount - a.overdue_amount);
+    } else {
+      // Priority Risk Score = days * amount
+      defaulters.sort((a, b) => (b.overdue_days * b.overdue_amount) - (a.overdue_days * a.overdue_amount));
     }
 
     return res.status(200).json(defaulters);

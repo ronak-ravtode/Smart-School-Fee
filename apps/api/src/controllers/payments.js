@@ -205,20 +205,24 @@ const handleWebhook = async (req, res) => {
       await prisma.$transaction(async (tx) => {
         // 1. Generate sequential receipt number
         const currentYear = new Date().getFullYear();
-        const lastTx = await tx.transaction.findFirst({
+        const successTxs = await tx.transaction.findMany({
           where: {
             status: 'success',
-            NOT: { receiptNumber: null }
-          },
-          orderBy: { receiptNumber: 'desc' }
+            receiptNumber: { startsWith: `REC-${currentYear}-` }
+          }
         });
 
         let nextNum = 1;
-        if (lastTx && lastTx.receiptNumber) {
-          const parts = lastTx.receiptNumber.split('-');
-          if (parts.length === 3 && parts[1] === currentYear.toString()) {
-            nextNum = parseInt(parts[2], 10) + 1;
-          }
+        if (successTxs.length > 0) {
+          const nums = successTxs.map(t => {
+            const parts = t.receiptNumber.split('-');
+            if (parts.length === 3) {
+              const seq = parseInt(parts[2], 10);
+              return isNaN(seq) ? 0 : seq;
+            }
+            return 0;
+          });
+          nextNum = Math.max(...nums) + 1;
         }
         const receiptNumber = `REC-${currentYear}-${String(nextNum).padStart(4, '0')}`;
 
@@ -318,21 +322,24 @@ const verifyPayment = async (req, res) => {
         await prisma.$transaction(async (prismaTx) => {
           // 1. Generate sequential receipt number
           const currentYear = new Date().getFullYear();
-          const lastTx = await prismaTx.transaction.findFirst({
+          const successTxs = await prismaTx.transaction.findMany({
             where: {
               status: 'success',
               receiptNumber: { startsWith: `REC-${currentYear}-` }
-            },
-            orderBy: { receiptNumber: 'desc' }
+            }
           });
 
           let nextSeq = 1;
-          if (lastTx && lastTx.receiptNumber) {
-            const parts = lastTx.receiptNumber.split('-');
-            const lastSeq = parseInt(parts[2], 10);
-            if (!isNaN(lastSeq)) {
-              nextSeq = lastSeq + 1;
-            }
+          if (successTxs.length > 0) {
+            const nums = successTxs.map(t => {
+              const parts = t.receiptNumber.split('-');
+              if (parts.length === 3) {
+                const seq = parseInt(parts[2], 10);
+                return isNaN(seq) ? 0 : seq;
+              }
+              return 0;
+            });
+            nextSeq = Math.max(...nums) + 1;
           }
           const receiptNumber = `REC-${currentYear}-${String(nextSeq).padStart(4, '0')}`;
 
@@ -505,20 +512,24 @@ const collectManual = async (req, res) => {
     await prisma.$transaction(async (tx) => {
       // 1. Generate sequential receipt number
       const currentYear = new Date().getFullYear();
-      const lastTx = await tx.transaction.findFirst({
+      const successTxs = await tx.transaction.findMany({
         where: {
           status: 'success',
-          NOT: { receiptNumber: null }
-        },
-        orderBy: { receiptNumber: 'desc' }
+          receiptNumber: { startsWith: `REC-${currentYear}-` }
+        }
       });
 
       let nextNum = 1;
-      if (lastTx && lastTx.receiptNumber) {
-        const parts = lastTx.receiptNumber.split('-');
-        if (parts.length === 3 && parts[1] === currentYear.toString()) {
-          nextNum = parseInt(parts[2], 10) + 1;
-        }
+      if (successTxs.length > 0) {
+        const nums = successTxs.map(t => {
+          const parts = t.receiptNumber.split('-');
+          if (parts.length === 3) {
+            const seq = parseInt(parts[2], 10);
+            return isNaN(seq) ? 0 : seq;
+          }
+          return 0;
+        });
+        nextNum = Math.max(...nums) + 1;
       }
       const receiptNumber = `REC-${currentYear}-${String(nextNum).padStart(4, '0')}`;
 
@@ -639,20 +650,24 @@ const collectOffline = async (req, res) => {
       let receiptNumber = null;
       if (method === 'CASH') {
         const currentYear = new Date().getFullYear();
-        const lastTx = await tx.transaction.findFirst({
+        const successTxs = await tx.transaction.findMany({
           where: {
             status: 'success',
-            NOT: { receiptNumber: null }
-          },
-          orderBy: { receiptNumber: 'desc' }
+            receiptNumber: { startsWith: `REC-${currentYear}-` }
+          }
         });
 
         let nextNum = 1;
-        if (lastTx && lastTx.receiptNumber) {
-          const parts = lastTx.receiptNumber.split('-');
-          if (parts.length === 3 && parts[1] === currentYear.toString()) {
-            nextNum = parseInt(parts[2], 10) + 1;
-          }
+        if (successTxs.length > 0) {
+          const nums = successTxs.map(t => {
+            const parts = t.receiptNumber.split('-');
+            if (parts.length === 3) {
+              const seq = parseInt(parts[2], 10);
+              return isNaN(seq) ? 0 : seq;
+            }
+            return 0;
+          });
+          nextNum = Math.max(...nums) + 1;
         }
         receiptNumber = `REC-${currentYear}-${String(nextNum).padStart(4, '0')}`;
       }

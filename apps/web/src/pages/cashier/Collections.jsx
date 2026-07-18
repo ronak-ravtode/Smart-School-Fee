@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Tesseract from 'tesseract.js';
 import { addPaymentToQueue } from '../../utils/idb';
 
 export default function Collections() {
@@ -17,6 +18,57 @@ export default function Collections() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [ocrLoading, setOcrLoading] = useState(false);
+
+  const handleOCRChequeScan = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setOcrLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const { data: { text } } = await Tesseract.recognize(file, 'eng');
+      console.log('OCR Raw output text:', text);
+
+      // Extract 6-digit cheque number
+      const numMatch = text.match(/\b\d{6}\b/);
+      if (numMatch) {
+        setChequeNo(numMatch[0]);
+      }
+
+      // Detect standard bank names from keywords
+      const keywords = ['ICICI', 'HDFC', 'AXIS', 'SBI', 'STATE BANK', 'PUNJAB', 'PNB', 'CANARA', 'BOB', 'BANK OF BARODA', 'KOTAK', 'YES BANK', 'UNION'];
+      let foundBank = '';
+      const upperStr = text.toUpperCase();
+      
+      for (const kw of keywords) {
+        if (upperStr.includes(kw)) {
+          foundBank = kw === 'SBI' || kw === 'STATE BANK' ? 'State Bank of India' :
+                      kw === 'PNB' || kw === 'PUNJAB' ? 'Punjab National Bank' :
+                      kw === 'BOB' || kw === 'BANK OF BARODA' ? 'Bank of Baroda' :
+                      kw + ' Bank';
+          break;
+        }
+      }
+
+      if (foundBank) {
+        setBank(foundBank);
+      }
+
+      if (numMatch || foundBank) {
+        setSuccess(`OCR Scanned Successfully! Extracted Cheque No: "${numMatch ? numMatch[0] : 'Not Found'}" and Bank: "${foundBank || 'Not Found'}".`);
+      } else {
+        setError('OCR scan finished but failed to read cheque number or bank name. Please type details manually.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('OCR Scanner error: ' + err.message);
+    } finally {
+      setOcrLoading(false);
+    }
+  };
 
   // Fetch student roster
   const fetchStudents = async () => {
@@ -109,13 +161,21 @@ export default function Collections() {
       cheque_no: method === 'CHEQUE' ? chequeNo : undefined,
       bank: method === 'CHEQUE' ? bank : undefined,
       idempotency_key: idempotencyKey,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      token: token // Attach cashier session token for background sync authentication
     };
 
     // If browser is offline, queue to IndexedDB directly
     if (!navigator.onLine) {
       try {
         await addPaymentToQueue(paymentPayload);
+        
+        // Trigger Background Sync tag
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+          const reg = await navigator.serviceWorker.ready;
+          await reg.sync.register('sync-payments');
+        }
+
         setSuccess('Offline Mode: Payment saved in local queue. It will automatically sync when network is restored.');
         // Reset inputs
         setSelectedAssignmentId('');
@@ -299,6 +359,25 @@ export default function Collections() {
         {/* Cheque Details form */}
         {method === 'CHEQUE' && (
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', border: '1px solid var(--glass-border)', marginBottom: '20px' }}>
+            
+            {/* Tesseract OCR Input */}
+            <div className="form-group" style={{ marginBottom: '15px' }}>
+              <label className="form-label" style={{ color: '#6366f1', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                📷 OCR Auto-Scan Cheque (Tesseract.js)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleOCRChequeScan}
+                style={{ fontSize: '0.8rem', color: '#94a3b8' }}
+              />
+              {ocrLoading && (
+                <span style={{ fontSize: '0.75rem', color: '#6366f1', display: 'block', marginTop: '4px' }}>
+                  ⏳ Running OCR scanner analysis on cheque image...
+                </span>
+              )}
+            </div>
+
             <div className="form-group">
               <label className="form-label">Cheque Number</label>
               <input

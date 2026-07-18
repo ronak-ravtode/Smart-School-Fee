@@ -190,20 +190,24 @@ const clearCheque = async (req, res) => {
 
       // 2. Generate sequential receipt number
       const currentYear = new Date().getFullYear();
-      const lastTx = await tx.transaction.findFirst({
+      const successTxs = await tx.transaction.findMany({
         where: {
           status: 'success',
-          NOT: { receiptNumber: null }
-        },
-        orderBy: { receiptNumber: 'desc' }
+          receiptNumber: { startsWith: `REC-${currentYear}-` }
+        }
       });
 
       let nextNum = 1;
-      if (lastTx && lastTx.receiptNumber) {
-        const parts = lastTx.receiptNumber.split('-');
-        if (parts.length === 3 && parts[1] === currentYear.toString()) {
-          nextNum = parseInt(parts[2], 10) + 1;
-        }
+      if (successTxs.length > 0) {
+        const nums = successTxs.map(t => {
+          const parts = t.receiptNumber.split('-');
+          if (parts.length === 3) {
+            const seq = parseInt(parts[2], 10);
+            return isNaN(seq) ? 0 : seq;
+          }
+          return 0;
+        });
+        nextNum = Math.max(...nums) + 1;
       }
       const receiptNumber = `REC-${currentYear}-${String(nextNum).padStart(4, '0')}`;
 
