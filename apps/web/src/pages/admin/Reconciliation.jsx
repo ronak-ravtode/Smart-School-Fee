@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { Card, PillButton, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
 
 export default function Reconciliation() {
   const [csvText, setCsvText] = useState('');
   const [matched, setMatched] = useState([]);
   const [unmatched, setUnmatched] = useState([]);
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -65,116 +66,114 @@ export default function Reconciliation() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      
+    <div className="flex flex-col gap-section-sm">
+      <header>
+        <Eyebrow>Bank Reconciliation</Eyebrow>
+        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+          Statement Matching
+        </h1>
+      </header>
+
       {/* Upload/Paste Form */}
-      <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Bank Statement Reconciliation</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
+      <Card>
+        <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Bank Statement Reconciliation</h2>
+        <p className="font-body text-[14px] text-on-surface-variant mb-6">
           Upload your bank statement spreadsheet or copy-paste CSV records to auto-match deposits with cashier records.
         </p>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        <Alert tone="error">{error}</Alert>
+        <Alert tone="success">{success}</Alert>
 
-        <form onSubmit={handleReconcile}>
-          
-          <div className="form-group">
-            <label className="form-label">Upload Statement File (CSV)</label>
+        <form onSubmit={handleReconcile} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="csv-file" className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">
+              Upload Statement File (CSV)
+            </label>
             <input
+              id="csv-file"
               type="file"
               accept=".csv"
-              className="form-input"
               onChange={handleFileUpload}
-              style={{ padding: '8px' }}
+              className="w-full h-12 px-4 rounded-full border border-outline-variant/50 bg-surface font-body text-body text-ink-black file:mr-4 file:border-0 file:bg-ink-black file:text-canvas-cream file:rounded-full file:px-4 file:h-9 file:font-nav-button file:text-nav-button"
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Or Paste CSV Data (Format: date,amount)</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="csv-text" className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">
+              Or Paste CSV Data (Format: date,amount)
+            </label>
             <textarea
-              className="form-input"
+              id="csv-text"
+              className="w-full p-4 rounded-[20px] border border-outline-variant/50 bg-surface focus:outline-none focus:border-ink-black focus:ring-1 focus:ring-ink-black font-mono text-[13px] text-ink-black resize-y"
               rows={5}
-              placeholder="date,amount&#10;2026-07-18,25000&#10;2026-07-18,65000"
+              placeholder={"date,amount\n2026-07-18,25000\n2026-07-18,65000"}
               value={csvText}
               onChange={(e) => setCsvText(e.target.value)}
-              style={{ fontFamily: 'monospace', fontSize: '0.8rem', resize: 'vertical' }}
             />
           </div>
 
-          <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Processing Bank Statement...' : 'Reconcile Statement'}
-          </button>
+          <PillButton type="submit" disabled={loading} className="mt-1">
+            {loading ? 'Processing Bank Statement…' : 'Reconcile Statement'}
+          </PillButton>
         </form>
-      </div>
+      </Card>
 
       {/* Results Section */}
       {(matched.length > 0 || unmatched.length > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', alignItems: 'start' }}>
-          
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Matched Panel */}
-          <div className="glass-panel" style={{ padding: '30px' }}>
-            <h3 style={{ fontSize: '1rem', marginTop: 0, color: 'var(--success)', marginBottom: '15px' }}>
-              Matched Deposits ({matched.length})
-            </h3>
-            <div style={{ overflowX: 'auto' }}>
+          <Card>
+            <h3 className="font-headline-sm text-headline-sm text-success mb-4">Matched Deposits ({matched.length})</h3>
+            <div className="overflow-x-auto">
               {matched.length === 0 ? (
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '20px 0' }}>
-                  No matches found.
-                </div>
+                <div className="text-on-surface-variant text-[13px] py-6">No matches found.</div>
               ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.775rem', textAlign: 'left' }}>
+                <table className="w-full border-collapse text-[13px] text-left">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                      <th style={{ padding: '8px' }}>Date</th>
-                      <th style={{ padding: '8px' }}>Amount</th>
-                      <th style={{ padding: '8px' }}>Student</th>
-                      <th style={{ padding: '8px' }}>Receipt</th>
+                    <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                      <th className="p-2">Date</th>
+                      <th className="p-2">Amount</th>
+                      <th className="p-2">Student</th>
+                      <th className="p-2">Receipt</th>
                     </tr>
                   </thead>
                   <tbody>
                     {matched.map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                        <td style={{ padding: '8px' }}>{row.date}</td>
-                        <td style={{ padding: '8px', fontWeight: 600 }}>₹{row.amount.toLocaleString()}</td>
-                        <td style={{ padding: '8px' }}>{row.studentName}</td>
-                        <td style={{ padding: '8px', fontFamily: 'monospace' }}>{row.receiptNumber || 'Pending'}</td>
+                      <tr key={idx} className="border-b border-outline-variant/20">
+                        <td className="p-2 text-ink-black">{row.date}</td>
+                        <td className="p-2 font-semibold text-ink-black">₹{row.amount.toLocaleString()}</td>
+                        <td className="p-2 text-on-surface-variant">{row.studentName}</td>
+                        <td className="p-2 font-mono text-[12px] text-on-surface-variant">{row.receiptNumber || 'Pending'}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               )}
             </div>
-          </div>
+          </Card>
 
           {/* Unmatched Panel */}
-          <div className="glass-panel" style={{ padding: '30px' }}>
-            <h3 style={{ fontSize: '1rem', marginTop: 0, color: 'var(--error)', marginBottom: '15px' }}>
-              Unmatched Statement Rows ({unmatched.length})
-            </h3>
-            <div style={{ overflowX: 'auto' }}>
+          <Card>
+            <h3 className="font-headline-sm text-headline-sm text-error mb-4">Unmatched Statement Rows ({unmatched.length})</h3>
+            <div className="overflow-x-auto">
               {unmatched.length === 0 ? (
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '20px 0' }}>
-                  No unmatched rows! Balance is fully cleared.
-                </div>
+                <div className="text-on-surface-variant text-[13px] py-6">No unmatched rows! Balance is fully cleared.</div>
               ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.775rem', textAlign: 'left' }}>
+                <table className="w-full border-collapse text-[13px] text-left">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                      <th style={{ padding: '8px' }}>Date</th>
-                      <th style={{ padding: '8px' }}>Amount</th>
-                      <th style={{ padding: '8px' }}>Status</th>
+                    <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                      <th className="p-2">Date</th>
+                      <th className="p-2">Amount</th>
+                      <th className="p-2">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {unmatched.map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                        <td style={{ padding: '8px' }}>{row.date}</td>
-                        <td style={{ padding: '8px', fontWeight: 600 }}>₹{Number(row.amount).toLocaleString()}</td>
-                        <td style={{ padding: '8px' }}>
-                          <span className="badge badge-flagged" style={{ fontSize: '0.65rem', padding: '2px 6px' }}>
-                            Unmatched
-                          </span>
+                      <tr key={idx} className="border-b border-outline-variant/20">
+                        <td className="p-2 text-ink-black">{row.date}</td>
+                        <td className="p-2 font-semibold text-ink-black">₹{Number(row.amount).toLocaleString()}</td>
+                        <td className="p-2">
+                          <StatusBadge tone="unmatched">Unmatched</StatusBadge>
                         </td>
                       </tr>
                     ))}
@@ -182,11 +181,9 @@ export default function Reconciliation() {
                 </table>
               )}
             </div>
-          </div>
-
+          </Card>
         </div>
       )}
-
     </div>
   );
 }

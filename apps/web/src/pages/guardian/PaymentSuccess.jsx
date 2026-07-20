@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Icon } from '../../components/Icon';
 
 export default function PaymentSuccess({ onNavigate }) {
   const [status, setStatus] = useState('pending'); // 'pending', 'success', 'failed', 'error'
@@ -74,58 +75,50 @@ export default function PaymentSuccess({ onNavigate }) {
     onNavigate('dashboard');
   };
 
+  const panel =
+    'w-full max-w-[500px] bg-lifted-cream rounded-frame p-card-padding shadow-deep border border-white/50 text-center';
+
   return (
-    <div className="auth-wrapper" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div className="glass-panel glass-panel-glow" style={{ maxWidth: '500px', width: '100%', padding: '40px', textAlign: 'center' }}>
-        
+    <div className="min-h-[70vh] flex items-center justify-center p-4">
+      <div className={panel}>
         {status === 'pending' && (
-          <div>
-            <div className="alert alert-success" style={{ background: 'rgba(6, 182, 212, 0.12)', borderColor: 'rgba(6, 182, 212, 0.3)', color: '#22d3ee', display: 'inline-block', padding: '15px 30px', borderRadius: '15px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'block', animation: 'pulse 1.5s infinite' }}>
-                🔄 VERIFYING TRANSACTION
-              </span>
-            </div>
-            <h2 style={{ fontSize: '1.35rem', marginBottom: '10px' }}>Polling Gateway Status</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '30px' }}>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full border-[3px] border-outline-variant border-t-signal-orange animate-spin" />
+            <span className="font-eyebrow text-eyebrow uppercase tracking-wider text-light-signal-orange">
+              Verifying Transaction
+            </span>
+            <h2 className="font-headline-sm text-headline-sm text-ink-black">Polling Gateway Status</h2>
+            <p className="font-body text-[14px] text-on-surface-variant">
               Awaiting double-charge protection checks and Cashfree payment confirmation webhook. Please do not close this window.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <div className="form-input" style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-            </div>
           </div>
         )}
 
         {status === 'success' && (
-          <div>
-            <div className="alert alert-success" style={{ display: 'inline-block', padding: '15px 30px', borderRadius: '15px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 'bold', display: 'block' }}>
-                ✅ PAYMENT CAPTURED
-              </span>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-success-container flex items-center justify-center text-success">
+              <Icon name="check" className="text-[32px]" />
             </div>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: 'white' }}>Transaction Successful!</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '15px' }}>
+            <h2 className="font-headline-sm text-headline-sm text-ink-black">Transaction Successful!</h2>
+            <p className="font-body text-[14px] text-on-surface-variant">
               Your payment has been successfully recorded in the school fee ledger.
             </p>
-            
             {receiptNumber && (
-              <div style={{ background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '24px', fontFamily: 'monospace' }}>
-                Receipt No: <strong style={{ color: 'var(--success)' }}>{receiptNumber}</strong>
+              <div className="bg-surface-container-low px-4 py-3 rounded-[16px] text-[13px] font-mono w-full">
+                Receipt No: <strong className="text-success">{receiptNumber}</strong>
               </div>
             )}
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button 
+            <div className="flex flex-col gap-3 w-full mt-2">
+              <button
                 type="button"
-                className="btn" 
-                style={{ width: '100%', padding: '12px', fontSize: '0.9rem', fontWeight: 600 }}
+                className="inline-flex items-center justify-center gap-2 bg-ink-black text-canvas-cream rounded-full px-6 h-12 font-nav-button text-nav-button text-[14px] hover:bg-inverse-surface transition-colors"
                 onClick={handleDownloadReceipt}
               >
-                Download PDF Receipt
+                <Icon name="download" className="text-[18px]" /> Download PDF Receipt
               </button>
-              <button 
+              <button
                 type="button"
-                className="btn btn-secondary" 
-                style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
+                className="inline-flex items-center justify-center gap-2 border border-outline-variant text-ink-black rounded-full px-6 h-12 font-nav-button text-nav-button text-[14px] hover:bg-surface-container-low transition-colors"
                 onClick={handleGoBack}
               >
                 Return to Dashboard
@@ -135,20 +128,17 @@ export default function PaymentSuccess({ onNavigate }) {
         )}
 
         {status === 'failed' && (
-          <div>
-            <div className="alert alert-error" style={{ display: 'inline-block', padding: '15px 30px', borderRadius: '15px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 'bold', display: 'block' }}>
-                ❌ PAYMENT FAILED
-              </span>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-error-container flex items-center justify-center text-error">
+              <Icon name="close" className="text-[32px]" />
             </div>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: 'white' }}>Transaction Declined</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '30px' }}>
+            <h2 className="font-headline-sm text-headline-sm text-ink-black">Transaction Declined</h2>
+            <p className="font-body text-[14px] text-on-surface-variant">
               The payment gateway rejected the transaction or the session expired. No funds were debited.
             </p>
-            <button 
+            <button
               type="button"
-              className="btn" 
-              style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
+              className="inline-flex items-center justify-center gap-2 bg-ink-black text-canvas-cream rounded-full px-6 h-12 font-nav-button text-nav-button text-[14px] hover:bg-inverse-surface transition-colors w-full mt-2"
               onClick={handleGoBack}
             >
               Back to Dashboard
@@ -157,27 +147,23 @@ export default function PaymentSuccess({ onNavigate }) {
         )}
 
         {status === 'error' && (
-          <div>
-            <div className="alert alert-error" style={{ display: 'inline-block', padding: '15px 30px', borderRadius: '15px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 'bold', display: 'block' }}>
-                ⚠️ REFERENCE ERROR
-              </span>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-warning-container flex items-center justify-center text-warning">
+              <Icon name="warning" className="text-[32px]" />
             </div>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: 'white' }}>Order ID Missing</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '30px' }}>
+            <h2 className="font-headline-sm text-headline-sm text-ink-black">Order ID Missing</h2>
+            <p className="font-body text-[14px] text-on-surface-variant">
               No valid Cashfree Order ID reference was detected in the callback query parameters.
             </p>
-            <button 
+            <button
               type="button"
-              className="btn" 
-              style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
+              className="inline-flex items-center justify-center gap-2 bg-ink-black text-canvas-cream rounded-full px-6 h-12 font-nav-button text-nav-button text-[14px] hover:bg-inverse-surface transition-colors w-full mt-2"
               onClick={handleGoBack}
             >
               Back to Dashboard
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

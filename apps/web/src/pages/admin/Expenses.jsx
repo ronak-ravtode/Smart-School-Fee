@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Card, PillButton, InputField, SelectField, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -6,7 +7,7 @@ export default function Expenses() {
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [category, setCategory] = useState('other');
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -72,121 +73,110 @@ export default function Expenses() {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '30px', alignItems: 'start' }}>
-      
-      {/* Log Expense Form */}
-      <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Log Maintenance Expense</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          Record school operational expenses (utilities, cleaning, payroll, repairs).
-        </p>
+    <div className="flex flex-col gap-section-sm">
+      <header>
+        <Eyebrow>Maintenance Expenses</Eyebrow>
+        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+          Operational Expense Log
+        </h1>
+      </header>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Log Expense Form */}
+        <Card className="lg:col-span-1">
+          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Log Maintenance Expense</h2>
+          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+            Record school operational expenses (utilities, cleaning, payroll, repairs).
+          </p>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Description</label>
-            <input
-              type="text"
-              className="form-input"
+          <Alert tone="error">{error}</Alert>
+          <Alert tone="success">{success}</Alert>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <InputField
+              label="Description"
+              id="exp-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Watchman Salary (July)"
               required
             />
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Amount (₹)</label>
-            <input
+            <InputField
+              label="Amount (₹)"
+              id="exp-amount"
               type="number"
-              className="form-input"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="e.g. 15000"
               required
             />
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Date</label>
-            <input
+            <InputField
+              label="Date"
+              id="exp-date"
               type="date"
-              className="form-input"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
             />
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Category</label>
-            <select
-              className="form-input"
+            <SelectField
+              label="Category"
+              id="exp-category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              style={{ background: 'rgba(15, 23, 42, 0.8)' }}
             >
               {categories.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat.toUpperCase()}
-                </option>
+                <option key={cat} value={cat}>{cat.toUpperCase()}</option>
               ))}
-            </select>
-          </div>
+            </SelectField>
 
-          <button type="submit" className="btn" style={{ width: '100%', marginTop: '10px' }} disabled={loading}>
-            {loading ? 'Recording...' : 'Add Expense'}
-          </button>
-        </form>
-      </div>
+            <PillButton type="submit" disabled={loading} className="mt-1">
+              {loading ? 'Recording…' : 'Add Expense'}
+            </PillButton>
+          </form>
+        </Card>
 
-      {/* Expenses History List */}
-      <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Operational Expenses Log</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          Showing recent maintenance entries logged by administrators.
-        </p>
+        {/* Expenses History List */}
+        <Card className="lg:col-span-2">
+          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Operational Expenses Log</h2>
+          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+            Showing recent maintenance entries logged by administrators.
+          </p>
 
-        <div style={{ overflowX: 'auto' }}>
           {expenses.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+            <div className="text-center py-16 text-on-surface-variant text-[14px]">
               No expenses recorded yet.
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                  <th style={{ padding: '12px' }}>Date</th>
-                  <th style={{ padding: '12px' }}>Description</th>
-                  <th style={{ padding: '12px' }}>Category</th>
-                  <th style={{ padding: '12px', textAlign: 'right' }}>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expenses.map(expense => (
-                  <tr key={expense.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
-                      {new Date(expense.date).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '12px', fontWeight: 500 }}>{expense.description}</td>
-                    <td style={{ padding: '12px' }}>
-                      <span className="badge" style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(255,255,255,0.05)' }}>
-                        {expense.category.toUpperCase()}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'right', fontWeight: 700 }}>
-                      ₹{Number(expense.amount).toLocaleString('en-IN')}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                    <th className="p-3">Date</th>
+                    <th className="p-3">Description</th>
+                    <th className="p-3">Category</th>
+                    <th className="p-3 text-right">Amount</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {expenses.map(expense => (
+                    <tr key={expense.id} className="border-b border-outline-variant/20">
+                      <td className="p-3 text-on-surface-variant">{new Date(expense.date).toLocaleDateString()}</td>
+                      <td className="p-3 font-medium text-ink-black">{expense.description}</td>
+                      <td className="p-3">
+                        <StatusBadge tone="outline">{expense.category.toUpperCase()}</StatusBadge>
+                      </td>
+                      <td className="p-3 text-right font-bold text-ink-black">₹{Number(expense.amount).toLocaleString('en-IN')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
+        </Card>
       </div>
-
     </div>
   );
 }

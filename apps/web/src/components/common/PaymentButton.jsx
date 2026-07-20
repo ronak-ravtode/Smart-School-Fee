@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Icon } from '../../components/Icon';
 
 export default function PaymentButton({ feeAssignmentId, amount, disabled }) {
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ export default function PaymentButton({ feeAssignmentId, amount, disabled }) {
     setError(null);
     try {
       const idempotencyKey = `idemp_${feeAssignmentId}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      
+
       const res = await axios.post('/api/payments/initiate', {
         feeAssignmentId,
         method: 'UPI',
@@ -62,105 +63,69 @@ export default function PaymentButton({ feeAssignmentId, amount, disabled }) {
 
   // Build standard UPI deep link URL format
   const upiUrl = `upi://pay?pa=schoolfees@axisbank&pn=SmartSchoolFinTech&am=${amount}&tr=${orderId}&tn=School_Fees_Id_${feeAssignmentId}`;
-  
+
   // Generate scannable QR Code image from QRServer API
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
 
   return (
-    <div style={{ display: 'inline-block' }}>
-      <button 
+    <div className="inline-block">
+      <button
         type="button"
-        className="btn" 
-        style={{ padding: '8px 20px', fontSize: '0.85rem', fontWeight: 600 }} 
-        onClick={handlePay} 
+        className="inline-flex items-center gap-2 bg-ink-black text-canvas-cream rounded-full px-5 h-11 font-nav-button text-nav-button text-[14px] hover:bg-inverse-surface transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-signal-orange disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={handlePay}
         disabled={loading || disabled}
       >
-        {loading ? 'Processing...' : `Pay UPI (₹${Number(amount).toLocaleString('en-IN')})`}
+        <Icon name="account_balance_wallet" className="text-[18px]" />
+        {loading ? 'Processing…' : `Pay UPI (₹${Number(amount).toLocaleString('en-IN')})`}
       </button>
 
       {error && (
-        <span style={{ display: 'block', color: 'var(--error)', fontSize: '0.75rem', marginTop: '6px' }}>
-          {error}
-        </span>
+        <span className="block text-error text-[12px] mt-1.5">{error}</span>
       )}
 
       {/* Scannable UPI QR Modal */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          color: '#ffffff'
-        }}>
-          <div className="glass-panel" style={{
-            width: '420px',
-            padding: '30px',
-            background: 'rgba(15, 23, 42, 0.98)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            gap: '15px'
-          }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
-              Scan QR to Pay
-            </h3>
-            
-            <p style={{ fontSize: '0.8rem', color: '#cbd5e1', margin: 0 }}>
-              SmartSchool FinTech • UPI Merchant Service
-            </p>
+        <div className="fixed inset-0 z-[1000] bg-ink-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-[420px] bg-lifted-cream rounded-frame p-card-padding shadow-deep border border-white/50 flex flex-col items-center text-center gap-3">
+            <div className="flex items-center justify-between w-full">
+              <h3 className="font-headline-sm text-headline-sm text-ink-black">Scan QR to Pay</h3>
+              <button type="button" onClick={() => setShowModal(false)} aria-label="Close" className="text-on-surface-variant hover:text-ink-black rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-signal-orange">
+                <Icon name="close" className="text-[22px]" />
+              </button>
+            </div>
 
-            {/* Google Charts dynamic QR Code image */}
-            <div style={{
-              background: '#ffffff',
-              padding: '10px',
-              borderRadius: '12px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-              marginTop: '10px'
-            }}>
-              <img 
-                src={qrCodeUrl} 
-                alt="Scan UPI QR Code" 
+            <p className="text-[13px] text-on-surface-variant">SmartSchool FinTech • UPI Merchant Service</p>
+
+            <div className="bg-white p-2.5 rounded-[12px] mt-2">
+              <img
+                src={qrCodeUrl}
+                alt="Scan UPI QR Code"
                 style={{ width: '220px', height: '220px', display: 'block' }}
               />
             </div>
 
-            <div style={{ marginTop: '10px', fontSize: '0.85rem' }}>
-              <p style={{ margin: '5px 0', color: '#94a3b8' }}>
-                Amount: <strong style={{ color: '#ffffff', fontSize: '1rem' }}>₹{Number(amount).toLocaleString('en-IN')}</strong>
+            <div className="mt-2 text-[14px]">
+              <p className="text-on-surface-variant">
+                Amount: <strong className="text-ink-black text-[16px]">₹{Number(amount).toLocaleString('en-IN')}</strong>
               </p>
-              <p style={{ margin: '5px 0', fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'monospace' }}>
-                Order ID: {orderId}
-              </p>
+              <p className="text-[12px] text-on-surface-variant font-mono mt-1">Order ID: {orderId}</p>
             </div>
 
-            <p style={{ fontSize: '0.7rem', color: '#22c55e', margin: '5px 0', fontWeight: 600 }}>
-              ⚡ zero processing fees applied under NPCI guidelines.
-            </p>
+            <p className="text-[12px] text-success font-semibold">⚡ zero processing fees applied under NPCI guidelines.</p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '10px' }}>
+            <div className="flex flex-col gap-2 w-full mt-2">
               <button
                 type="button"
-                className="btn"
-                style={{ background: '#22c55e', color: '#ffffff', fontSize: '0.8rem', padding: '10px' }}
+                className="inline-flex items-center justify-center gap-2 bg-success text-white rounded-full px-6 h-12 font-nav-button text-nav-button text-[14px] hover:bg-success/90 transition-colors disabled:opacity-50"
                 onClick={handleSimulateCallback}
                 disabled={simulating}
               >
-                {simulating ? 'Simulating Webhook Callback...' : 'Simulate Gateway Success Callback'}
+                {simulating ? 'Simulating Webhook Callback…' : 'Simulate Gateway Success Callback'}
               </button>
-              
+
               <button
                 type="button"
-                className="btn btn-secondary"
-                style={{ fontSize: '0.8rem', padding: '10px' }}
+                className="inline-flex items-center justify-center gap-2 border border-outline-variant text-ink-black rounded-full px-6 h-12 font-nav-button text-nav-button text-[14px] hover:bg-surface-container-low transition-colors disabled:opacity-50"
                 onClick={() => setShowModal(false)}
                 disabled={simulating}
               >

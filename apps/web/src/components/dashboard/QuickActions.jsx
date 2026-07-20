@@ -1,45 +1,26 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Icon } from '../Icon';
 
 export default function QuickActions({ onAction }) {
-  const actions = ['Waive Fee', 'Send Reminder', 'Add Expense'];
+  const actions = [
+    { label: 'Waive Fee', icon: 'price_check' },
+    { label: 'Send Reminder', icon: 'campaign' },
+    { label: 'Add Expense', icon: 'add_circle' },
+  ];
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '30px',
-      right: '30px',
-      display: 'flex',
-      gap: '12px',
-      zIndex: 100,
-      background: 'rgba(255, 255, 255, 0.3)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
-      padding: '10px 15px',
-      borderRadius: '50px',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
-    }}>
+    <div className="fixed bottom-6 right-6 z-40 flex gap-3 bg-lifted-cream/90 backdrop-blur-md px-4 py-3 rounded-full border border-white/50 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)]">
       {actions.map((action, idx) => (
         <motion.button
-          key={action}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className="btn"
-          style={{
-            padding: '8px 18px',
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            background: idx === 0 ? '#6366f1' : 'rgba(15, 23, 42, 0.8)',
-            color: '#ffffff',
-            borderRadius: '25px',
-            border: 'none',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-            cursor: 'pointer'
-          }}
-          onClick={() => onAction(action)}
+          key={action.label}
+          whileHover={{ scale: 1.04, y: -2 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={() => onAction(action.label)}
+          className={`inline-flex items-center gap-2 rounded-full px-4 h-10 font-nav-button text-nav-button text-[14px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-signal-orange ${idx === 0 ? 'bg-ink-black text-canvas-cream' : 'bg-surface-container-low text-ink-black hover:bg-surface-container-high'}`}
         >
-          {action}
+          <Icon name={action.icon} className="text-[18px]" />
+          {action.label}
         </motion.button>
       ))}
     </div>

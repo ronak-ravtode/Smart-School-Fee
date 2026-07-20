@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PaymentButton from '../../components/common/PaymentButton';
+import { Icon } from '../../components/Icon';
+import { Card, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
 
 export default function Payment() {
   const [students, setStudents] = useState([]);
@@ -54,7 +56,7 @@ export default function Payment() {
         alert('Receipt document is being generated. Please check back in a moment.');
         return;
       }
-      
+
       const receiptRes = await axios.get(`/api/payments/receipt?transaction_id=${tx.id}`);
       const link = document.createElement('a');
       link.href = receiptRes.data.receiptUrl;
@@ -71,27 +73,30 @@ export default function Payment() {
   const selectedStudent = students.find(s => s.id.toString() === selectedStudentId);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      
+    <div className="flex flex-col gap-section-sm">
+      <header>
+        <Eyebrow>Pay Fees</Eyebrow>
+        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+          Fee Ledger & Payments
+        </h1>
+      </header>
+
       {/* Ward Selector Section */}
-      <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Select Student Profile</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.875rem' }}>
+      <Card>
+        <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Select Student Profile</h2>
+        <p className="font-body text-[14px] text-on-surface-variant mb-6">
           Select one of your linked children to view outstanding school fees and clear transactions.
         </p>
 
         {students.length === 0 ? (
-          <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            No registered student records found.
-          </div>
+          <div className="text-on-surface-variant text-[14px]">No registered student records found.</div>
         ) : (
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div className="flex gap-2 flex-wrap">
             {students.map(s => (
               <button
                 key={s.id}
                 type="button"
-                className={`btn ${selectedStudentId === s.id.toString() ? '' : 'btn-secondary'}`}
-                style={{ padding: '10px 24px', borderRadius: '10px', fontSize: '0.85rem' }}
+                className={`inline-flex items-center gap-2 rounded-full px-5 h-11 font-nav-button text-nav-button text-[14px] transition-colors ${selectedStudentId === s.id.toString() ? 'bg-ink-black text-canvas-cream' : 'border border-outline-variant text-ink-black hover:bg-surface-container-low'}`}
                 onClick={() => setSelectedStudentId(s.id.toString())}
               >
                 {s.name} ({s.class})
@@ -99,80 +104,69 @@ export default function Payment() {
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Outstanding Fees Panel */}
       {selectedStudent && (
-        <div className="glass-panel" style={{ padding: '40px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '20px' }}>
+        <Card>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-5 border-b border-outline-variant/40">
             <div>
-              <h2 style={{ fontSize: '1.35rem' }}>Fee Ledger: {selectedStudent.name}</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>
+              <h2 className="font-headline-sm text-headline-sm text-ink-black">Fee Ledger: {selectedStudent.name}</h2>
+              <p className="font-body text-[13px] text-on-surface-variant mt-1">
                 Verify minor details and process payments safely. UPI transactions are zero-fee under NPCI guidelines.
               </p>
             </div>
-            <span className={`badge ${selectedStudent.status === 'active' ? 'badge-active' : 'badge-pending'}`} style={{ textTransform: 'capitalize' }}>
+            <StatusBadge tone={selectedStudent.status === 'active' ? 'active' : 'pending'} className="capitalize">
               KYC Status: {selectedStudent.status}
-            </span>
+            </StatusBadge>
           </div>
 
-          {error && <div className="alert alert-error">{error}</div>}
+          <Alert tone="error">{error}</Alert>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              Loading assigned fee schedules...
-            </div>
+            <div className="text-center py-12 text-on-surface-variant text-[14px]">Loading assigned fee schedules…</div>
           ) : assignments.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            <div className="text-center py-12 text-on-surface-variant text-[14px]">
               No outstanding fees have been assigned to {selectedStudent.name} for the active term.
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-[14px]">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                    <th style={{ padding: '15px' }}>Fee Component</th>
-                    <th style={{ padding: '15px' }}>Academic Term</th>
-                    <th style={{ padding: '15px' }}>Amount Due</th>
-                    <th style={{ padding: '15px' }}>Due Date</th>
-                    <th style={{ padding: '15px' }}>Payment Status</th>
-                    <th style={{ padding: '15px', textAlign: 'right' }}>Actions</th>
+                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                    <th className="p-3">Fee Component</th>
+                    <th className="p-3">Academic Term</th>
+                    <th className="p-3">Amount Due</th>
+                    <th className="p-3">Due Date</th>
+                    <th className="p-3">Payment Status</th>
+                    <th className="p-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {assignments.map((asg) => {
                     const isOverdue = new Date(asg.dueDate) < new Date() && asg.status !== 'paid';
                     return (
-                      <tr key={asg.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                        <td style={{ padding: '15px', fontWeight: 600 }}>{asg.feeStructure.name}</td>
-                        <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
-                          Term {asg.feeStructure.academicYear.label}
+                      <tr key={asg.id} className="border-b border-outline-variant/20">
+                        <td className="p-3 font-semibold text-ink-black">{asg.feeStructure.name}</td>
+                        <td className="p-3 text-on-surface-variant">Term {asg.feeStructure.academicYear.label}</td>
+                        <td className="p-3 font-bold text-ink-black">₹{Number(asg.feeStructure.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                        <td className="p-3 text-on-surface-variant">{new Date(asg.dueDate).toLocaleDateString()} {isOverdue && <span className="text-error">(Overdue)</span>}</td>
+                        <td className="p-3">
+                          <StatusBadge tone={asg.status === 'paid' ? 'active' : 'pending'}>{asg.status}</StatusBadge>
                         </td>
-                        <td style={{ padding: '15px', fontWeight: 700, color: 'white' }}>
-                          ₹{Number(asg.feeStructure.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td style={{ padding: '15px', color: isOverdue ? 'var(--error)' : 'var(--text-secondary)' }}>
-                          {new Date(asg.dueDate).toLocaleDateString()} {isOverdue && '(Overdue)'}
-                        </td>
-                        <td style={{ padding: '15px' }}>
-                          <span className={`badge ${asg.status === 'paid' ? 'badge-active' : 'badge-pending'}`} style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
-                            {asg.status}
-                          </span>
-                        </td>
-                        <td style={{ padding: '15px', textAlign: 'right' }}>
+                        <td className="p-3 text-right">
                           {asg.status === 'paid' ? (
                             <button
                               type="button"
-                              className="btn btn-secondary"
-                              style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                              className="inline-flex items-center gap-1 px-3 h-9 rounded-full border border-outline-variant text-ink-black text-[13px] hover:bg-surface-container-low transition-colors"
                               onClick={() => handleDownloadReceipt(asg.id)}
                             >
-                              Download Receipt (PDF)
+                              <Icon name="download" className="text-[16px]" /> Receipt (PDF)
                             </button>
                           ) : (
-                            <PaymentButton 
-                              feeAssignmentId={asg.id} 
-                              amount={asg.feeStructure.amount} 
+                            <PaymentButton
+                              feeAssignmentId={asg.id}
+                              amount={asg.feeStructure.amount}
                               disabled={selectedStudent.status !== 'active'}
                             />
                           )}
@@ -184,7 +178,7 @@ export default function Payment() {
               </table>
             </div>
           )}
-        </div>
+        </Card>
       )}
     </div>
   );

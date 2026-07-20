@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Icon } from '../../components/Icon';
+import { Card, PillButton, InputField, SelectField, Alert, StatusBadge, Eyebrow } from '../../components/ui/Primitives';
 
 export default function FeeSetup() {
   const [feeStructures, setFeeStructures] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
-  
+
   // Form state
   const [form, setForm] = useState({
     name: '',
@@ -13,7 +15,7 @@ export default function FeeSetup() {
     appliesTo: 'all',
     academicYearId: ''
   });
-  
+
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -183,239 +185,223 @@ export default function FeeSetup() {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '30px', alignItems: 'start' }}>
-      
-      {/* Column 1: Forms */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-        
-        {/* CRUD Form */}
-        <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>
-          {editingId ? 'Edit Structure (Generates Version)' : 'Create Fee Structure'}
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          {editingId 
-            ? 'Modifying this structure will create a new audit version. Existing assignments will retain their version history.' 
-            : 'Define a new fee component and target scope linked to an academic year.'}
-        </p>
+    <div className="flex flex-col gap-section-sm">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <Eyebrow>Fee Engine</Eyebrow>
+          <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+            Fee Structure & Assignments
+          </h1>
+          <p className="font-body text-body text-on-surface-variant mt-2 max-w-2xl">
+            Define fee components, target scopes, and assign them directly to student ward profiles.
+          </p>
+        </div>
+      </header>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Column 1: Forms */}
+        <div className="flex flex-col gap-8 lg:col-span-1">
+          {/* CRUD Form */}
+          <Card>
+            <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">
+              {editingId ? 'Edit Structure (Generates Version)' : 'Create Fee Structure'}
+            </h2>
+            <p className="font-body text-[14px] text-on-surface-variant mb-6">
+              {editingId
+                ? 'Modifying this structure will create a new audit version. Existing assignments will retain their version history.'
+                : 'Define a new fee component and target scope linked to an academic year.'}
+            </p>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Structure Name</label>
-            <input
-              type="text"
-              name="name"
-              required
-              className="form-input"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="e.g. Tuition Fee - Class 10"
-            />
-          </div>
+            <Alert tone="error">{error}</Alert>
+            <Alert tone="success">{success}</Alert>
 
-          <div className="form-group">
-            <label className="form-label">Academic Year</label>
-            <select
-              name="academicYearId"
-              className="form-input"
-              value={form.academicYearId}
-              onChange={handleChange}
-              disabled={editingId !== null} // Academic Year cannot be changed for an existing structure series
-              style={{ background: 'rgba(15, 23, 42, 0.8)' }}
-            >
-              {academicYears.map(year => (
-                <option key={year.id} value={year.id}>{year.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <div className="form-group">
-              <label className="form-label">Amount (INR)</label>
-              <input
-                type="number"
-                name="amount"
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <InputField
+                label="Structure Name"
+                name="name"
+                id="fee-name"
                 required
-                className="form-input"
-                value={form.amount}
+                value={form.name}
                 onChange={handleChange}
-                placeholder="e.g. 50000"
+                placeholder="e.g. Tuition Fee - Class 10"
               />
-            </div>
 
-            <div className="form-group">
-              <label className="form-label">Fee Type</label>
-              <select
-                name="type"
-                className="form-input"
-                value={form.type}
+              <SelectField
+                label="Academic Year"
+                name="academicYearId"
+                id="fee-year"
+                value={form.academicYearId}
                 onChange={handleChange}
-                disabled={editingId !== null} // Type cannot be changed on edit
-                style={{ background: 'rgba(15, 23, 42, 0.8)' }}
+                disabled={editingId !== null}
               >
-                <option value="tuition">Tuition</option>
-                <option value="transport">Transport</option>
-                <option value="late_fee">Late Fee</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
+                {academicYears.map(year => (
+                  <option key={year.id} value={year.id}>{year.label}</option>
+                ))}
+              </SelectField>
 
-          <div className="form-group">
-            <label className="form-label">Applies To (Target Class/Scope)</label>
-            <input
-              type="text"
-              name="appliesTo"
-              required
-              className="form-input"
-              value={form.appliesTo}
-              onChange={handleChange}
-              placeholder="e.g. class_10, all, transport_route_a"
-            />
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <InputField
+                  label="Amount (INR)"
+                  name="amount"
+                  id="fee-amount"
+                  type="number"
+                  required
+                  value={form.amount}
+                  onChange={handleChange}
+                  placeholder="e.g. 50000"
+                />
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-            <button type="submit" className="btn" style={{ flex: 1 }} disabled={loading}>
-              {loading ? 'Saving...' : editingId ? 'Update Structure' : 'Create Structure'}
-            </button>
-            {editingId && (
-              <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
+                <SelectField
+                  label="Fee Type"
+                  name="type"
+                  id="fee-type"
+                  value={form.type}
+                  onChange={handleChange}
+                  disabled={editingId !== null}
+                >
+                  <option value="tuition">Tuition</option>
+                  <option value="transport">Transport</option>
+                  <option value="late_fee">Late Fee</option>
+                  <option value="other">Other</option>
+                </SelectField>
+              </div>
 
-      {/* Assign Fee Form */}
-      <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Assign Fee to Student</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          Assign a defined fee structure component directly to a student ward profile.
-        </p>
+              <InputField
+                label="Applies To (Target Class/Scope)"
+                name="appliesTo"
+                id="fee-applies"
+                required
+                value={form.appliesTo}
+                onChange={handleChange}
+                placeholder="e.g. class_10, all, transport_route_a"
+              />
 
-        {assignError && <div className="alert alert-error">{assignError}</div>}
-        {assignSuccess && <div className="alert alert-success">{assignSuccess}</div>}
+              <div className="flex gap-3 mt-1">
+                <PillButton type="submit" disabled={loading}>
+                  {loading ? 'Saving…' : editingId ? 'Update Structure' : 'Create Structure'}
+                </PillButton>
+                {editingId && (
+                  <PillButton type="button" variant="outline" onClick={handleCancelEdit}>
+                    Cancel
+                  </PillButton>
+                )}
+              </div>
+            </form>
+          </Card>
 
-        <form onSubmit={handleAssignSubmit}>
-          <div className="form-group">
-            <label className="form-label">Select Student</label>
-            <select
-              name="studentId"
-              className="form-input"
-              value={assignForm.studentId}
-              onChange={handleAssignChange}
-              required
-              style={{ background: 'rgba(15, 23, 42, 0.8)' }}
-            >
-              <option value="" disabled>-- Choose a Student --</option>
-              {studentsList.map(student => (
-                <option key={student.id} value={student.id}>
-                  {student.name} ({student.class})
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Assign Fee Form */}
+          <Card>
+            <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Assign Fee to Student</h2>
+            <p className="font-body text-[14px] text-on-surface-variant mb-6">
+              Assign a defined fee structure component directly to a student ward profile.
+            </p>
 
-          <div className="form-group">
-            <label className="form-label">Select Fee Component</label>
-            <select
-              name="feeStructureId"
-              className="form-input"
-              value={assignForm.feeStructureId}
-              onChange={handleAssignChange}
-              required
-              style={{ background: 'rgba(15, 23, 42, 0.8)' }}
-            >
-              <option value="" disabled>-- Choose a Fee Component --</option>
-              {feeStructures.map(struct => (
-                <option key={struct.id} value={struct.id}>
-                  {struct.name} (v{struct.version} - ₹{Number(struct.amount).toLocaleString('en-IN')})
-                </option>
-              ))}
-            </select>
-          </div>
+            <Alert tone="error">{assignError}</Alert>
+            <Alert tone="success">{assignSuccess}</Alert>
 
-          <div className="form-group">
-            <label className="form-label">Due Date</label>
-            <input
-              type="date"
-              name="dueDate"
-              className="form-input"
-              value={assignForm.dueDate}
-              onChange={handleAssignChange}
-              required
-            />
-          </div>
+            <form onSubmit={handleAssignSubmit} className="flex flex-col gap-5">
+              <SelectField
+                label="Select Student"
+                name="studentId"
+                id="assign-student"
+                value={assignForm.studentId}
+                onChange={handleAssignChange}
+                required
+              >
+                <option value="" disabled>-- Choose a Student --</option>
+                {studentsList.map(student => (
+                  <option key={student.id} value={student.id}>
+                    {student.name} ({student.class})
+                  </option>
+                ))}
+              </SelectField>
 
-          <button type="submit" className="btn" style={{ width: '100%', marginTop: '10px' }} disabled={assignLoading}>
-            {assignLoading ? 'Assigning...' : 'Assign Fee to Student'}
-          </button>
-        </form>
-      </div>
+              <SelectField
+                label="Select Fee Component"
+                name="feeStructureId"
+                id="assign-fee"
+                value={assignForm.feeStructureId}
+                onChange={handleAssignChange}
+                required
+              >
+                <option value="" disabled>-- Choose a Fee Component --</option>
+                {feeStructures.map(struct => (
+                  <option key={struct.id} value={struct.id}>
+                    {struct.name} (v{struct.version} - ₹{Number(struct.amount).toLocaleString('en-IN')})
+                  </option>
+                ))}
+              </SelectField>
 
-      </div>
+              <InputField
+                label="Due Date"
+                name="dueDate"
+                id="assign-due"
+                type="date"
+                value={assignForm.dueDate}
+                onChange={handleAssignChange}
+                required
+              />
 
-      {/* Version List Table */}
-      <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Active Fee Components</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          Registered fee structures and version records stored in the system.
-        </p>
+              <PillButton type="submit" disabled={assignLoading} className="mt-1">
+                {assignLoading ? 'Assigning…' : 'Assign Fee to Student'}
+              </PillButton>
+            </form>
+          </Card>
+        </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        {/* Version List Table */}
+        <Card className="lg:col-span-2">
+          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Active Fee Components</h2>
+          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+            Registered fee structures and version records stored in the system.
+          </p>
+
           {feeStructures.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+            <div className="text-center py-16 text-on-surface-variant text-[14px]">
               No fee structures registered yet. Create one on the left.
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                  <th style={{ padding: '12px' }}>Name</th>
-                  <th style={{ padding: '12px' }}>Year</th>
-                  <th style={{ padding: '12px' }}>Amount</th>
-                  <th style={{ padding: '12px' }}>Type</th>
-                  <th style={{ padding: '12px' }}>Scope</th>
-                  <th style={{ padding: '12px' }}>Version</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {feeStructures.map(struct => (
-                  <tr key={struct.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <td style={{ padding: '12px', fontWeight: 500 }}>{struct.name}</td>
-                    <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>
-                      {struct.academicYear?.label || 'N/A'}
-                    </td>
-                    <td style={{ padding: '12px' }}>₹{Number(struct.amount).toLocaleString('en-IN')}</td>
-                    <td style={{ padding: '12px', textTransform: 'capitalize' }}>{struct.type}</td>
-                    <td style={{ padding: '12px', fontFamily: 'monospace' }}>{struct.appliesTo}</td>
-                    <td style={{ padding: '12px' }}>
-                      <span className="badge badge-active" style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(99, 102, 241, 0.2)', color: 'var(--primary)' }}>
-                        v{struct.version}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <button 
-                        className="btn btn-secondary" 
-                        style={{ padding: '4px 8px', fontSize: '0.7rem' }}
-                        onClick={() => handleEditClick(struct)}
-                      >
-                        Edit
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                    <th className="p-3">Name</th>
+                    <th className="p-3">Year</th>
+                    <th className="p-3">Amount</th>
+                    <th className="p-3">Type</th>
+                    <th className="p-3">Scope</th>
+                    <th className="p-3">Version</th>
+                    <th className="p-3 text-center">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {feeStructures.map(struct => (
+                    <tr key={struct.id} className="border-b border-outline-variant/20">
+                      <td className="p-3 font-medium text-ink-black">{struct.name}</td>
+                      <td className="p-3 text-on-surface-variant">{struct.academicYear?.label || 'N/A'}</td>
+                      <td className="p-3 font-medium text-ink-black">₹{Number(struct.amount).toLocaleString('en-IN')}</td>
+                      <td className="p-3 capitalize text-on-surface-variant">{struct.type}</td>
+                      <td className="p-3 font-mono text-[12px] text-on-surface-variant">{struct.appliesTo}</td>
+                      <td className="p-3">
+                        <StatusBadge tone="signal">v{struct.version}</StatusBadge>
+                      </td>
+                      <td className="p-3 text-center">
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-1 px-3 h-9 rounded-full border border-outline-variant text-ink-black text-[12px] hover:bg-surface-container-low transition-colors"
+                          onClick={() => handleEditClick(struct)}
+                        >
+                          <Icon name="edit" className="text-[16px]" /> Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
+        </Card>
       </div>
-
     </div>
   );
 }

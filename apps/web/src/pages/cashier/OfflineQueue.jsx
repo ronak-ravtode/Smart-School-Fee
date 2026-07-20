@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getQueuedPayments, deletePaymentFromQueue } from '../../utils/idb';
+import { Card, PillButton, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
 
 export default function OfflineQueue() {
   const [queue, setQueue] = useState([]);
@@ -79,81 +80,70 @@ export default function OfflineQueue() {
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '30px', color: '#ffffff' }} className="glass-panel">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.25rem', margin: 0, color: '#ffffff' }}>Offline Collections Queue</h2>
-        <span style={{
-          fontSize: '0.75rem',
-          padding: '4px 10px',
-          borderRadius: '50px',
-          background: onlineStatus ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-          color: onlineStatus ? 'var(--success)' : 'var(--error)',
-          fontWeight: 600
-        }}>
+    <div className="flex flex-col gap-section-sm max-w-[880px] mx-auto w-full">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <Eyebrow>Offline Queue</Eyebrow>
+          <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+            Collections Sync
+          </h1>
+        </div>
+        <StatusBadge tone={onlineStatus ? 'active' : 'error'}>
           {onlineStatus ? 'ONLINE' : 'OFFLINE'}
-        </span>
-      </div>
+        </StatusBadge>
+      </header>
 
-      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '20px' }}>
-        Queued payments collected in cash or cheque while the cashier terminal was disconnected. 
-        They will auto-sync when connection is restored, or you can trigger a manual sync below.
-      </p>
+      <Card>
+        <p className="font-body text-[14px] text-on-surface-variant mb-6">
+          Queued payments collected in cash or cheque while the cashier terminal was disconnected.
+          They will auto-sync when connection is restored, or you can trigger a manual sync below.
+        </p>
 
-      {report && (
-        <div className={`alert ${report.includes('failed') || report.includes('Cannot') ? 'alert-error' : 'alert-success'}`}>
-          {report}
-        </div>
-      )}
+        {report && (
+          <Alert tone={report.includes('failed') || report.includes('Cannot') ? 'error' : 'success'}>{report}</Alert>
+        )}
 
-      {queue.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
-          ✓ All collections are in sync. Local queue is empty!
-        </div>
-      ) : (
-        <>
-          <div style={{ overflowX: 'auto', marginBottom: '20px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--glass-border)', color: '#cbd5e1' }}>
-                  <th style={{ padding: '12px' }}>Method</th>
-                  <th style={{ padding: '12px' }}>Amount</th>
-                  <th style={{ padding: '12px' }}>Details</th>
-                  <th style={{ padding: '12px' }}>Time Added</th>
-                  <th style={{ padding: '12px' }}>Idempotency Key</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queue.map(item => (
-                  <tr key={item.idempotency_key} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <td style={{ padding: '12px', fontWeight: 600 }}>{item.method}</td>
-                    <td style={{ padding: '12px' }}>₹{Number(item.amount).toLocaleString('en-IN')}</td>
-                    <td style={{ padding: '12px', color: '#cbd5e1' }}>
-                      {item.method === 'CHEQUE' 
-                        ? `Bank: ${item.bank} (No: ${item.cheque_no})` 
-                        : 'Cash Collection'}
-                    </td>
-                    <td style={{ padding: '12px', color: '#cbd5e1' }}>
-                      {new Date(item.timestamp).toLocaleTimeString()}
-                    </td>
-                    <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '0.75rem' }}>
-                      {item.idempotency_key.substring(0, 15)}...
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {queue.length === 0 ? (
+          <div className="text-center py-16 text-on-surface-variant text-[14px]">
+            ✓ All collections are in sync. Local queue is empty!
           </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto mb-6">
+              <table className="w-full border-collapse text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                    <th className="p-3">Method</th>
+                    <th className="p-3">Amount</th>
+                    <th className="p-3">Details</th>
+                    <th className="p-3">Time Added</th>
+                    <th className="p-3">Key</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {queue.map(item => (
+                    <tr key={item.idempotency_key} className="border-b border-outline-variant/20">
+                      <td className="p-3 font-semibold text-ink-black">{item.method}</td>
+                      <td className="p-3 text-ink-black">₹{Number(item.amount).toLocaleString('en-IN')}</td>
+                      <td className="p-3 text-on-surface-variant">
+                        {item.method === 'CHEQUE'
+                          ? `Bank: ${item.bank} (No: ${item.cheque_no})`
+                          : 'Cash Collection'}
+                      </td>
+                      <td className="p-3 text-on-surface-variant">{new Date(item.timestamp).toLocaleTimeString()}</td>
+                      <td className="p-3 font-mono text-[12px] text-on-surface-variant">{item.idempotency_key.substring(0, 15)}…</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          <button
-            onClick={triggerSync}
-            disabled={syncing || !onlineStatus}
-            className="btn"
-            style={{ width: '100%' }}
-          >
-            {syncing ? 'Synchronizing Payments...' : 'Sync Queued Payments with Server'}
-          </button>
-        </>
-      )}
+            <PillButton type="button" onClick={triggerSync} disabled={syncing || !onlineStatus}>
+              {syncing ? 'Synchronizing Payments…' : 'Sync Queued Payments with Server'}
+            </PillButton>
+          </>
+        )}
+      </Card>
     </div>
   );
 }

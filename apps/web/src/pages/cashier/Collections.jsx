@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Tesseract from 'tesseract.js';
 import { addPaymentToQueue } from '../../utils/idb';
+import { Card, PillButton, InputField, SelectField, Alert, Eyebrow } from '../../components/ui/Primitives';
+import { Icon } from '../../components/Icon';
 
 export default function Collections() {
   const [students, setStudents] = useState([]);
@@ -14,7 +15,7 @@ export default function Collections() {
   const [bank, setBank] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -42,7 +43,7 @@ export default function Collections() {
       const keywords = ['ICICI', 'HDFC', 'AXIS', 'SBI', 'STATE BANK', 'PUNJAB', 'PNB', 'CANARA', 'BOB', 'BANK OF BARODA', 'KOTAK', 'YES BANK', 'UNION'];
       let foundBank = '';
       const upperStr = text.toUpperCase();
-      
+
       for (const kw of keywords) {
         if (upperStr.includes(kw)) {
           foundBank = kw === 'SBI' || kw === 'STATE BANK' ? 'State Bank of India' :
@@ -131,7 +132,7 @@ export default function Collections() {
 
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.guardian.mobile.includes(searchQuery)
+    (s.guardian?.mobile || '').includes(searchQuery)
   );
 
   const handleRecordPayment = async (e) => {
@@ -169,7 +170,7 @@ export default function Collections() {
     if (!navigator.onLine) {
       try {
         await addPaymentToQueue(paymentPayload);
-        
+
         // Trigger Background Sync tag
         if ('serviceWorker' in navigator && 'SyncManager' in window) {
           const reg = await navigator.serviceWorker.ready;
@@ -223,92 +224,79 @@ export default function Collections() {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '30px', color: '#ffffff' }} className="glass-panel">
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px', color: '#ffffff' }}>Record Manual Collection</h2>
-      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '25px' }}>
-        Record cash or cheque collections for student accounts. Works 100% offline.
-      </p>
+    <div className="flex flex-col gap-section-sm max-w-[680px] mx-auto w-full">
+      <header>
+        <Eyebrow>Collect Fees</Eyebrow>
+        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+          Record Manual Collection
+        </h1>
+        <p className="font-body text-[14px] text-on-surface-variant mt-2">
+          Record cash or cheque collections for student accounts. Works 100% offline.
+        </p>
+      </header>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      <Card>
+        <Alert tone="error">{error}</Alert>
+        <Alert tone="success">{success}</Alert>
 
-      <form onSubmit={handleRecordPayment}>
-        
-        {/* Student Finder */}
-        <div className="form-group">
-          <label className="form-label">Search Student (Name or Mobile)</label>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Type name or mobile..."
-            value={searchQuery}
-            onFocus={() => setIsDropdownOpen(true)}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setIsDropdownOpen(true);
-            }}
-          />
-          
-          {isDropdownOpen && searchQuery && (
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.95)',
-              border: '1px solid var(--glass-border)',
-              borderRadius: '8px',
-              maxHeight: '150px',
-              overflowY: 'auto',
-              marginTop: '5px',
-              position: 'absolute',
-              zIndex: 10,
-              width: '100%',
-              boxSizing: 'border-box'
-            }}>
-              {filteredStudents.length === 0 ? (
-                <div style={{ padding: '10px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  No students found
-                </div>
-              ) : (
-                filteredStudents.map(student => (
-                  <div
-                    key={student.id}
-                    style={{
-                      padding: '10px',
-                      cursor: 'pointer',
-                      borderBottom: '1px solid rgba(255,255,255,0.03)',
-                      fontSize: '0.85rem'
-                    }}
-                    onClick={() => {
-                      setSelectedStudentId(student.id);
-                      setSearchQuery(`${student.name} (${student.class})`);
-                      setIsDropdownOpen(false);
-                    }}
-                  >
-                    <span style={{ fontWeight: 500 }}>{student.name}</span>
-                    <span style={{ color: 'var(--text-secondary)', marginLeft: '10px' }}>
-                      ({student.class} | Guardian: {student.guardian.mobile})
-                    </span>
-                  </div>
-                ))
-              )}
+        <form onSubmit={handleRecordPayment} className="flex flex-col gap-5 mt-2">
+          {/* Student Finder */}
+          <div className="flex flex-col gap-2 relative">
+            <label htmlFor="student-search" className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">
+              Search Student (Name or Mobile)
+            </label>
+            <input
+              id="student-search"
+              type="text"
+              className="w-full h-12 px-4 rounded-full border border-outline-variant/50 bg-surface focus:outline-none focus:border-ink-black focus:ring-1 focus:ring-ink-black font-body text-body text-ink-black placeholder:text-outline transition-all"
+              placeholder="Type name or mobile..."
+              value={searchQuery}
+              onFocus={() => setIsDropdownOpen(true)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsDropdownOpen(true);
+              }}
+            />
+
+            {isDropdownOpen && searchQuery && (
+              <div className="absolute top-[72px] left-0 right-0 z-10 bg-lifted-cream border border-outline-variant/50 rounded-[20px] shadow-lifted max-h-[150px] overflow-y-auto">
+                {filteredStudents.length === 0 ? (
+                  <div className="p-3 text-on-surface-variant text-[13px]">No students found</div>
+                ) : (
+                  filteredStudents.map(student => (
+                    <div
+                      key={student.id}
+                      className="p-3 cursor-pointer border-b border-outline-variant/20 last:border-0 hover:bg-surface-container-low text-[13px]"
+                      onClick={() => {
+                        setSelectedStudentId(student.id);
+                        setSearchQuery(`${student.name} (${student.class})`);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      <span className="font-medium text-ink-black">{student.name}</span>
+                      <span className="text-on-surface-variant ml-2">
+                        ({student.class} | Guardian: {student.guardian?.mobile})
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Selected Student Confirm */}
+          {selectedStudentId && (
+            <div className="bg-surface-container-low border border-outline-variant/40 p-3 rounded-[20px] text-[13px] text-ink-black">
+              Selected Ward: <strong>{students.find(s => s.id === Number(selectedStudentId))?.name}</strong>
             </div>
           )}
-        </div>
 
-        {/* Selected Student Confirm */}
-        {selectedStudentId && (
-          <div style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.2)', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.85rem' }}>
-            Selected Wards: <strong>{students.find(s => s.id === Number(selectedStudentId))?.name}</strong>
-          </div>
-        )}
-
-        {/* Fee Assignment Dropdown */}
-        <div className="form-group">
-          <label className="form-label">Outstanding Fee Assignment</label>
-          <select
-            className="form-input"
+          <SelectField
+            label="Outstanding Fee Assignment"
+            id="collect-assign"
             value={selectedAssignmentId}
             onChange={(e) => setSelectedAssignmentId(e.target.value)}
             required
-            style={{ background: 'rgba(15, 23, 42, 0.8)' }}
           >
             <option value="" disabled>-- Select Pending Fee --</option>
             {assignments.map(a => (
@@ -316,98 +304,80 @@ export default function Collections() {
                 {a.feeStructure.name} (₹{Number(a.feeStructure.amount).toLocaleString('en-IN')})
               </option>
             ))}
-          </select>
-        </div>
+          </SelectField>
 
-        {/* Amount Input */}
-        <div className="form-group">
-          <label className="form-label">Amount (INR)</label>
-          <input
+          <InputField
+            label="Amount (INR)"
+            id="collect-amount"
             type="number"
-            className="form-input"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
           />
-        </div>
 
-        {/* Payment Method Selector */}
-        <div className="form-group">
-          <label className="form-label">Payment Method</label>
-          <div style={{ display: 'flex', gap: '15px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="method"
-                checked={method === 'CASH'}
-                onChange={() => setMethod('CASH')}
-              />
-              CASH
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="method"
-                checked={method === 'CHEQUE'}
-                onChange={() => setMethod('CHEQUE')}
-              />
-              CHEQUE
-            </label>
-          </div>
-        </div>
-
-        {/* Cheque Details form */}
-        {method === 'CHEQUE' && (
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', border: '1px solid var(--glass-border)', marginBottom: '20px' }}>
-            
-            {/* Tesseract OCR Input */}
-            <div className="form-group" style={{ marginBottom: '15px' }}>
-              <label className="form-label" style={{ color: '#6366f1', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                📷 OCR Auto-Scan Cheque (Tesseract.js)
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleOCRChequeScan}
-                style={{ fontSize: '0.8rem', color: '#94a3b8' }}
-              />
-              {ocrLoading && (
-                <span style={{ fontSize: '0.75rem', color: '#6366f1', display: 'block', marginTop: '4px' }}>
-                  ⏳ Running OCR scanner analysis on cheque image...
-                </span>
-              )}
+          {/* Payment Method Selector */}
+          <div className="flex flex-col gap-2">
+            <span className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">Payment Method</span>
+            <div className="flex gap-3">
+              {['CASH', 'CHEQUE'].map(m => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMethod(m)}
+                  className={`inline-flex items-center gap-2 rounded-full px-5 h-11 font-nav-button text-nav-button text-[14px] transition-colors ${method === m ? 'bg-ink-black text-canvas-cream' : 'border border-outline-variant text-ink-black hover:bg-surface-container-low'}`}
+                >
+                  <Icon name={m === 'CASH' ? 'payments' : 'receipt_long'} className="text-[18px]" />
+                  {m}
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="form-group">
-              <label className="form-label">Cheque Number</label>
-              <input
-                type="text"
-                className="form-input"
+          {/* Cheque Details form */}
+          {method === 'CHEQUE' && (
+            <div className="bg-surface-container-low p-5 rounded-frame border border-outline-variant/40 flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="cheque-scan" className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider flex items-center gap-2">
+                  <Icon name="document_scanner" className="text-[18px] text-light-signal-orange" /> OCR Auto-Scan Cheque
+                </label>
+                <input
+                  id="cheque-scan"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleOCRChequeScan}
+                  className="w-full h-12 px-4 rounded-full border border-outline-variant/50 bg-surface font-body text-body text-ink-black file:mr-4 file:border-0 file:bg-ink-black file:text-canvas-cream file:rounded-full file:px-4 file:h-9 file:font-nav-button file:text-nav-button"
+                />
+                {ocrLoading && (
+                  <span className="text-[13px] text-light-signal-orange flex items-center gap-1">
+                    <Icon name="sync" className="text-[16px] animate-spin" /> Running OCR scanner analysis on cheque image…
+                  </span>
+                )}
+              </div>
+
+              <InputField
+                label="Cheque Number"
+                id="cheque-no"
                 value={chequeNo}
                 onChange={(e) => setChequeNo(e.target.value)}
                 placeholder="e.g. 123456"
                 required
               />
-            </div>
-            <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label">Bank Name</label>
-              <input
-                type="text"
-                className="form-input"
+              <InputField
+                label="Bank Name"
+                id="cheque-bank"
                 value={bank}
                 onChange={(e) => setBank(e.target.value)}
                 placeholder="e.g. State Bank of India"
                 required
               />
             </div>
-          </div>
-        )}
+          )}
 
-        <button type="submit" className="btn" style={{ width: '100%', marginTop: '10px' }} disabled={loading}>
-          {loading ? 'Recording...' : 'Record Payment'}
-        </button>
-
-      </form>
+          <PillButton type="submit" disabled={loading} className="mt-1">
+            {loading ? 'Recording…' : 'Record Payment'}
+          </PillButton>
+        </form>
+      </Card>
     </div>
   );
 }

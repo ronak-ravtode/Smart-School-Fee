@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Icon } from '../../components/Icon';
+import { Card, PillButton, InputField, SelectField, Alert, StatusBadge, Eyebrow } from '../../components/ui/Primitives';
+
+const TABS = [
+  { key: 'ocr', label: 'OCR Identity Approvals', icon: 'document_scanner' },
+  { key: 'waivers', label: 'Waiver & Penalty Requests', icon: 'rule' },
+  { key: 'refunds', label: 'Refund Processing', icon: 'replay' },
+];
 
 export default function Approvals() {
   const [activeTab, setActiveTab] = useState('ocr'); // 'ocr', 'waivers', 'refunds'
@@ -12,7 +20,7 @@ export default function Approvals() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
+
   // Override form states
   const [overrideStudentId, setOverrideStudentId] = useState(null);
   const [overrideForm, setOverrideForm] = useState({
@@ -224,108 +232,106 @@ export default function Approvals() {
     }
   };
 
+  const switchTab = (key) => {
+    setActiveTab(key);
+    setError(null);
+    setSuccess(null);
+    setRejectId(null);
+    setRefundTxId(null);
+    setOverrideStudentId(null);
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-      
+    <div className="flex flex-col gap-section-sm">
+      <header>
+        <Eyebrow>Pending Approvals</Eyebrow>
+        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+          Identity, Waivers & Refunds
+        </h1>
+      </header>
+
       {/* Sub tabs nav */}
-      <div style={{ display: 'flex', gap: '10px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '10px' }}>
-        <button
-          type="button"
-          onClick={() => { setActiveTab('ocr'); setError(null); setSuccess(null); }}
-          className={`btn ${activeTab === 'ocr' ? '' : 'btn-secondary'}`}
-          style={{ padding: '6px 15px', fontSize: '0.8rem' }}
-        >
-          OCR Identity Approvals
-        </button>
-        <button
-          type="button"
-          onClick={() => { setActiveTab('waivers'); setError(null); setSuccess(null); }}
-          className={`btn ${activeTab === 'waivers' ? '' : 'btn-secondary'}`}
-          style={{ padding: '6px 15px', fontSize: '0.8rem' }}
-        >
-          Waiver & Penalty Requests
-        </button>
-        <button
-          type="button"
-          onClick={() => { setActiveTab('refunds'); setError(null); setSuccess(null); }}
-          className={`btn ${activeTab === 'refunds' ? '' : 'btn-secondary'}`}
-          style={{ padding: '6px 15px', fontSize: '0.8rem' }}
-        >
-          Refund Processing
-        </button>
+      <div className="flex flex-wrap gap-2 border-b border-outline-variant/40 pb-4">
+        {TABS.map(tab => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => switchTab(tab.key)}
+            className={`inline-flex items-center gap-2 rounded-full px-5 h-12 font-nav-button text-nav-button text-[14px] transition-colors ${activeTab === tab.key ? 'bg-ink-black text-canvas-cream' : 'border border-outline-variant text-ink-black hover:bg-surface-container-low'}`}
+          >
+            <Icon name={tab.icon} className="text-[18px]" />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      <Alert tone="error">{error}</Alert>
+      <Alert tone="success">{success}</Alert>
 
       {/* Reject reason popover */}
       {rejectId && (
-        <div className="glass-panel" style={{ padding: '20px', background: 'rgba(15,23,42,0.95)' }}>
-          <form onSubmit={handleRejectSubmit}>
-            <h3 style={{ fontSize: '0.95rem', marginTop: 0, marginBottom: '10px' }}>Provide Rejection Reason</h3>
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-input"
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Reason for rejecting waiver/penalty request..."
-                required
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button type="submit" className="btn btn-error" style={{ background: 'var(--error)' }}>
+        <Card>
+          <h3 className="font-headline-sm text-headline-sm text-ink-black mb-4">Provide Rejection Reason</h3>
+          <form onSubmit={handleRejectSubmit} className="flex flex-col gap-4">
+            <InputField
+              label="Reason"
+              id="reject-reason"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Reason for rejecting waiver/penalty request..."
+              required
+            />
+            <div className="flex gap-3">
+              <PillButton type="submit" variant="primary" disabled={loading} className="bg-error hover:bg-error/90 text-white">
                 Confirm Reject
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={() => setRejectId(null)}>
+              </PillButton>
+              <PillButton type="button" variant="outline" onClick={() => setRejectId(null)}>
                 Cancel
-              </button>
+              </PillButton>
             </div>
           </form>
-        </div>
+        </Card>
       )}
 
       {/* Refund reason popover */}
       {refundTxId && (
-        <div className="glass-panel" style={{ padding: '20px', background: 'rgba(15,23,42,0.95)' }}>
-          <form onSubmit={handleRefundSubmit}>
-            <h3 style={{ fontSize: '0.95rem', marginTop: 0, marginBottom: '10px' }}>Initiate Refund Reversal</h3>
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-input"
-                value={refundReason}
-                onChange={(e) => setRefundReason(e.target.value)}
-                placeholder="Reason for refunding this payment..."
-                required
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button type="submit" className="btn" style={{ background: '#6366f1' }} disabled={loading}>
-                {loading ? 'Processing Reversal...' : 'Confirm Refund'}
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={() => setRefundTxId(null)} disabled={loading}>
+        <Card>
+          <h3 className="font-headline-sm text-headline-sm text-ink-black mb-4">Initiate Refund Reversal</h3>
+          <form onSubmit={handleRefundSubmit} className="flex flex-col gap-4">
+            <InputField
+              label="Reason"
+              id="refund-reason"
+              value={refundReason}
+              onChange={(e) => setRefundReason(e.target.value)}
+              placeholder="Reason for refunding this payment..."
+              required
+            />
+            <div className="flex gap-3">
+              <PillButton type="submit" disabled={loading}>
+                {loading ? 'Processing Reversal…' : 'Confirm Refund'}
+              </PillButton>
+              <PillButton type="button" variant="outline" onClick={() => setRefundTxId(null)} disabled={loading}>
                 Cancel
-              </button>
+              </PillButton>
             </div>
           </form>
-        </div>
+        </Card>
       )}
 
       {/* OCR Tab content */}
       {activeTab === 'ocr' && (
-        <div className="glass-panel" style={{ padding: '40px' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Pending Identity & Document Approvals</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '24px' }}>
+        <Card>
+          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Pending Identity & Document Approvals</h2>
+          <p className="font-body text-[14px] text-on-surface-variant mb-6">
             Review minor details submitted by parents alongside automated OCR extraction data.
           </p>
 
           {approvals.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+            <div className="text-center py-16 text-on-surface-variant text-[14px]">
               No pending KYC approvals found. All students are currently active.
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="flex flex-col gap-5">
               {approvals.map(student => {
                 const kyc = student.kycRecord;
                 const nameMismatch = kyc ? isNameMismatched(student.name, kyc.ocrData?.name) : false;
@@ -333,50 +339,43 @@ export default function Approvals() {
                 const isOverridingThis = overrideStudentId === student.id;
 
                 return (
-                  <div 
-                    key={student.id} 
-                    className="glass-panel" 
-                    style={{ 
-                      padding: '24px', 
-                      background: 'rgba(255,255,255,0.01)', 
-                      border: student.ocrFlagged ? '1px solid rgba(239, 68, 68, 0.15)' : '1px solid var(--glass-border)' 
-                    }}
+                  <div
+                    key={student.id}
+                    className={`rounded-frame border p-6 ${student.ocrFlagged ? 'border-error/30 bg-error-container/30' : 'border-outline-variant/30 bg-surface'}`}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', flexWrap: 'wrap', gap: '15px' }}>
-                      <div style={{ flex: 1, minWidth: '250px' }}>
-                        <span className="badge" style={{ background: 'rgba(99,102,241,0.1)', color: 'var(--primary)', marginBottom: '8px', display: 'inline-block' }}>
-                          Student #{student.id} ({student.class})
-                        </span>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '8px' }}>{student.name}</h3>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
+                      <div className="flex-1 min-w-[250px]">
+                        <StatusBadge tone="ink" className="mb-2">Student #{student.id} ({student.class})</StatusBadge>
+                        <h3 className="font-headline-sm text-headline-sm text-ink-black mb-1">{student.name}</h3>
+                        <p className="font-body text-[13px] text-on-surface-variant">
                           <strong>Parent:</strong> {student.guardian?.name} ({student.guardian?.mobile})
                         </p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                          <strong>Doc Type:</strong> <span style={{ textTransform: 'uppercase' }}>{kyc?.docType}</span> | <strong>Doc Ref (Masked):</strong> {kyc?.docRef || 'None'}
+                        <p className="font-body text-[13px] text-on-surface-variant mt-1">
+                          <strong>Doc Type:</strong> <span className="uppercase">{kyc?.docType}</span> | <strong>Doc Ref (Masked):</strong> {kyc?.docRef || 'None'}
                         </p>
                       </div>
 
                       {kyc && (
-                        <div style={{ flex: 1, minWidth: '250px', background: 'rgba(0,0,0,0.15)', padding: '15px', borderRadius: '8px', fontSize: '0.8rem' }}>
-                          <span style={{ fontWeight: 'bold', display: 'block', color: student.ocrFlagged ? 'var(--error)' : 'var(--success)', marginBottom: '8px' }}>
-                            {student.ocrFlagged ? '⚠️ AUTOMATED OCR ALERT: MISMATCH DETECTED' : '✅ AUTOMATED OCR: OK'}
+                        <div className="flex-1 min-w-[250px] bg-surface-container-low rounded-[20px] p-4 text-[13px]">
+                          <span className={`font-bold block mb-2 ${student.ocrFlagged ? 'text-error' : 'text-success'}`}>
+                            {student.ocrFlagged ? '⚠ Automated OCR Alert: Mismatch Detected' : '✓ Automated OCR: OK'}
                           </span>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                            <div style={{ borderRight: '1px solid rgba(255,255,255,0.05)', paddingRight: '10px' }}>
-                              <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Form Input:</span>
-                              <div style={{ color: nameMismatch ? 'var(--error)' : 'var(--success)' }}>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="border-r border-outline-variant/30 pr-2">
+                              <span className="text-on-surface-variant block">Form Input:</span>
+                              <div className={nameMismatch ? 'text-error' : 'text-success'}>
                                 <strong>Name:</strong> {student.name}
                               </div>
-                              <div style={{ color: dobMismatch ? 'var(--error)' : 'var(--success)' }}>
+                              <div className={dobMismatch ? 'text-error' : 'text-success'}>
                                 <strong>DOB:</strong> {student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}
                               </div>
                             </div>
-                            <div style={{ paddingLeft: '10px' }}>
-                              <span style={{ color: 'var(--text-secondary)', display: 'block' }}>OCR Detected:</span>
-                              <div style={{ color: nameMismatch ? 'var(--error)' : 'var(--success)' }}>
+                            <div className="pl-1">
+                              <span className="text-on-surface-variant block">OCR Detected:</span>
+                              <div className={nameMismatch ? 'text-error' : 'text-success'}>
                                 <strong>Name:</strong> {kyc.ocrData?.name || 'N/A'}
                               </div>
-                              <div style={{ color: dobMismatch ? 'var(--error)' : 'var(--success)' }}>
+                              <div className={dobMismatch ? 'text-error' : 'text-success'}>
                                 <strong>DOB:</strong> {kyc.ocrData?.dob ? new Date(kyc.ocrData.dob).toLocaleDateString() : 'N/A'}
                               </div>
                             </div>
@@ -385,77 +384,59 @@ export default function Approvals() {
                       )}
 
                       {!isOverridingThis && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px' }}>
-                          <button 
-                            className="btn" 
-                            style={{ padding: '8px 16px', fontSize: '0.8rem' }}
-                            onClick={() => handleVerifyDirect(student.id)}
-                            disabled={loading}
-                          >
+                        <div className="flex flex-col gap-2 min-w-[150px]">
+                          <PillButton type="button" onClick={() => handleVerifyDirect(student.id)} disabled={loading}>
                             Verify & Approve
-                          </button>
-                          <button 
-                            className="btn btn-secondary" 
-                            style={{ padding: '8px 16px', fontSize: '0.8rem', border: '1px dashed var(--secondary)' }}
-                            onClick={() => handleOpenOverride(student)}
-                            disabled={loading}
-                          >
+                          </PillButton>
+                          <PillButton type="button" variant="outline" onClick={() => handleOpenOverride(student)} disabled={loading}>
                             Manual Override
-                          </button>
+                          </PillButton>
                         </div>
                       )}
                     </div>
 
                     {isOverridingThis && (
-                      <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--glass-border)' }}>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--secondary)', fontWeight: 'bold', display: 'block', marginBottom: '15px' }}>
-                          MANUAL CORRECTION OVERRIDE
+                      <div className="mt-5 pt-5 border-t border-outline-variant/40">
+                        <span className="font-eyebrow text-eyebrow uppercase tracking-wider text-light-signal-orange block mb-4">
+                          Manual Correction Override
                         </span>
-                        <form onSubmit={handleOverrideSubmit}>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-                            <div className="form-group">
-                              <label className="form-label">Corrected Name</label>
-                              <input
-                                type="text"
-                                required
-                                className="form-input"
-                                value={overrideForm.name}
-                                onChange={(e) => setOverrideForm({ ...overrideForm, name: e.target.value })}
-                              />
-                            </div>
-                            <div className="form-group">
-                              <label className="form-label">Corrected Class</label>
-                              <select
-                                className="form-input"
-                                value={overrideForm.class}
-                                onChange={(e) => setOverrideForm({ ...overrideForm, class: e.target.value })}
-                                style={{ background: 'rgba(15, 23, 42, 0.8)' }}
-                              >
-                                <option value="Grade 1-A">Grade 1-A</option>
-                                <option value="Grade 2-C">Grade 2-C</option>
-                                <option value="Grade 5-A">Grade 5-A</option>
-                                <option value="Grade 10-A">Grade 10-A</option>
-                                <option value="Grade 10-B">Grade 10-B</option>
-                              </select>
-                            </div>
-                            <div className="form-group">
-                              <label className="form-label">Corrected Date of Birth</label>
-                              <input
-                                type="date"
-                                required
-                                className="form-input"
-                                value={overrideForm.dob}
-                                onChange={(e) => setOverrideForm({ ...overrideForm, dob: e.target.value })}
-                              />
-                            </div>
+                        <form onSubmit={handleOverrideSubmit} className="flex flex-col gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <InputField
+                              label="Corrected Name"
+                              id="ov-name"
+                              required
+                              value={overrideForm.name}
+                              onChange={(e) => setOverrideForm({ ...overrideForm, name: e.target.value })}
+                            />
+                            <SelectField
+                              label="Corrected Class"
+                              id="ov-class"
+                              value={overrideForm.class}
+                              onChange={(e) => setOverrideForm({ ...overrideForm, class: e.target.value })}
+                            >
+                              <option value="Grade 1-A">Grade 1-A</option>
+                              <option value="Grade 2-C">Grade 2-C</option>
+                              <option value="Grade 5-A">Grade 5-A</option>
+                              <option value="Grade 10-A">Grade 10-A</option>
+                              <option value="Grade 10-B">Grade 10-B</option>
+                            </SelectField>
+                            <InputField
+                              label="Corrected Date of Birth"
+                              id="ov-dob"
+                              type="date"
+                              required
+                              value={overrideForm.dob}
+                              onChange={(e) => setOverrideForm({ ...overrideForm, dob: e.target.value })}
+                            />
                           </div>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <button type="submit" className="btn" disabled={loading} style={{ padding: '8px 16px', fontSize: '0.8rem' }}>
-                              {loading ? 'Submitting Override...' : 'Submit Correction & Approve'}
-                            </button>
-                            <button type="button" className="btn btn-secondary" onClick={handleCloseOverride} style={{ padding: '8px 16px', fontSize: '0.8rem' }}>
+                          <div className="flex gap-3">
+                            <PillButton type="submit" disabled={loading}>
+                              {loading ? 'Submitting Override…' : 'Submit Correction & Approve'}
+                            </PillButton>
+                            <PillButton type="button" variant="outline" onClick={handleCloseOverride}>
                               Cancel
-                            </button>
+                            </PillButton>
                           </div>
                         </form>
                       </div>
@@ -465,56 +446,44 @@ export default function Approvals() {
               })}
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Waiver Tab content */}
       {activeTab === 'waivers' && (
-        <div className="glass-panel" style={{ padding: '40px' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Waiver & Penalty Requests Approvals</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '24px' }}>
+        <Card>
+          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Waiver & Penalty Requests Approvals</h2>
+          <p className="font-body text-[14px] text-on-surface-variant mb-6">
             Review pending waiver requests or penalty fee additions submitted by cashier staff.
           </p>
 
           {waivers.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+            <div className="text-center py-16 text-on-surface-variant text-[14px]">
               No pending waiver or penalty approvals found.
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="flex flex-col gap-5">
               {waivers.map(record => (
-                <div key={record.id} className="glass-panel" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                <div key={record.id} className="rounded-frame border border-outline-variant/30 bg-surface p-6">
+                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                     <div>
-                      <span className={`badge ${record.type === 'waiver' ? 'badge-active' : 'badge-flagged'}`} style={{ textTransform: 'uppercase', marginBottom: '8px', display: 'inline-block' }}>
-                        {record.type} Request
-                      </span>
-                      <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{record.student.name} ({record.student.class})</h3>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                      <StatusBadge tone={record.type === 'waiver' ? 'active' : 'warning'} className="uppercase mb-2">{record.type} Request</StatusBadge>
+                      <h3 className="font-headline-sm text-headline-sm text-ink-black mb-1">{record.student.name} ({record.student.class})</h3>
+                      <p className="font-body text-[13px] text-on-surface-variant">
                         <strong>Component:</strong> {record.feeAssignment?.feeStructure?.name} | <strong>Reason:</strong> {record.reason}
                       </p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
-                      <span style={{ fontSize: '1.25rem', fontWeight: 800, color: record.type === 'waiver' ? 'var(--success)' : 'var(--error)' }}>
+                    <div className="flex items-center gap-4">
+                      <span className={`font-headline-sm text-headline-sm ${record.type === 'waiver' ? 'text-success' : 'text-error'}`}>
                         {record.type === 'waiver' ? '-' : '+'} ₹{Number(record.amount).toLocaleString()}
                       </span>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          className="btn"
-                          style={{ padding: '8px 16px', fontSize: '0.75rem', background: '#10b981' }}
-                          onClick={() => handleApproveWaiver(record.id)}
-                          disabled={loading}
-                        >
+                      <div className="flex gap-2">
+                        <PillButton type="button" variant="primary" className="bg-success hover:bg-success/90 text-white h-10 px-5" onClick={() => handleApproveWaiver(record.id)} disabled={loading}>
                           Approve
-                        </button>
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '8px 16px', fontSize: '0.75rem', border: '1px solid var(--error)', color: 'var(--error)' }}
-                          onClick={() => handleOpenReject(record.id)}
-                          disabled={loading}
-                        >
+                        </PillButton>
+                        <PillButton type="button" variant="outline" className="border-error text-error hover:bg-error-container/40 h-10 px-5" onClick={() => handleOpenReject(record.id)} disabled={loading}>
                           Reject
-                        </button>
+                        </PillButton>
                       </div>
                     </div>
                   </div>
@@ -522,75 +491,66 @@ export default function Approvals() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Refunds Tab content */}
       {activeTab === 'refunds' && (
-        <div className="glass-panel" style={{ padding: '40px' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Refund Processing & Bank Reversals</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '24px' }}>
+        <Card>
+          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Refund Processing & Bank Reversals</h2>
+          <p className="font-body text-[14px] text-on-surface-variant mb-6">
             Process bank reversals for educational fee payments. Stage 2 KYC banking details must be completed by parents prior to refund execution.
           </p>
 
           {transactions.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+            <div className="text-center py-16 text-on-surface-variant text-[14px]">
               No payments found in ledger database.
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-[14px]">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                    <th style={{ padding: '12px' }}>Receipt No</th>
-                    <th style={{ padding: '12px' }}>Student (Class)</th>
-                    <th style={{ padding: '12px' }}>Amount</th>
-                    <th style={{ padding: '12px' }}>Stage 2 KYC</th>
-                    <th style={{ padding: '12px', textAlign: 'right' }}>Action</th>
+                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                    <th className="p-3">Receipt No</th>
+                    <th className="p-3">Student (Class)</th>
+                    <th className="p-3">Amount</th>
+                    <th className="p-3">Stage 2 KYC</th>
+                    <th className="p-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.map(tx => {
                     const studentMatch = students.find(s => s.id === tx.studentId);
                     const hasKyc = studentMatch?.kycRecord?.isBankingComplete;
-                    
+
                     return (
-                      <tr key={tx.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                        <td style={{ padding: '12px', fontWeight: '700', fontFamily: 'monospace' }}>
-                          {tx.receiptNumber}
+                      <tr key={tx.id} className="border-b border-outline-variant/20">
+                        <td className="p-3 font-bold font-mono text-ink-black">{tx.receiptNumber}</td>
+                        <td className="p-3">
+                          <strong className="text-ink-black">{tx.student.name}</strong> ({tx.student.class})
                         </td>
-                        <td style={{ padding: '12px' }}>
-                          <strong>{tx.student.name}</strong> ({tx.student.class})
-                        </td>
-                        <td style={{ padding: '12px', fontWeight: 700 }}>
+                        <td className="p-3 font-bold text-ink-black">
                           {tx.status === 'reversed' ? '-' : ''}₹{Number(tx.amount).toLocaleString('en-IN')}
                         </td>
-                        <td style={{ padding: '12px' }}>
-                          <span className={`badge ${hasKyc ? 'badge-active' : 'badge-flagged'}`} style={{ fontSize: '0.65rem' }}>
+                        <td className="p-3">
+                          <StatusBadge tone={hasKyc ? 'active' : 'warning'}>
                             {hasKyc ? 'COMPLETE' : 'MISSING DETAILS'}
-                          </span>
+                          </StatusBadge>
                         </td>
-                        <td style={{ padding: '12px', textAlign: 'right' }}>
+                        <td className="p-3 text-right">
                           {tx.status === 'reversed' ? (
-                            <span style={{ fontSize: '0.75rem', color: 'var(--error)', fontStyle: 'italic' }}>
-                              Reversed
-                            </span>
+                            <span className="text-[13px] text-error italic">Reversed</span>
                           ) : (
-                            <button
-                              className="btn btn-secondary"
-                              style={{ 
-                                padding: '6px 12px', 
-                                fontSize: '0.75rem', 
-                                border: '1px solid var(--error)', 
-                                color: 'var(--error)',
-                                opacity: hasKyc ? 1 : 0.5 
-                              }}
+                            <PillButton
+                              type="button"
+                              variant="outline"
+                              className="border-error text-error hover:bg-error-container/40 h-10 px-4"
                               onClick={() => handleOpenRefund(tx.id)}
                               disabled={!hasKyc || loading}
                               title={hasKyc ? 'Process refund reversal' : 'Awaiting guardian Stage 2 bank details'}
                             >
                               Refund Reversal
-                            </button>
+                            </PillButton>
                           )}
                         </td>
                       </tr>
@@ -600,9 +560,8 @@ export default function Approvals() {
               </table>
             </div>
           )}
-        </div>
+        </Card>
       )}
-
     </div>
   );
 }

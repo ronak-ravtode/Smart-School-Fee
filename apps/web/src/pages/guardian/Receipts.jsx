@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Stage2KYC from './Stage2KYC';
+import { Icon } from '../../components/Icon';
+import { Card, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
 
 export default function Receipts() {
   const [transactions, setTransactions] = useState([]);
@@ -53,7 +55,7 @@ export default function Receipts() {
 
     try {
       const token = localStorage.getItem('token');
-      // Query if this student has Stage 2 KYC complete. 
+      // Query if this student has Stage 2 KYC complete.
       // We can check this by hitting our list or checking the student details.
       const res = await fetch(`/api/guardians/students`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -77,23 +79,24 @@ export default function Receipts() {
   const successfulTxns = transactions.filter(t => t.status === 'success' || t.status === 'reversed');
 
   return (
-    <div className="glass-panel" style={{ padding: '40px' }}>
-      <div style={{ marginBottom: '25px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.5rem' }}>Receipt History & Ledger</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '4px' }}>
+    <div className="flex flex-col gap-section-sm">
+      <header>
+        <Eyebrow>Receipt History</Eyebrow>
+        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
+          Ledger &amp; Digital Receipts
+        </h1>
+        <p className="font-body text-[14px] text-on-surface-variant mt-2">
           Access your digital billing ledger and download official signed PDF receipts for all educational fee payments.
         </p>
-      </div>
+      </header>
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      <Alert tone="error">{error}</Alert>
+      <Alert tone="success">{success}</Alert>
 
       {/* Stage 2 KYC Overlay */}
       {kycStudentId && (
-        <div style={{ marginBottom: '20px' }}>
-          <div className="alert alert-error" style={{ marginBottom: '15px' }}>
-            ⚠️ Stage 2 KYC (Banking Details) is required to process refunds. Please complete the form below.
-          </div>
+        <div className="flex flex-col gap-4">
+          <Alert tone="error">⚠ Stage 2 KYC (Banking Details) is required to process refunds. Please complete the form below.</Alert>
           <Stage2KYC
             studentId={kycStudentId}
             onSuccess={() => {
@@ -106,82 +109,72 @@ export default function Receipts() {
         </div>
       )}
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          Loading transaction receipts...
-        </div>
-      ) : successfulTxns.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '45px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          No successful payments or receipts found in your history log.
-        </div>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                <th style={{ padding: '15px' }}>Receipt No</th>
-                <th style={{ padding: '15px' }}>Date</th>
-                <th style={{ padding: '15px' }}>Student (Ward)</th>
-                <th style={{ padding: '15px' }}>Fee Particulars</th>
-                <th style={{ padding: '15px' }}>Method</th>
-                <th style={{ padding: '15px' }}>Amount</th>
-                <th style={{ padding: '15px', textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {successfulTxns.map((tx) => (
-                <tr key={tx.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                  <td style={{ padding: '15px', fontWeight: '700', color: tx.status === 'reversed' ? 'var(--error)' : 'var(--secondary)', fontFamily: 'monospace' }}>
-                    {tx.receiptNumber}
-                  </td>
-                  <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
-                    {new Date(tx.createdAt).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: '15px', fontWeight: 500 }}>{tx.student.name}</td>
-                  <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>
-                    {tx.feeAssignment.feeStructure.name}
-                  </td>
-                  <td style={{ padding: '15px' }}>
-                    <span className="badge" style={{ fontSize: '0.65rem', padding: '2px 6px', background: tx.status === 'reversed' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)', color: tx.status === 'reversed' ? 'var(--error)' : 'white' }}>
-                      {tx.method}
-                    </span>
-                  </td>
-                  <td style={{ padding: '15px', fontWeight: 700, color: tx.status === 'reversed' ? 'var(--error)' : 'var(--success)' }}>
-                    {tx.status === 'reversed' ? '-' : ''}₹{Number(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </td>
-                  <td style={{ padding: '15px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        type="button"
-                        className="btn"
-                        style={{ padding: '8px 16px', fontSize: '0.8rem' }}
-                        onClick={() => handleDownloadReceipt(tx.id, tx.receiptNumber)}
-                      >
-                        Download PDF
-                      </button>
-                      {tx.status === 'success' && (
+      <Card>
+        {loading ? (
+          <div className="text-center py-16 text-on-surface-variant text-[14px]">Loading transaction receipts…</div>
+        ) : successfulTxns.length === 0 ? (
+          <div className="text-center py-16 text-on-surface-variant text-[14px]">
+            No successful payments or receipts found in your history log.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-[14px]">
+              <thead>
+                <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                  <th className="p-3">Receipt No</th>
+                  <th className="p-3">Date</th>
+                  <th className="p-3">Student (Ward)</th>
+                  <th className="p-3">Fee Particulars</th>
+                  <th className="p-3">Method</th>
+                  <th className="p-3">Amount</th>
+                  <th className="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {successfulTxns.map((tx) => (
+                  <tr key={tx.id} className="border-b border-outline-variant/20">
+                    <td className={`p-3 font-bold font-mono text-[13px] ${tx.status === 'reversed' ? 'text-error' : 'text-ink-black'}`}>
+                      {tx.receiptNumber}
+                    </td>
+                    <td className="p-3 text-on-surface-variant">{new Date(tx.createdAt).toLocaleDateString()}</td>
+                    <td className="p-3 font-medium text-ink-black">{tx.student.name}</td>
+                    <td className="p-3 text-on-surface-variant">{tx.feeAssignment.feeStructure.name}</td>
+                    <td className="p-3">
+                      <StatusBadge tone={tx.status === 'reversed' ? 'error' : 'outline'}>{tx.method}</StatusBadge>
+                    </td>
+                    <td className={`p-3 font-bold ${tx.status === 'reversed' ? 'text-error' : 'text-success'}`}>
+                      {tx.status === 'reversed' ? '-' : ''}₹{Number(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="p-3">
+                      <div className="flex gap-2 justify-end flex-wrap">
                         <button
                           type="button"
-                          className="btn btn-secondary"
-                          style={{ padding: '8px 16px', fontSize: '0.8rem', border: '1px solid var(--error)', color: 'var(--error)' }}
-                          onClick={() => handleRequestRefund(tx)}
+                          className="inline-flex items-center gap-1 px-3 h-9 rounded-full border border-outline-variant text-ink-black text-[13px] hover:bg-surface-container-low transition-colors"
+                          onClick={() => handleDownloadReceipt(tx.id, tx.receiptNumber)}
                         >
-                          Request Refund
+                          <Icon name="download" className="text-[16px]" /> PDF
                         </button>
-                      )}
-                      {tx.status === 'reversed' && (
-                        <span style={{ fontSize: '0.75rem', color: 'var(--error)', fontStyle: 'italic', display: 'flex', alignItems: 'center' }}>
-                          Refunded
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                        {tx.status === 'success' && (
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1 px-3 h-9 rounded-full border border-error text-error text-[13px] hover:bg-error-container/40 transition-colors"
+                            onClick={() => handleRequestRefund(tx)}
+                          >
+                            <Icon name="replay" className="text-[16px]" /> Refund
+                          </button>
+                        )}
+                        {tx.status === 'reversed' && (
+                          <span className="text-[13px] text-error italic flex items-center">Refunded</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

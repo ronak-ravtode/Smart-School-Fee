@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ScholaFinancial | Maintenance Expenses</title>
+<!-- Tailwind CSS & Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Hanken Grotesk -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        /* Custom scrollbar for institutional feel */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D1CDC7; border-radius: 10px; }
+        
+        /* Atmospheric Halo Shadow - Level 2 */
+        .halo-shadow {
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Institutional Radial Gradient Background */
+        body {
+            background: radial-gradient(circle at 50% -20%, #FCFBFA 0%, #F3F0EE 100%);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#380d00",
+                        "light-signal-orange": "#F37338",
+                        "outline-variant": "#c7c7c0",
+                        "surface-bright": "#faf9f8",
+                        "on-error-container": "#93000a",
+                        "surface": "#faf9f8",
+                        "on-background": "#1a1c1c",
+                        "on-secondary-fixed": "#1c1c1b",
+                        "background": "#faf9f8",
+                        "on-primary-container": "#858382",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#464742",
+                        "surface-container-low": "#f4f3f2",
+                        "on-secondary-fixed-variant": "#474745",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#822800",
+                        "outline": "#767872",
+                        "inverse-surface": "#2f3130",
+                        "surface-dim": "#dadad9",
+                        "surface-container-highest": "#e3e2e1",
+                        "surface-container": "#eeeeed",
+                        "primary-fixed": "#e5e2e0",
+                        "on-secondary-container": "#636261",
+                        "tertiary-container": "#380d00",
+                        "surface-container-high": "#e9e8e7",
+                        "secondary-container": "#e2dfdd",
+                        "on-primary-fixed-variant": "#474745",
+                        "surface-variant": "#e3e2e1",
+                        "secondary-fixed-dim": "#c8c6c4",
+                        "ink-black": "#141413",
+                        "on-tertiary-container": "#e45415",
+                        "primary-fixed-dim": "#c9c6c4",
+                        "link-blue": "#3860BE",
+                        "signal-orange": "#CF4500",
+                        "on-primary-fixed": "#1c1c1a",
+                        "error-container": "#ffdad6",
+                        "lifted-cream": "#FCFBFA",
+                        "secondary-fixed": "#e5e2e0",
+                        "primary": "#000000",
+                        "surface-tint": "#5f5e5d",
+                        "clay-brown": "#9A3A0A",
+                        "canvas-cream": "#F3F0EE",
+                        "inverse-primary": "#c9c6c4",
+                        "tertiary-fixed": "#ffdbcf",
+                        "inverse-on-surface": "#f1f0f0",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#1c1c1a",
+                        "tertiary": "#000000",
+                        "secondary": "#5f5e5d",
+                        "dust-taupe": "#D1CDC7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-md": "96px",
+                        "section-lg": "128px",
+                        "card-padding": "40px",
+                        "section-sm": "64px",
+                        "max-width": "1280px",
+                        "margin-mobile": "24px",
+                        "base": "8px",
+                        "gutter": "48px"
+                    },
+                    "fontFamily": {
+                        "body": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "nav-button": ["Hanken Grotesk"],
+                        "footer-link": ["Hanken Grotesk"],
+                        "eyebrow": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body": ["16px", {"lineHeight": "22.4px", "fontWeight": "450"}],
+                        "headline-sm": ["24px", {"lineHeight": "28.8px", "letterSpacing": "-0.48px", "fontWeight": "500"}],
+                        "headline-lg": ["64px", {"lineHeight": "64px", "letterSpacing": "-1.28px", "fontWeight": "500"}],
+                        "headline-md": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.72px", "fontWeight": "500"}],
+                        "nav-button": ["16px", {"lineHeight": "16px", "letterSpacing": "-0.48px", "fontWeight": "500"}],
+                        "footer-link": ["14px", {"lineHeight": "20px", "fontWeight": "450"}],
+                        "eyebrow": ["14px", {"lineHeight": "14px", "letterSpacing": "0.56px", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["40px", {"lineHeight": "44px", "letterSpacing": "-0.8px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-body text-body text-on-surface bg-canvas-cream min-h-screen">
+<!-- TopNavBar Component -->
+<nav class="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-max px-6 py-3 rounded-full bg-lifted-cream/90 backdrop-blur-md shadow-[0px_24px_48px_rgba(0,0,0,0.04)] flex items-center gap-8 justify-between z-50 transition-transform active:scale-95">
+<div class="font-headline-sm text-headline-sm font-bold text-ink-black">ScholaFinancial</div>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-nav-button text-nav-button text-secondary hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+<a class="font-nav-button text-nav-button text-secondary hover:text-primary transition-colors duration-200" href="#">Cashier</a>
+<a class="font-nav-button text-nav-button text-secondary hover:text-primary transition-colors duration-200" href="#">Fee Engine</a>
+<a class="font-nav-button text-nav-button text-primary border-b-2 border-light-signal-orange pb-1" href="#">Approvals</a>
+<a class="font-nav-button text-nav-button text-secondary hover:text-primary transition-colors duration-200" href="#">Reconciliation</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-secondary hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-secondary hover:text-primary transition-colors">settings</button>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-dust-taupe">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a school administrator in a bright, modern office setting. The person is smiling warmly, wearing institutional attire. The lighting is soft and editorial, reflecting a premium financial workspace with neutral tones and clean lines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ3VjX8_v5TAeWFxooLoMBcAvNdevr3fCXFQRr67aCXCJlI19fd8nPco5A9PmGu4ykOiq7eeorOsCn8yYpCVcC6kfgyL9njZhzLFSt5FbB4cvPOdLrU_x0xUKj79eCBg7ttXx4tBkUxW2Cmc1A1GwYPTRMRxblcsbI8gvJo3qvvCMbgUa1vNKmSTnEiRQS4L9T--ijd6xwAW11WyKsueCI2dk6-K_HLtvhuDX4wagYdgzeTryF2fbv6FaAm6XNKfk2Ve_k5_nZRoY"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="max-w-max-width mx-auto px-margin-mobile md:px-gutter pt-[140px] pb-section-lg">
+<!-- Header Section -->
+<header class="mb-section-sm flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="font-eyebrow text-eyebrow text-light-signal-orange block mb-2 uppercase">Financial Operations</span>
+<h1 class="font-headline-lg text-headline-lg text-ink-black">Maintenance Expenses</h1>
+</div>
+<div class="hidden md:flex items-center gap-3 bg-lifted-cream px-6 py-4 rounded-[40px] shadow-sm">
+<div class="text-right">
+<p class="font-eyebrow text-[10px] text-secondary uppercase tracking-widest">Monthly Allocation</p>
+<p class="font-headline-sm text-ink-black">₹4,50,000</p>
+</div>
+<div class="w-[1px] h-8 bg-dust-taupe/30"></div>
+<div class="text-right">
+<p class="font-eyebrow text-[10px] text-secondary uppercase tracking-widest">Spent to Date</p>
+<p class="font-headline-sm text-light-signal-orange">₹1,85,000</p>
+</div>
+</div>
+</header>
+<!-- Bento Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Left Column: Log Maintenance Expense Form -->
+<section class="lg:col-span-4 bg-lifted-cream rounded-[40px] p-card-padding halo-shadow">
+<div class="mb-8">
+<h2 class="font-headline-sm text-headline-sm text-ink-black mb-2">Log Maintenance Expense</h2>
+<p class="text-secondary text-body">Record school operational expenses including utilities, cleaning, and repairs.</p>
+</div>
+<form class="space-y-6">
+<div class="space-y-2">
+<label class="font-nav-button text-[12px] text-secondary uppercase tracking-wider block ml-4">Description</label>
+<input class="w-full px-6 py-4 rounded-full border-dust-taupe/50 focus:ring-primary focus:border-primary bg-transparent text-ink-black placeholder:text-secondary/50 transition-all" placeholder="e.g. Watchman Salary (July)" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-nav-button text-[12px] text-secondary uppercase tracking-wider block ml-4">Amount (₹)</label>
+<div class="relative">
+<span class="absolute left-6 top-1/2 -translate-y-1/2 text-secondary">₹</span>
+<input class="w-full pl-12 pr-6 py-4 rounded-full border-dust-taupe/50 focus:ring-primary focus:border-primary bg-transparent text-ink-black placeholder:text-secondary/50 transition-all" placeholder="e.g. 15000" type="number"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-nav-button text-[12px] text-secondary uppercase tracking-wider block ml-4">Date</label>
+<input class="w-full px-6 py-4 rounded-full border-dust-taupe/50 focus:ring-primary focus:border-primary bg-transparent text-ink-black transition-all" type="date" value="2026-07-18"/>
+</div>
+<div class="space-y-2">
+<label class="font-nav-button text-[12px] text-secondary uppercase tracking-wider block ml-4">Category</label>
+<select class="w-full px-6 py-4 rounded-full border-dust-taupe/50 focus:ring-primary focus:border-primary bg-transparent text-ink-black transition-all appearance-none">
+<option>STAFF SALARY</option>
+<option>UTILITIES</option>
+<option>REPAIRS &amp; MAINT.</option>
+<option>CLEANING SUPPLIES</option>
+<option selected="">OTHER</option>
+</select>
+</div>
+<button class="w-full bg-ink-black text-canvas-cream font-nav-button py-5 rounded-full hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                        Add Expense
+                    </button>
+</form>
+</section>
+<!-- Right Column: Operational Expenses Log Table -->
+<section class="lg:col-span-8 bg-lifted-cream rounded-[40px] p-card-padding halo-shadow overflow-hidden">
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-ink-black">Operational Expenses Log</h2>
+<p class="text-secondary text-body">Recent administrative entries for institutional upkeep.</p>
+</div>
+<div class="flex items-center gap-2 text-secondary">
+<button class="p-2 hover:bg-canvas-cream rounded-full transition-colors material-symbols-outlined">filter_list</button>
+<button class="p-2 hover:bg-canvas-cream rounded-full transition-colors material-symbols-outlined">download</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-dust-taupe/20">
+<th class="pb-6 font-nav-button text-[12px] text-secondary uppercase tracking-widest pl-4">Date</th>
+<th class="pb-6 font-nav-button text-[12px] text-secondary uppercase tracking-widest">Description</th>
+<th class="pb-6 font-nav-button text-[12px] text-secondary uppercase tracking-widest text-center">Category</th>
+<th class="pb-6 font-nav-button text-[12px] text-secondary uppercase tracking-widest text-right pr-4">Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-dust-taupe/10">
+<!-- Entry 1 -->
+<tr class="group hover:bg-canvas-cream/30 transition-colors">
+<td class="py-6 font-body text-secondary pl-4">19/07/2026</td>
+<td class="py-6 font-nav-button text-ink-black">Deep Cleaning Service (Phase 1)</td>
+<td class="py-6 text-center">
+<span class="px-4 py-1.5 rounded-full bg-ink-black text-canvas-cream text-[11px] font-bold tracking-tighter inline-block">CLEANING</span>
+</td>
+<td class="py-6 font-headline-sm text-ink-black text-right pr-4">₹12,500</td>
+</tr>
+<!-- Entry 2 -->
+<tr class="group hover:bg-canvas-cream/30 transition-colors">
+<td class="py-6 font-body text-secondary pl-4">19/07/2026</td>
+<td class="py-6 font-nav-button text-ink-black">Security Staff Wages</td>
+<td class="py-6 text-center">
+<span class="px-4 py-1.5 rounded-full bg-ink-black text-canvas-cream text-[11px] font-bold tracking-tighter inline-block">WATCHMAN</span>
+</td>
+<td class="py-6 font-headline-sm text-ink-black text-right pr-4">₹5,000</td>
+</tr>
+<!-- Entry 3 -->
+<tr class="group hover:bg-canvas-cream/30 transition-colors">
+<td class="py-6 font-body text-secondary pl-4">18/07/2026</td>
+<td class="py-6 font-nav-button text-ink-black">Library Aircon Repair</td>
+<td class="py-6 text-center">
+<span class="px-4 py-1.5 rounded-full bg-light-signal-orange text-white text-[11px] font-bold tracking-tighter inline-block uppercase">Maintenance</span>
+</td>
+<td class="py-6 font-headline-sm text-ink-black text-right pr-4">₹3,200</td>
+</tr>
+<!-- Entry 4 -->
+<tr class="group hover:bg-canvas-cream/30 transition-colors">
+<td class="py-6 font-body text-secondary pl-4">17/07/2026</td>
+<td class="py-6 font-nav-button text-ink-black">Electricity Bill - Admin Block</td>
+<td class="py-6 text-center">
+<span class="px-4 py-1.5 rounded-full bg-dust-taupe text-on-secondary-fixed-variant text-[11px] font-bold tracking-tighter inline-block uppercase">Utilities</span>
+</td>
+<td class="py-6 font-headline-sm text-ink-black text-right pr-4">₹48,200</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Orbital Decorative Element -->
+<div class="mt-12 pt-8 border-t border-dust-taupe/20 flex items-center justify-between">
+<div class="flex -space-x-4">
+<div class="w-10 h-10 rounded-full border-2 border-lifted-cream overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a male administrative coordinator in a clean white shirt, soft natural lighting, high-end photography style, institutional financial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSgyR4tcjVRoEwMJ4gkYoHmASBd33GEJUU4o5s26tor4gGT1pVnyfmGHWQWciDERcpvAXJ_2aMebcvhMHWJnWLPGZTqxEKMyef2TkrSV0tkU_JGq3RVNpOCqHC4mQ_zzYiKWI0Y2RCHPv1vCRCiIkxqtkGehRSAsqDWIppDaJ58H9gxk0bS41XFZlbgl5GMhoUCmRe5CY8woG3Fsi3DlkO-48wQQQOpXC5cVwUbgJ5qhNE43k_rackz81HG6uvT9qskOSP-wxGuI8"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-lifted-cream overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a female accountant in professional business attire, warm lighting, editorial magazine style, minimalist workspace background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBrpsf98IAzwyl8GLN_ucVFTNgWBWN_rDrgjA7zmKkATCNEmNag3vC2dqac9qrkUAhnGzFmI7R8LsfN61VTR3xe2aa0fKjWxwb9HT16QtuXXGCUQb1UKfEaSjvdcNf3gOkmAxm10aDx-W-DtA04opn5FB0wB8_uhT-lPEhap0DGbUi4ZM8OG3ZOleoI3wMt778R5QgHf88KlUMFEZgGqiuWb52oKy9TRmR4RAzLhdI_Z4it7-wEB9SC59a50BDo4R0qFRRMl5CT9E"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-lifted-cream bg-ink-black flex items-center justify-center text-[10px] text-canvas-cream font-bold">+4</div>
+</div>
+<p class="text-[12px] text-secondary italic">Last audit performed by Auditor General 2 hours ago.</p>
+</div>
+</section>
+</div>
+<!-- Atmospheric orbital decoration -->
+<div class="absolute top-[20%] right-[-5%] w-[400px] h-[400px] pointer-events-none opacity-20">
+<svg fill="none" viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<circle cx="100" cy="100" r="99.25" stroke="#F37338" stroke-dasharray="10 10" stroke-width="1.5"></circle>
+</svg>
+</div>
+</main>
+<!-- Footer Component -->
+<footer class="w-full py-12 bg-canvas-cream dark:bg-ink-black border-t border-dust-taupe/30">
+<div class="max-w-max-width mx-auto px-margin-mobile flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="font-headline-sm text-headline-sm text-ink-black">ScholaFinancial</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-footer-link text-footer-link text-secondary hover:text-light-signal-orange transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="font-footer-link text-footer-link text-secondary hover:text-light-signal-orange transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="font-footer-link text-footer-link text-secondary hover:text-light-signal-orange transition-opacity duration-200" href="#">Audit Logs</a>
+<a class="font-footer-link text-footer-link text-secondary hover:text-light-signal-orange transition-opacity duration-200" href="#">Support</a>
+</div>
+<p class="font-footer-link text-footer-link text-secondary">© 2024 ScholaFinancial Institutional. All rights reserved.</p>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for form focus
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.parentElement.classList.add('ring-2', 'ring-light-signal-orange/20');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.parentElement.classList.remove('ring-2', 'ring-light-signal-orange/20');
+            });
+        });
+
+        // Add expense submission simulation
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Logging...';
+            btn.classList.add('opacity-70');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Recorded';
+                btn.classList.replace('bg-ink-black', 'bg-green-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.replace('bg-green-600', 'bg-ink-black');
+                    btn.classList.remove('opacity-70');
+                    e.target.reset();
+                }, 2000);
+            }, 1000);
+        });
+    </script>
+</body></html>
