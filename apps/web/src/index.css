@@ -91,6 +91,41 @@
   --shadow-subtle: 0 10px 24px -10px rgba(0, 0, 0, 0.04);
   --shadow-lifted: 0 20px 48px -12px rgba(0, 0, 0, 0.08);
   --shadow-deep: 0 30px 110px -20px rgba(0, 0, 0, 0.25);
+
+  /* Pastel accents — dashboard glassmorphism */
+  --color-pastel-lavender: #e8e0f0;
+  --color-pastel-peach: #fde8d0;
+  --color-pastel-mint: #d0f0e0;
+  --color-pastel-rose: #f0d8e0;
+  --color-pastel-sky: #d0e8f8;
+  --color-pastel-purple: #c8b8e8;
+  --color-pastel-coral: #f8c8b8;
+  --color-pastel-teal: #b8e8d8;
+  --color-pastel-pink: #e8b8c8;
+  --color-pastel-periwinkle: #b8c8e8;
+
+  /* Module accent colors */
+  --color-module-dashboard: #8b8fd4;
+  --color-module-students: #6bc9a9;
+  --color-module-fee-engine: #6c7bd8;
+  --color-module-payments: #5bb98a;
+  --color-module-reconciliation: #e8977a;
+  --color-module-defaulters: #d46a7a;
+  --color-module-reports: #e8b86a;
+  --color-module-settings: #8a94a5;
+
+  /* Glass surface tokens */
+  --color-canvas: #f8f6f3;
+  --color-surface-glass: rgba(255, 255, 255, 0.7);
+
+  /* Unified radius tokens */
+  --radius-cards: 12px;
+  --radius-buttons: 10px;
+  --radius-inputs: 10px;
+  --radius-dialogs: 20px;
+  --radius-charts: 12px;
+  --radius-badges: 9999px;
+  --radius-sidebar-indicator: 4px;
 }
 
 @layer base {
