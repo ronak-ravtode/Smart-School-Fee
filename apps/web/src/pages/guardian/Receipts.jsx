@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Stage2KYC from './Stage2KYC';
 import { Icon } from '../../components/Icon';
-import { Card, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
 
 export default function Receipts() {
   const [transactions, setTransactions] = useState([]);
@@ -10,9 +12,7 @@ export default function Receipts() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Bank form overlay states
   const [kycStudentId, setKycStudentId] = useState(null);
-  const [checkingTx, setCheckingTx] = useState(null);
 
   const fetchTransactions = async () => {
     try {
@@ -51,12 +51,9 @@ export default function Receipts() {
   const handleRequestRefund = async (tx) => {
     setError(null);
     setSuccess(null);
-    setCheckingTx(tx);
 
     try {
       const token = localStorage.getItem('token');
-      // Query if this student has Stage 2 KYC complete.
-      // We can check this by hitting our list or checking the student details.
       const res = await fetch(`/api/guardians/students`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -66,7 +63,6 @@ export default function Receipts() {
       if (match && match.kycRecord && match.kycRecord.isBankingComplete) {
         setSuccess(`Stage 2 KYC is complete for ${tx.student.name}. Please contact the school admin to process your refund.`);
       } else {
-        // Open Stage 2 KYC form
         setKycStudentId(tx.studentId);
       }
     } catch (err) {
@@ -75,28 +71,24 @@ export default function Receipts() {
     }
   };
 
-  // Filter out pending/failed transactions for receipt list (only show success or reversed)
   const successfulTxns = transactions.filter(t => t.status === 'success' || t.status === 'reversed');
 
   return (
-    <div className="flex flex-col gap-section-sm">
-      <header>
-        <Eyebrow>Receipt History</Eyebrow>
-        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
-          Ledger &amp; Digital Receipts
-        </h1>
-        <p className="font-body text-[14px] text-on-surface-variant mt-2">
-          Access your digital billing ledger and download official signed PDF receipts for all educational fee payments.
-        </p>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="Receipt History"
+        title="Ledger & Digital Receipts"
+        subtitle="Access your digital billing ledger and download official signed PDF receipts for all educational fee payments."
+      />
 
-      <Alert tone="error">{error}</Alert>
-      <Alert tone="success">{success}</Alert>
+      {error && <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>}
+      {success && <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{success}</div>}
 
-      {/* Stage 2 KYC Overlay */}
       {kycStudentId && (
-        <div className="flex flex-col gap-4">
-          <Alert tone="error">⚠ Stage 2 KYC (Banking Details) is required to process refunds. Please complete the form below.</Alert>
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="p-4 rounded-[12px] bg-warning-container text-warning text-sm">
+            Stage 2 KYC (Banking Details) is required to process refunds. Please complete the form below.
+          </div>
           <Stage2KYC
             studentId={kycStudentId}
             onSuccess={() => {
@@ -109,18 +101,18 @@ export default function Receipts() {
         </div>
       )}
 
-      <Card>
+      <GlassCard>
         {loading ? (
-          <div className="text-center py-16 text-on-surface-variant text-[14px]">Loading transaction receipts…</div>
+          <div className="text-center py-16 text-on-surface-variant text-sm">Loading transaction receipts…</div>
         ) : successfulTxns.length === 0 ? (
-          <div className="text-center py-16 text-on-surface-variant text-[14px]">
+          <div className="text-center py-16 text-on-surface-variant text-sm">
             No successful payments or receipts found in your history log.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-[14px]">
+            <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                   <th className="p-3">Receipt No</th>
                   <th className="p-3">Date</th>
                   <th className="p-3">Student (Ward)</th>
@@ -132,15 +124,15 @@ export default function Receipts() {
               </thead>
               <tbody>
                 {successfulTxns.map((tx) => (
-                  <tr key={tx.id} className="border-b border-outline-variant/20">
-                    <td className={`p-3 font-bold font-mono text-[13px] ${tx.status === 'reversed' ? 'text-error' : 'text-ink-black'}`}>
+                  <tr key={tx.id} className="border-b border-gray-100">
+                    <td className={`p-3 font-bold font-mono text-sm ${tx.status === 'reversed' ? 'text-error' : 'text-ink-black'}`}>
                       {tx.receiptNumber}
                     </td>
                     <td className="p-3 text-on-surface-variant">{new Date(tx.createdAt).toLocaleDateString()}</td>
                     <td className="p-3 font-medium text-ink-black">{tx.student.name}</td>
                     <td className="p-3 text-on-surface-variant">{tx.feeAssignment.feeStructure.name}</td>
                     <td className="p-3">
-                      <StatusBadge tone={tx.status === 'reversed' ? 'error' : 'outline'}>{tx.method}</StatusBadge>
+                      <StatusChip variant={tx.status === 'reversed' ? 'error' : 'neutral'}>{tx.method}</StatusChip>
                     </td>
                     <td className={`p-3 font-bold ${tx.status === 'reversed' ? 'text-error' : 'text-success'}`}>
                       {tx.status === 'reversed' ? '-' : ''}₹{Number(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -149,22 +141,22 @@ export default function Receipts() {
                       <div className="flex gap-2 justify-end flex-wrap">
                         <button
                           type="button"
-                          className="inline-flex items-center gap-1 px-3 h-9 rounded-full border border-outline-variant text-ink-black text-[13px] hover:bg-surface-container-low transition-colors"
+                          className="inline-flex items-center gap-1 px-3 h-9 rounded-buttons border border-gray-200 text-ink-black text-sm hover:bg-gray-50 transition-colors"
                           onClick={() => handleDownloadReceipt(tx.id, tx.receiptNumber)}
                         >
-                          <Icon name="download" className="text-[16px]" /> PDF
+                          <Icon name="download" className="text-base" /> PDF
                         </button>
                         {tx.status === 'success' && (
                           <button
                             type="button"
-                            className="inline-flex items-center gap-1 px-3 h-9 rounded-full border border-error text-error text-[13px] hover:bg-error-container/40 transition-colors"
+                            className="inline-flex items-center gap-1 px-3 h-9 rounded-buttons border border-error text-error text-sm hover:bg-error-container/40 transition-colors"
                             onClick={() => handleRequestRefund(tx)}
                           >
-                            <Icon name="replay" className="text-[16px]" /> Refund
+                            <Icon name="replay" className="text-base" /> Refund
                           </button>
                         )}
                         {tx.status === 'reversed' && (
-                          <span className="text-[13px] text-error italic flex items-center">Refunded</span>
+                          <span className="text-sm text-error italic flex items-center">Refunded</span>
                         )}
                       </div>
                     </td>
@@ -174,7 +166,7 @@ export default function Receipts() {
             </table>
           </div>
         )}
-      </Card>
+      </GlassCard>
     </div>
   );
 }

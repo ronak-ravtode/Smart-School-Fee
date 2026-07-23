@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Icon } from '../../components/Icon';
-import { Card, PillButton, InputField, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
 
 const getLogDetails = (log) => {
   try {
@@ -76,84 +79,59 @@ export default function CashierSetup() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <header>
-        <Eyebrow>Cashier Setup</Eyebrow>
-        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
-          Staff & Audit Console
-        </h1>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="Cashier Setup"
+        title="Staff & Audit Console"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Cashier Creation Form */}
-        <Card>
-          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Register New Cashier</h2>
-          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+        <GlassCard>
+          <h2 className="font-medium text-ink-black mb-2">Register New Cashier</h2>
+          <p className="text-sm text-on-surface-variant mb-6">
             Create secure cashier accounts. Cashiers can receive fee payments but cannot modify structural configurations.
           </p>
 
-          <Alert tone="error">{cashierErr}</Alert>
-          <Alert tone="success">{cashierMsg}</Alert>
+          {cashierErr && <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{cashierErr}</div>}
+          {cashierMsg && <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{cashierMsg}</div>}
 
           <form onSubmit={handleCreateCashier} className="flex flex-col gap-5 mt-2">
-            <InputField
-              label="Full Name"
-              id="cashier-name"
-              required
-              value={cashierForm.name}
-              onChange={(e) => setCashierForm({ ...cashierForm, name: e.target.value })}
-              placeholder="Cashier's name"
-            />
-            <InputField
-              label="Email Address"
-              id="cashier-email"
-              type="email"
-              required
-              value={cashierForm.email}
-              onChange={(e) => setCashierForm({ ...cashierForm, email: e.target.value })}
-              placeholder="cashier@school.com"
-            />
-            <InputField
-              label="Mobile Number"
-              id="cashier-mobile"
-              type="tel"
-              required
-              maxLength={10}
-              value={cashierForm.mobile}
-              onChange={(e) => setCashierForm({ ...cashierForm, mobile: e.target.value })}
-              placeholder="10-digit number"
-            />
-            <InputField
-              label="Password"
-              id="cashier-password"
-              type="password"
-              required
-              value={cashierForm.password}
-              onChange={(e) => setCashierForm({ ...cashierForm, password: e.target.value })}
-              placeholder="Initial password"
-            />
-            <PillButton type="submit" className="mt-1">Create Cashier</PillButton>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Full Name</label>
+              <input required value={cashierForm.name} onChange={(e) => setCashierForm({ ...cashierForm, name: e.target.value })} placeholder="Cashier's name" className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Email Address</label>
+              <input type="email" required value={cashierForm.email} onChange={(e) => setCashierForm({ ...cashierForm, email: e.target.value })} placeholder="cashier@school.com" className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Mobile Number</label>
+              <input type="tel" required maxLength={10} value={cashierForm.mobile} onChange={(e) => setCashierForm({ ...cashierForm, mobile: e.target.value })} placeholder="10-digit number" className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Password</label>
+              <input type="password" required value={cashierForm.password} onChange={(e) => setCashierForm({ ...cashierForm, password: e.target.value })} placeholder="Initial password" className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+            </div>
+            <ActionButton type="submit" className="mt-1">Create Cashier</ActionButton>
           </form>
-        </Card>
+        </GlassCard>
 
-        {/* Stacked Panels on the Right */}
-    <div className="flex flex-col gap-section-sm">
-          {/* Active Cashiers dynamic List */}
-          <Card>
-            <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Registered Cashier Staff</h2>
-            <p className="font-body text-[14px] text-on-surface-variant mb-6">
+        <div className="flex flex-col gap-6">
+          <GlassCard>
+            <h2 className="font-medium text-ink-black mb-2">Registered Cashier Staff</h2>
+            <p className="text-sm text-on-surface-variant mb-6">
               Showing active cashier staff accounts fetched dynamically from the database.
             </p>
 
             <div className="overflow-x-auto">
               {cashiersList.length === 0 ? (
-                <div className="text-center py-10 text-on-surface-variant text-[14px]">
+                <div className="text-center py-10 text-on-surface-variant text-sm">
                   No cashier accounts registered yet.
                 </div>
               ) : (
-                <table className="w-full border-collapse text-left text-[13px]">
+                <table className="w-full border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                    <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                       <th className="p-3">Name</th>
                       <th className="p-3">Email</th>
                       <th className="p-3">Mobile</th>
@@ -163,13 +141,13 @@ export default function CashierSetup() {
                   </thead>
                   <tbody>
                     {cashiersList.map((cashier) => (
-                      <tr key={cashier.id} className="border-b border-outline-variant/20">
+                      <tr key={cashier.id} className="border-b border-gray-100">
                         <td className="p-3 font-medium text-ink-black">{cashier.name}</td>
                         <td className="p-3 text-on-surface-variant">{cashier.email}</td>
                         <td className="p-3 text-ink-black">{cashier.mobile}</td>
                         <td className="p-3 text-on-surface-variant">{cashier.createdByName}</td>
                         <td className="p-3">
-                          <StatusBadge tone="active">{cashier.status}</StatusBadge>
+                          <StatusChip variant="success">{cashier.status}</StatusChip>
                         </td>
                       </tr>
                     ))}
@@ -177,24 +155,23 @@ export default function CashierSetup() {
                 </table>
               )}
             </div>
-          </Card>
+          </GlassCard>
 
-          {/* Database Audit Logs Table */}
-          <Card>
-            <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">System Audit Logs</h2>
-            <p className="font-body text-[14px] text-on-surface-variant mb-6">
+          <GlassCard>
+            <h2 className="font-medium text-ink-black mb-2">System Audit Logs</h2>
+            <p className="text-sm text-on-surface-variant mb-6">
               Showing mutations tracked in the audit log table (read-only for security auditing).
             </p>
 
             <div className="overflow-x-auto">
               {auditLogs.length === 0 ? (
-                <div className="text-center py-10 text-on-surface-variant text-[14px]">
+                <div className="text-center py-10 text-on-surface-variant text-sm">
                   No system logs recorded yet.
                 </div>
               ) : (
-                <table className="w-full border-collapse text-left text-[13px]">
+                <table className="w-full border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                    <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                       <th className="p-3">Time</th>
                       <th className="p-3">Actor & Action</th>
                       <th className="p-3">Description</th>
@@ -206,37 +183,37 @@ export default function CashierSetup() {
                       const isExpanded = expandedLogId === log.id;
                       return (
                         <React.Fragment key={log.id}>
-                          <tr className="border-b border-outline-variant/20">
+                          <tr className="border-b border-gray-100">
                             <td className="p-3 text-on-surface-variant">{new Date(log.createdAt).toLocaleTimeString()}</td>
                             <td className="p-3">
-                              <StatusBadge tone="ink" className="mr-2 capitalize">{log.actorRole}</StatusBadge>
-                              <code className="text-light-signal-orange">{log.action}</code>
+                              <StatusChip variant="neutral" className="mr-2 capitalize">{log.actorRole}</StatusChip>
+                              <code className="text-module-reconciliation">{log.action}</code>
                             </td>
                             <td className="p-3 font-medium text-ink-black">{getLogDetails(log)}</td>
                             <td className="p-3 text-center">
                               <button
                                 type="button"
-                                className="inline-flex items-center gap-1 px-3 h-8 rounded-full border border-outline-variant text-ink-black text-[12px] hover:bg-surface-container-low transition-colors"
+                                className="inline-flex items-center gap-1 px-3 h-8 rounded-buttons border border-gray-200 text-ink-black text-xs hover:bg-gray-50 transition-colors"
                                 onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
                               >
-                                <Icon name={isExpanded ? 'expand_less' : 'expand_more'} className="text-[16px]" />
+                                <Icon name={isExpanded ? 'expand_less' : 'expand_more'} className="text-base" />
                                 {isExpanded ? 'Hide' : 'Inspect'}
                               </button>
                             </td>
                           </tr>
                           {isExpanded && (
                             <tr>
-                              <td colSpan="4" className="p-4 bg-surface-container-low border-b border-outline-variant/30">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-[12px] font-mono">
+                              <td colSpan="4" className="p-4 bg-gray-50 border-b border-gray-200">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs font-mono">
                                   <div>
                                     <div className="text-error font-bold mb-2">BEFORE STATE:</div>
-                                    <pre className="overflow-x-auto bg-surface-container-highest p-3 rounded-[12px] border border-error/20 max-h-[150px] text-ink-black">
+                                    <pre className="overflow-x-auto bg-gray-100 p-3 rounded-[12px] border border-error/20 max-h-[150px] text-ink-black">
                                       {JSON.stringify(log.before, null, 2) || 'null'}
                                     </pre>
                                   </div>
                                   <div>
                                     <div className="text-success font-bold mb-2">AFTER STATE:</div>
-                                    <pre className="overflow-x-auto bg-surface-container-highest p-3 rounded-[12px] border border-success/20 max-h-[150px] text-ink-black">
+                                    <pre className="overflow-x-auto bg-gray-100 p-3 rounded-[12px] border border-success/20 max-h-[150px] text-ink-black">
                                       {JSON.stringify(log.after, null, 2) || 'null'}
                                     </pre>
                                   </div>
@@ -251,7 +228,7 @@ export default function CashierSetup() {
                 </table>
               )}
             </div>
-          </Card>
+          </GlassCard>
         </div>
       </div>
     </div>

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getQueuedPayments, deletePaymentFromQueue } from '../../utils/idb';
-import { Card, PillButton, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
 
 export default function OfflineQueue() {
   const [queue, setQueue] = useState([]);
@@ -62,7 +65,6 @@ export default function OfflineQueue() {
 
         if (res.status === 200 || res.status === 201) {
           successCount++;
-          // Delete from IndexedDB queue
           await deletePaymentFromQueue(payment.idempotency_key);
         } else {
           failCount++;
@@ -75,44 +77,43 @@ export default function OfflineQueue() {
 
     setSyncing(false);
     setReport(`Sync process completed: ${successCount} synced successfully, ${failCount} failed.`);
-    // Reload IndexedDB queue
     loadQueue();
   };
 
   return (
-    <div className="flex flex-col gap-section-sm max-w-[880px] mx-auto w-full">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <Eyebrow>Offline Queue</Eyebrow>
-          <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
-            Collections Sync
-          </h1>
-        </div>
-        <StatusBadge tone={onlineStatus ? 'active' : 'error'}>
+    <div className="max-w-[880px] mx-auto w-full">
+      <div className="flex items-start justify-between mb-8">
+        <PageHeader
+          eyebrow="Offline Queue"
+          title="Collections Sync"
+        />
+        <StatusChip variant={onlineStatus ? 'success' : 'error'}>
           {onlineStatus ? 'ONLINE' : 'OFFLINE'}
-        </StatusBadge>
-      </header>
+        </StatusChip>
+      </div>
 
-      <Card>
-        <p className="font-body text-[14px] text-on-surface-variant mb-6">
+      <GlassCard>
+        <p className="text-sm text-on-surface-variant mb-6">
           Queued payments collected in cash or cheque while the cashier terminal was disconnected.
           They will auto-sync when connection is restored, or you can trigger a manual sync below.
         </p>
 
         {report && (
-          <Alert tone={report.includes('failed') || report.includes('Cannot') ? 'error' : 'success'}>{report}</Alert>
+          <div className={`p-4 rounded-[12px] text-sm mb-4 ${report.includes('failed') || report.includes('Cannot') ? 'bg-error-container text-error' : 'bg-success-container text-success'}`}>
+            {report}
+          </div>
         )}
 
         {queue.length === 0 ? (
-          <div className="text-center py-16 text-on-surface-variant text-[14px]">
+          <div className="text-center py-16 text-on-surface-variant text-sm">
             ✓ All collections are in sync. Local queue is empty!
           </div>
         ) : (
           <>
             <div className="overflow-x-auto mb-6">
-              <table className="w-full border-collapse text-left text-[13px]">
+              <table className="w-full border-collapse text-left text-sm">
                 <thead>
-                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                  <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                     <th className="p-3">Method</th>
                     <th className="p-3">Amount</th>
                     <th className="p-3">Details</th>
@@ -122,7 +123,7 @@ export default function OfflineQueue() {
                 </thead>
                 <tbody>
                   {queue.map(item => (
-                    <tr key={item.idempotency_key} className="border-b border-outline-variant/20">
+                    <tr key={item.idempotency_key} className="border-b border-gray-100">
                       <td className="p-3 font-semibold text-ink-black">{item.method}</td>
                       <td className="p-3 text-ink-black">₹{Number(item.amount).toLocaleString('en-IN')}</td>
                       <td className="p-3 text-on-surface-variant">
@@ -131,19 +132,19 @@ export default function OfflineQueue() {
                           : 'Cash Collection'}
                       </td>
                       <td className="p-3 text-on-surface-variant">{new Date(item.timestamp).toLocaleTimeString()}</td>
-                      <td className="p-3 font-mono text-[12px] text-on-surface-variant">{item.idempotency_key.substring(0, 15)}…</td>
+                      <td className="p-3 font-mono text-xs text-on-surface-variant">{item.idempotency_key.substring(0, 15)}…</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <PillButton type="button" onClick={triggerSync} disabled={syncing || !onlineStatus}>
+            <ActionButton type="button" onClick={triggerSync} disabled={syncing || !onlineStatus}>
               {syncing ? 'Synchronizing Payments…' : 'Sync Queued Payments with Server'}
-            </PillButton>
+            </ActionButton>
           </>
         )}
-      </Card>
+      </GlassCard>
     </div>
   );
 }

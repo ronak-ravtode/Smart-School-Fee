@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, PillButton, InputField, SelectField, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -73,87 +76,64 @@ export default function Expenses() {
   };
 
   return (
-    <div className="flex flex-col gap-section-sm">
-      <header>
-        <Eyebrow>Maintenance Expenses</Eyebrow>
-        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
-          Operational Expense Log
-        </h1>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="Maintenance Expenses"
+        title="Operational Expense Log"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Log Expense Form */}
-        <Card className="lg:col-span-1">
-          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Log Maintenance Expense</h2>
-          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+        <GlassCard className="lg:col-span-1">
+          <h2 className="font-medium text-ink-black mb-2">Log Maintenance Expense</h2>
+          <p className="text-sm text-on-surface-variant mb-6">
             Record school operational expenses (utilities, cleaning, payroll, repairs).
           </p>
 
-          <Alert tone="error">{error}</Alert>
-          <Alert tone="success">{success}</Alert>
+          {error && <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>}
+          {success && <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{success}</div>}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <InputField
-              label="Description"
-              id="exp-desc"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Watchman Salary (July)"
-              required
-            />
-
-            <InputField
-              label="Amount (₹)"
-              id="exp-amount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="e.g. 15000"
-              required
-            />
-
-            <InputField
-              label="Date"
-              id="exp-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-
-            <SelectField
-              label="Category"
-              id="exp-category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat.toUpperCase()}</option>
-              ))}
-            </SelectField>
-
-            <PillButton type="submit" disabled={loading} className="mt-1">
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Description</label>
+              <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g. Watchman Salary (July)" required className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Amount (₹)</label>
+              <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g. 15000" required className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Date</label>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Category</label>
+              <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30">
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat.toUpperCase()}</option>
+                ))}
+              </select>
+            </div>
+            <ActionButton type="submit" disabled={loading} className="mt-1">
               {loading ? 'Recording…' : 'Add Expense'}
-            </PillButton>
+            </ActionButton>
           </form>
-        </Card>
+        </GlassCard>
 
-        {/* Expenses History List */}
-        <Card className="lg:col-span-2">
-          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Operational Expenses Log</h2>
-          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+        <GlassCard className="lg:col-span-2">
+          <h2 className="font-medium text-ink-black mb-2">Operational Expenses Log</h2>
+          <p className="text-sm text-on-surface-variant mb-6">
             Showing recent maintenance entries logged by administrators.
           </p>
 
           {expenses.length === 0 ? (
-            <div className="text-center py-16 text-on-surface-variant text-[14px]">
+            <div className="text-center py-16 text-on-surface-variant text-sm">
               No expenses recorded yet.
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-[13px]">
+              <table className="w-full border-collapse text-left text-sm">
                 <thead>
-                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                  <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                     <th className="p-3">Date</th>
                     <th className="p-3">Description</th>
                     <th className="p-3">Category</th>
@@ -162,11 +142,11 @@ export default function Expenses() {
                 </thead>
                 <tbody>
                   {expenses.map(expense => (
-                    <tr key={expense.id} className="border-b border-outline-variant/20">
+                    <tr key={expense.id} className="border-b border-gray-100">
                       <td className="p-3 text-on-surface-variant">{new Date(expense.date).toLocaleDateString()}</td>
                       <td className="p-3 font-medium text-ink-black">{expense.description}</td>
                       <td className="p-3">
-                        <StatusBadge tone="outline">{expense.category.toUpperCase()}</StatusBadge>
+                        <StatusChip variant="neutral">{expense.category.toUpperCase()}</StatusChip>
                       </td>
                       <td className="p-3 text-right font-bold text-ink-black">₹{Number(expense.amount).toLocaleString('en-IN')}</td>
                     </tr>
@@ -175,7 +155,7 @@ export default function Expenses() {
               </table>
             </div>
           )}
-        </Card>
+        </GlassCard>
       </div>
     </div>
   );

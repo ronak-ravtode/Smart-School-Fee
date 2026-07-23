@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { Icon } from '../../components/Icon';
-import { InputField, PillButton, Alert, Eyebrow } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
 
 export default function Login({ onNavigate }) {
   const { login, verifyOtp, error, successMessage, loading, tempMobile, receivedOtp, clearAlerts } = useAuthStore();
@@ -29,9 +30,7 @@ export default function Login({ onNavigate }) {
     if (!validatePasswordStep()) return;
     try {
       await login(mobile, password);
-    } catch (err) {
-      /* handled by store */
-    }
+    } catch (err) {}
   };
 
   const handleOtpSubmit = async (e) => {
@@ -43,112 +42,110 @@ export default function Login({ onNavigate }) {
     try {
       await verifyOtp(otp);
       onNavigate('dashboard');
-    } catch (err) {
-      /* handled by store */
-    }
+    } catch (err) {}
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-margin-mobile py-section-sm">
-      <div className="w-full max-w-[460px] bg-lifted-cream rounded-frame p-card-padding shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)] border border-white/40 relative overflow-hidden">
-        <div className="absolute -right-16 -top-16 w-48 h-48 border-[1.5px] border-light-signal-orange/20 rounded-full" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-ink-black rounded-full flex items-center justify-center">
-              <Icon name="account_balance" className="text-white text-[20px]" />
-            </div>
-            <span className="brand-mark text-[20px]">SmartSchool</span>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f8f6f3' }}>
+      <GlassCard className="w-full max-w-[460px]">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 bg-ink-black rounded-xl flex items-center justify-center">
+            <Icon name="account_balance" className="text-white text-[20px]" />
           </div>
-
-          <Eyebrow>Secure Access</Eyebrow>
-          <h1 className="font-headline-sm text-headline-sm text-ink-black mt-2 mb-8">
-            {step === 1 ? 'Log In to Your Account' : 'Two-Factor Verification'}
-          </h1>
-
-          <Alert tone="error">{error}</Alert>
-          <Alert tone="success">{successMessage}</Alert>
-
-          {step === 1 ? (
-            <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-6" noValidate>
-              <div>
-                <InputField
-                  label="Mobile Number"
-                  id="login-mobile"
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  placeholder="10-digit mobile number"
-                  value={mobile}
-                  maxLength={10}
-                  onChange={(e) => { setMobile(e.target.value); setFormErrors({ ...formErrors, mobile: null }); }}
-                />
-                {formErrors.mobile && <span className="text-error text-[13px] pl-4">{formErrors.mobile}</span>}
-              </div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <label htmlFor="login-password" className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">Password</label>
-                  <button type="button" onClick={() => onNavigate('forgot-password')} className="font-nav-button text-nav-button text-link-blue hover:underline text-[14px]">Forgot password?</button>
-                </div>
-                <input
-                  id="login-password"
-                  type="password"
-                  autoComplete="current-password"
-                  className="w-full h-12 px-4 mt-2 rounded-full border border-outline-variant/50 bg-surface focus:outline-none focus:border-ink-black focus:ring-1 focus:ring-ink-black font-body text-body text-ink-black transition-all"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => { setPassword(e.target.value); setFormErrors({ ...formErrors, password: null }); }}
-                />
-                {formErrors.password && <span className="text-error text-[13px] pl-4">{formErrors.password}</span>}
-              </div>
-              <PillButton type="submit" disabled={loading} iconRight="arrow_forward">
-                {loading ? 'Verifying…' : 'Next Step'}
-              </PillButton>
-            </form>
-          ) : (
-            <form onSubmit={handleOtpSubmit} className="flex flex-col gap-6" noValidate>
-              <p className="font-body text-body text-on-surface-variant">
-                We sent a security code to <strong className="text-ink-black">{tempMobile}</strong>.
-              </p>
-              {receivedOtp && (
-                <div className="bg-success-container text-success rounded-[20px] p-4 text-center font-body">
-                  <span className="text-[13px]">Dev helper — Mock SMS OTP</span>
-                  <p className="font-headline-sm text-headline-sm tracking-[0.3em] mt-1">{receivedOtp}</p>
-                </div>
-              )}
-              <div>
-                <InputField
-                  label="Enter 6-Digit OTP"
-                  id="login-otp"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  placeholder="e.g. 123456"
-                  value={otp}
-                  maxLength={6}
-                  onChange={(e) => { setOtp(e.target.value); setFormErrors({ ...formErrors, otp: null }); }}
-                />
-                {formErrors.otp && <span className="text-error text-[13px] pl-4">{formErrors.otp}</span>}
-              </div>
-              <PillButton type="submit" disabled={loading} iconRight="arrow_forward">
-                {loading ? 'Verifying…' : 'Verify & Log In'}
-              </PillButton>
-              <button
-                type="button"
-                className="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors"
-                onClick={() => { useAuthStore.setState({ tempMobile: null }); setStep(1); }}
-              >
-                Back to Password
-              </button>
-            </form>
-          )}
-
-          <p className="text-center mt-8 font-body text-body text-on-surface-variant">
-            Don&rsquo;t have an account?{' '}
-            <button type="button" onClick={() => onNavigate('signup')} className="text-ink-black font-medium underline underline-offset-4 hover:text-signal-orange transition-colors">
-              Sign Up
-            </button>
-          </p>
+          <span className="font-semibold text-xl text-ink-black">SmartSchool</span>
         </div>
-      </div>
+
+        <p className="text-xs font-medium text-module-dashboard uppercase tracking-wider mb-1">Secure Access</p>
+        <h1 className="text-2xl font-semibold text-ink-black mb-6">
+          {step === 1 ? 'Log In to Your Account' : 'Two-Factor Verification'}
+        </h1>
+
+        {error && (
+          <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>
+        )}
+        {successMessage && (
+          <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{successMessage}</div>
+        )}
+
+        {step === 1 ? (
+          <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-5" noValidate>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Mobile Number</label>
+              <input
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                placeholder="10-digit mobile number"
+                value={mobile}
+                maxLength={10}
+                onChange={(e) => { setMobile(e.target.value); setFormErrors({ ...formErrors, mobile: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
+              />
+              {formErrors.mobile && <span className="text-error text-xs mt-1 block">{formErrors.mobile}</span>}
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-ink-black">Password</label>
+                <button type="button" onClick={() => onNavigate('forgot-password')} className="text-xs text-link-blue hover:underline">Forgot password?</button>
+              </div>
+              <input
+                type="password"
+                autoComplete="current-password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setFormErrors({ ...formErrors, password: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
+              />
+              {formErrors.password && <span className="text-error text-xs mt-1 block">{formErrors.password}</span>}
+            </div>
+            <ActionButton type="submit" disabled={loading}>
+              {loading ? 'Verifying…' : 'Next Step'}
+            </ActionButton>
+          </form>
+        ) : (
+          <form onSubmit={handleOtpSubmit} className="flex flex-col gap-5" noValidate>
+            <p className="text-sm text-on-surface-variant">
+              We sent a security code to <strong className="text-ink-black">{tempMobile}</strong>.
+            </p>
+            {receivedOtp && (
+              <div className="bg-success-container text-success rounded-[12px] p-4 text-center text-sm">
+                <span className="text-xs">Dev helper — Mock SMS OTP</span>
+                <p className="text-xl font-semibold tracking-[0.3em] mt-1">{receivedOtp}</p>
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Enter 6-Digit OTP</label>
+              <input
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="e.g. 123456"
+                value={otp}
+                maxLength={6}
+                onChange={(e) => { setOtp(e.target.value); setFormErrors({ ...formErrors, otp: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
+              />
+              {formErrors.otp && <span className="text-error text-xs mt-1 block">{formErrors.otp}</span>}
+            </div>
+            <ActionButton type="submit" disabled={loading}>
+              {loading ? 'Verifying…' : 'Verify & Log In'}
+            </ActionButton>
+            <button
+              type="button"
+              className="text-sm text-on-surface-variant hover:text-ink-black transition-colors"
+              onClick={() => { useAuthStore.setState({ tempMobile: null }); setStep(1); }}
+            >
+              Back to Password
+            </button>
+          </form>
+        )}
+
+        <p className="text-center mt-8 text-sm text-on-surface-variant">
+          Don&rsquo;t have an account?{' '}
+          <button type="button" onClick={() => onNavigate('signup')} className="text-ink-black font-medium underline underline-offset-4 hover:text-module-dashboard transition-colors">
+            Sign Up
+          </button>
+        </p>
+      </GlassCard>
     </div>
   );
 }

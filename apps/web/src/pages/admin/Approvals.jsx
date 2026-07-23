@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Icon } from '../../components/Icon';
-import { Card, PillButton, InputField, SelectField, Alert, StatusBadge, Eyebrow } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
 
 const TABS = [
   { key: 'ocr', label: 'OCR Identity Approvals', icon: 'document_scanner' },
@@ -10,7 +13,7 @@ const TABS = [
 ];
 
 export default function Approvals() {
-  const [activeTab, setActiveTab] = useState('ocr'); // 'ocr', 'waivers', 'refunds'
+  const [activeTab, setActiveTab] = useState('ocr');
 
   const [approvals, setApprovals] = useState([]);
   const [waivers, setWaivers] = useState([]);
@@ -21,7 +24,6 @@ export default function Approvals() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Override form states
   const [overrideStudentId, setOverrideStudentId] = useState(null);
   const [overrideForm, setOverrideForm] = useState({
     name: '',
@@ -32,7 +34,6 @@ export default function Approvals() {
   const [rejectId, setRejectId] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  // Refund dialog states
   const [refundTxId, setRefundTxId] = useState(null);
   const [refundReason, setRefundReason] = useState('');
 
@@ -145,7 +146,6 @@ export default function Approvals() {
     }
   };
 
-  // Waiver/Penalty Actions
   const handleApproveWaiver = async (id) => {
     setLoading(true);
     setError(null);
@@ -190,7 +190,6 @@ export default function Approvals() {
     }
   };
 
-  // Refund Actions
   const handleOpenRefund = (id) => {
     setRefundTxId(id);
     setRefundReason('');
@@ -242,92 +241,82 @@ export default function Approvals() {
   };
 
   return (
-    <div className="flex flex-col gap-section-sm">
-      <header>
-        <Eyebrow>Pending Approvals</Eyebrow>
-        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
-          Identity, Waivers & Refunds
-        </h1>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="Pending Approvals"
+        title="Identity, Waivers & Refunds"
+      />
 
-      {/* Sub tabs nav */}
-      <div className="flex flex-wrap gap-2 border-b border-outline-variant/40 pb-4">
+      <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-4 mb-6">
         {TABS.map(tab => (
           <button
             key={tab.key}
             type="button"
             onClick={() => switchTab(tab.key)}
-            className={`inline-flex items-center gap-2 rounded-full px-5 h-12 font-nav-button text-nav-button text-[14px] transition-colors ${activeTab === tab.key ? 'bg-ink-black text-canvas-cream' : 'border border-outline-variant text-ink-black hover:bg-surface-container-low'}`}
+            className={`inline-flex items-center gap-2 rounded-buttons px-5 h-11 text-sm font-medium transition-all ${activeTab === tab.key ? 'bg-ink-black text-white' : 'border border-gray-200 text-ink-black hover:bg-gray-50'}`}
           >
-            <Icon name={tab.icon} className="text-[18px]" />
+            <Icon name={tab.icon} className="text-lg" />
             {tab.label}
           </button>
         ))}
       </div>
 
-      <Alert tone="error">{error}</Alert>
-      <Alert tone="success">{success}</Alert>
+      {error && <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>}
+      {success && <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{success}</div>}
 
-      {/* Reject reason popover */}
       {rejectId && (
-        <Card>
-          <h3 className="font-headline-sm text-headline-sm text-ink-black mb-4">Provide Rejection Reason</h3>
+        <GlassCard className="mb-6">
+          <h3 className="font-medium text-ink-black mb-4">Provide Rejection Reason</h3>
           <form onSubmit={handleRejectSubmit} className="flex flex-col gap-4">
-            <InputField
-              label="Reason"
-              id="reject-reason"
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Reason for rejecting waiver/penalty request..."
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Reason</label>
+              <input
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Reason for rejecting waiver/penalty request..."
+                required
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
+              />
+            </div>
             <div className="flex gap-3">
-              <PillButton type="submit" variant="primary" disabled={loading} className="bg-error hover:bg-error/90 text-white">
-                Confirm Reject
-              </PillButton>
-              <PillButton type="button" variant="outline" onClick={() => setRejectId(null)}>
-                Cancel
-              </PillButton>
+              <ActionButton type="submit" disabled={loading}>Confirm Reject</ActionButton>
+              <ActionButton variant="secondary" type="button" onClick={() => setRejectId(null)}>Cancel</ActionButton>
             </div>
           </form>
-        </Card>
+        </GlassCard>
       )}
 
-      {/* Refund reason popover */}
       {refundTxId && (
-        <Card>
-          <h3 className="font-headline-sm text-headline-sm text-ink-black mb-4">Initiate Refund Reversal</h3>
+        <GlassCard className="mb-6">
+          <h3 className="font-medium text-ink-black mb-4">Initiate Refund Reversal</h3>
           <form onSubmit={handleRefundSubmit} className="flex flex-col gap-4">
-            <InputField
-              label="Reason"
-              id="refund-reason"
-              value={refundReason}
-              onChange={(e) => setRefundReason(e.target.value)}
-              placeholder="Reason for refunding this payment..."
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Reason</label>
+              <input
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                placeholder="Reason for refunding this payment..."
+                required
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
+              />
+            </div>
             <div className="flex gap-3">
-              <PillButton type="submit" disabled={loading}>
-                {loading ? 'Processing Reversal…' : 'Confirm Refund'}
-              </PillButton>
-              <PillButton type="button" variant="outline" onClick={() => setRefundTxId(null)} disabled={loading}>
-                Cancel
-              </PillButton>
+              <ActionButton type="submit" disabled={loading}>{loading ? 'Processing Reversal…' : 'Confirm Refund'}</ActionButton>
+              <ActionButton variant="secondary" type="button" onClick={() => setRefundTxId(null)} disabled={loading}>Cancel</ActionButton>
             </div>
           </form>
-        </Card>
+        </GlassCard>
       )}
 
-      {/* OCR Tab content */}
       {activeTab === 'ocr' && (
-        <Card>
-          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Pending Identity & Document Approvals</h2>
-          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+        <GlassCard>
+          <h2 className="font-medium text-ink-black mb-2">Pending Identity & Document Approvals</h2>
+          <p className="text-sm text-on-surface-variant mb-6">
             Review minor details submitted by parents alongside automated OCR extraction data.
           </p>
 
           {approvals.length === 0 ? (
-            <div className="text-center py-16 text-on-surface-variant text-[14px]">
+            <div className="text-center py-16 text-on-surface-variant text-sm">
               No pending KYC approvals found. All students are currently active.
             </div>
           ) : (
@@ -341,27 +330,27 @@ export default function Approvals() {
                 return (
                   <div
                     key={student.id}
-                    className={`rounded-frame border p-6 ${student.ocrFlagged ? 'border-error/30 bg-error-container/30' : 'border-outline-variant/30 bg-surface'}`}
+                    className={`rounded-[12px] border p-6 ${student.ocrFlagged ? 'border-error/30 bg-error-container/30' : 'border-gray-200 bg-white'}`}
                   >
                     <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
                       <div className="flex-1 min-w-[250px]">
-                        <StatusBadge tone="ink" className="mb-2">Student #{student.id} ({student.class})</StatusBadge>
-                        <h3 className="font-headline-sm text-headline-sm text-ink-black mb-1">{student.name}</h3>
-                        <p className="font-body text-[13px] text-on-surface-variant">
+                        <StatusChip variant="neutral" className="mb-2">Student #{student.id} ({student.class})</StatusChip>
+                        <h3 className="font-medium text-ink-black mb-1">{student.name}</h3>
+                        <p className="text-sm text-on-surface-variant">
                           <strong>Parent:</strong> {student.guardian?.name} ({student.guardian?.mobile})
                         </p>
-                        <p className="font-body text-[13px] text-on-surface-variant mt-1">
+                        <p className="text-sm text-on-surface-variant mt-1">
                           <strong>Doc Type:</strong> <span className="uppercase">{kyc?.docType}</span> | <strong>Doc Ref (Masked):</strong> {kyc?.docRef || 'None'}
                         </p>
                       </div>
 
                       {kyc && (
-                        <div className="flex-1 min-w-[250px] bg-surface-container-low rounded-[20px] p-4 text-[13px]">
+                        <div className="flex-1 min-w-[250px] bg-gray-50 rounded-[12px] p-4 text-sm">
                           <span className={`font-bold block mb-2 ${student.ocrFlagged ? 'text-error' : 'text-success'}`}>
-                            {student.ocrFlagged ? '⚠ Automated OCR Alert: Mismatch Detected' : '✓ Automated OCR: OK'}
+                            {student.ocrFlagged ? 'Automated OCR Alert: Mismatch Detected' : 'Automated OCR: OK'}
                           </span>
                           <div className="grid grid-cols-2 gap-3">
-                            <div className="border-r border-outline-variant/30 pr-2">
+                            <div className="border-r border-gray-200 pr-2">
                               <span className="text-on-surface-variant block">Form Input:</span>
                               <div className={nameMismatch ? 'text-error' : 'text-success'}>
                                 <strong>Name:</strong> {student.name}
@@ -385,58 +374,41 @@ export default function Approvals() {
 
                       {!isOverridingThis && (
                         <div className="flex flex-col gap-2 min-w-[150px]">
-                          <PillButton type="button" onClick={() => handleVerifyDirect(student.id)} disabled={loading}>
-                            Verify & Approve
-                          </PillButton>
-                          <PillButton type="button" variant="outline" onClick={() => handleOpenOverride(student)} disabled={loading}>
-                            Manual Override
-                          </PillButton>
+                          <ActionButton onClick={() => handleVerifyDirect(student.id)} disabled={loading}>Verify & Approve</ActionButton>
+                          <ActionButton variant="secondary" onClick={() => handleOpenOverride(student)} disabled={loading}>Manual Override</ActionButton>
                         </div>
                       )}
                     </div>
 
                     {isOverridingThis && (
-                      <div className="mt-5 pt-5 border-t border-outline-variant/40">
-                        <span className="font-eyebrow text-eyebrow uppercase tracking-wider text-light-signal-orange block mb-4">
+                      <div className="mt-5 pt-5 border-t border-gray-200">
+                        <span className="text-xs font-medium text-module-dashboard uppercase tracking-wider block mb-4">
                           Manual Correction Override
                         </span>
                         <form onSubmit={handleOverrideSubmit} className="flex flex-col gap-4">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <InputField
-                              label="Corrected Name"
-                              id="ov-name"
-                              required
-                              value={overrideForm.name}
-                              onChange={(e) => setOverrideForm({ ...overrideForm, name: e.target.value })}
-                            />
-                            <SelectField
-                              label="Corrected Class"
-                              id="ov-class"
-                              value={overrideForm.class}
-                              onChange={(e) => setOverrideForm({ ...overrideForm, class: e.target.value })}
-                            >
-                              <option value="Grade 1-A">Grade 1-A</option>
-                              <option value="Grade 2-C">Grade 2-C</option>
-                              <option value="Grade 5-A">Grade 5-A</option>
-                              <option value="Grade 10-A">Grade 10-A</option>
-                              <option value="Grade 10-B">Grade 10-B</option>
-                            </SelectField>
-                            <InputField
-                              label="Corrected Date of Birth"
-                              id="ov-dob"
-                              type="date"
-                              required
-                              value={overrideForm.dob}
-                              onChange={(e) => setOverrideForm({ ...overrideForm, dob: e.target.value })}
-                            />
+                            <div>
+                              <label className="block text-sm font-medium text-ink-black mb-1">Corrected Name</label>
+                              <input required value={overrideForm.name} onChange={(e) => setOverrideForm({ ...overrideForm, name: e.target.value })} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-ink-black mb-1">Corrected Class</label>
+                              <select value={overrideForm.class} onChange={(e) => setOverrideForm({ ...overrideForm, class: e.target.value })} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30">
+                                <option value="Grade 1-A">Grade 1-A</option>
+                                <option value="Grade 2-C">Grade 2-C</option>
+                                <option value="Grade 5-A">Grade 5-A</option>
+                                <option value="Grade 10-A">Grade 10-A</option>
+                                <option value="Grade 10-B">Grade 10-B</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-ink-black mb-1">Corrected Date of Birth</label>
+                              <input type="date" required value={overrideForm.dob} onChange={(e) => setOverrideForm({ ...overrideForm, dob: e.target.value })} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30" />
+                            </div>
                           </div>
                           <div className="flex gap-3">
-                            <PillButton type="submit" disabled={loading}>
-                              {loading ? 'Submitting Override…' : 'Submit Correction & Approve'}
-                            </PillButton>
-                            <PillButton type="button" variant="outline" onClick={handleCloseOverride}>
-                              Cancel
-                            </PillButton>
+                            <ActionButton type="submit" disabled={loading}>{loading ? 'Submitting Override…' : 'Submit Correction & Approve'}</ActionButton>
+                            <ActionButton variant="secondary" type="button" onClick={handleCloseOverride}>Cancel</ActionButton>
                           </div>
                         </form>
                       </div>
@@ -446,44 +418,39 @@ export default function Approvals() {
               })}
             </div>
           )}
-        </Card>
+        </GlassCard>
       )}
 
-      {/* Waiver Tab content */}
       {activeTab === 'waivers' && (
-        <Card>
-          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Waiver & Penalty Requests Approvals</h2>
-          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+        <GlassCard>
+          <h2 className="font-medium text-ink-black mb-2">Waiver & Penalty Requests Approvals</h2>
+          <p className="text-sm text-on-surface-variant mb-6">
             Review pending waiver requests or penalty fee additions submitted by cashier staff.
           </p>
 
           {waivers.length === 0 ? (
-            <div className="text-center py-16 text-on-surface-variant text-[14px]">
+            <div className="text-center py-16 text-on-surface-variant text-sm">
               No pending waiver or penalty approvals found.
             </div>
           ) : (
             <div className="flex flex-col gap-5">
               {waivers.map(record => (
-                <div key={record.id} className="rounded-frame border border-outline-variant/30 bg-surface p-6">
+                <div key={record.id} className="rounded-[12px] border border-gray-200 bg-white p-6">
                   <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                     <div>
-                      <StatusBadge tone={record.type === 'waiver' ? 'active' : 'warning'} className="uppercase mb-2">{record.type} Request</StatusBadge>
-                      <h3 className="font-headline-sm text-headline-sm text-ink-black mb-1">{record.student.name} ({record.student.class})</h3>
-                      <p className="font-body text-[13px] text-on-surface-variant">
+                      <StatusChip variant={record.type === 'waiver' ? 'success' : 'warning'} className="uppercase mb-2">{record.type} Request</StatusChip>
+                      <h3 className="font-medium text-ink-black mb-1">{record.student.name} ({record.student.class})</h3>
+                      <p className="text-sm text-on-surface-variant">
                         <strong>Component:</strong> {record.feeAssignment?.feeStructure?.name} | <strong>Reason:</strong> {record.reason}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className={`font-headline-sm text-headline-sm ${record.type === 'waiver' ? 'text-success' : 'text-error'}`}>
+                      <span className={`text-lg font-semibold ${record.type === 'waiver' ? 'text-success' : 'text-error'}`}>
                         {record.type === 'waiver' ? '-' : '+'} ₹{Number(record.amount).toLocaleString()}
                       </span>
                       <div className="flex gap-2">
-                        <PillButton type="button" variant="primary" className="bg-success hover:bg-success/90 text-white h-10 px-5" onClick={() => handleApproveWaiver(record.id)} disabled={loading}>
-                          Approve
-                        </PillButton>
-                        <PillButton type="button" variant="outline" className="border-error text-error hover:bg-error-container/40 h-10 px-5" onClick={() => handleOpenReject(record.id)} disabled={loading}>
-                          Reject
-                        </PillButton>
+                        <ActionButton onClick={() => handleApproveWaiver(record.id)} disabled={loading}>Approve</ActionButton>
+                        <ActionButton variant="secondary" onClick={() => handleOpenReject(record.id)} disabled={loading}>Reject</ActionButton>
                       </div>
                     </div>
                   </div>
@@ -491,26 +458,25 @@ export default function Approvals() {
               ))}
             </div>
           )}
-        </Card>
+        </GlassCard>
       )}
 
-      {/* Refunds Tab content */}
       {activeTab === 'refunds' && (
-        <Card>
-          <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Refund Processing & Bank Reversals</h2>
-          <p className="font-body text-[14px] text-on-surface-variant mb-6">
+        <GlassCard>
+          <h2 className="font-medium text-ink-black mb-2">Refund Processing & Bank Reversals</h2>
+          <p className="text-sm text-on-surface-variant mb-6">
             Process bank reversals for educational fee payments. Stage 2 KYC banking details must be completed by parents prior to refund execution.
           </p>
 
           {transactions.length === 0 ? (
-            <div className="text-center py-16 text-on-surface-variant text-[14px]">
+            <div className="text-center py-16 text-on-surface-variant text-sm">
               No payments found in ledger database.
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-[14px]">
+              <table className="w-full border-collapse text-left text-sm">
                 <thead>
-                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                  <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                     <th className="p-3">Receipt No</th>
                     <th className="p-3">Student (Class)</th>
                     <th className="p-3">Amount</th>
@@ -524,7 +490,7 @@ export default function Approvals() {
                     const hasKyc = studentMatch?.kycRecord?.isBankingComplete;
 
                     return (
-                      <tr key={tx.id} className="border-b border-outline-variant/20">
+                      <tr key={tx.id} className="border-b border-gray-100">
                         <td className="p-3 font-bold font-mono text-ink-black">{tx.receiptNumber}</td>
                         <td className="p-3">
                           <strong className="text-ink-black">{tx.student.name}</strong> ({tx.student.class})
@@ -533,24 +499,21 @@ export default function Approvals() {
                           {tx.status === 'reversed' ? '-' : ''}₹{Number(tx.amount).toLocaleString('en-IN')}
                         </td>
                         <td className="p-3">
-                          <StatusBadge tone={hasKyc ? 'active' : 'warning'}>
+                          <StatusChip variant={hasKyc ? 'success' : 'warning'}>
                             {hasKyc ? 'COMPLETE' : 'MISSING DETAILS'}
-                          </StatusBadge>
+                          </StatusChip>
                         </td>
                         <td className="p-3 text-right">
                           {tx.status === 'reversed' ? (
-                            <span className="text-[13px] text-error italic">Reversed</span>
+                            <span className="text-sm text-error italic">Reversed</span>
                           ) : (
-                            <PillButton
-                              type="button"
-                              variant="outline"
-                              className="border-error text-error hover:bg-error-container/40 h-10 px-4"
+                            <ActionButton
+                              variant="ghost"
                               onClick={() => handleOpenRefund(tx.id)}
                               disabled={!hasKyc || loading}
-                              title={hasKyc ? 'Process refund reversal' : 'Awaiting guardian Stage 2 bank details'}
                             >
                               Refund Reversal
-                            </PillButton>
+                            </ActionButton>
                           )}
                         </td>
                       </tr>
@@ -560,7 +523,7 @@ export default function Approvals() {
               </table>
             </div>
           )}
-        </Card>
+        </GlassCard>
       )}
     </div>
   );

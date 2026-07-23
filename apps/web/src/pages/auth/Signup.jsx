@@ -3,7 +3,8 @@ import { useAuthStore } from '../../stores/authStore';
 import OCRUpload from '../../components/common/OCRUpload';
 import axios from 'axios';
 import { Icon } from '../../components/Icon';
-import { InputField, SelectField, PillButton, Alert, Eyebrow } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
 
 const CLASSES = ['Grade 1-A', 'Grade 2-C', 'Grade 5-A', 'Grade 10-B'];
 
@@ -148,88 +149,97 @@ export default function Signup({ onNavigate }) {
   const warningTone = ocrWarning.startsWith('Document details verified') ? 'success' : 'error';
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-margin-mobile py-section-sm">
-      <div className="w-full max-w-[680px] bg-lifted-cream rounded-frame p-card-padding shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] border border-white/40 relative overflow-hidden">
-        <div className="absolute -right-16 -top-16 w-56 h-56 border-[1.5px] border-light-signal-orange/20 rounded-full" />
-        <div className="relative z-10">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f8f6f3' }}>
+      <GlassCard className="w-full max-w-[680px]" noPadding>
+        <div className="p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-ink-black rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-ink-black rounded-xl flex items-center justify-center">
               <Icon name="account_balance" className="text-white text-[20px]" />
             </div>
-            <span className="brand-mark text-[20px]">SmartSchool</span>
+            <span className="font-semibold text-xl text-ink-black">SmartSchool</span>
           </div>
 
-          <Eyebrow>Stage 1: Identity &amp; Registration</Eyebrow>
-          <h1 className="font-headline-sm text-headline-sm text-ink-black mt-2 mb-2">
-            Create Your Account
-          </h1>
-          <p className="font-body text-body text-on-surface-variant mb-8">
+          <p className="text-xs font-medium text-module-dashboard uppercase tracking-wider mb-1">Stage 1: Identity & Registration</p>
+          <h1 className="text-2xl font-semibold text-ink-black mb-2">Create Your Account</h1>
+          <p className="text-sm text-on-surface-variant mb-8">
             {formData.role === 'guardian'
-              ? 'Set up parent credentials and scan your child’s ID document to verify details.'
+              ? 'Set up parent credentials and scan your child\'s ID document to verify details.'
               : 'Register a secure school management administrative account.'}
           </p>
 
-          <Alert tone="error">{authError || apiError}</Alert>
-          <Alert tone="success">{successMessage}</Alert>
+          {(authError || apiError) && (
+            <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{authError || apiError}</div>
+          )}
+          {successMessage && (
+            <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{successMessage}</div>
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-            <section className="flex flex-col gap-4 pb-6 border-b border-outline-variant/40">
-              <span className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">Account Credentials</span>
+            <section className="flex flex-col gap-4 pb-6 border-b border-gray-200">
+              <span className="text-xs font-medium text-module-dashboard uppercase tracking-wider">Account Credentials</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <InputField label="Full Name" id="signup-name" name="name" placeholder="Enter full name" value={formData.name} onChange={handleChange} />
-                  {formErrors.name && <span className="text-error text-[13px] pl-4">{formErrors.name}</span>}
+                  <label className="block text-sm font-medium text-ink-black mb-1">Full Name</label>
+                  <input name="name" placeholder="Enter full name" value={formData.name} onChange={handleChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all" />
+                  {formErrors.name && <span className="text-error text-xs mt-1 block">{formErrors.name}</span>}
                 </div>
                 <div>
-                  <InputField label="Email Address" id="signup-email" name="email" type="email" autoComplete="email" placeholder="name@mail.com" value={formData.email} onChange={handleChange} />
-                  {formErrors.email && <span className="text-error text-[13px] pl-4">{formErrors.email}</span>}
+                  <label className="block text-sm font-medium text-ink-black mb-1">Email Address</label>
+                  <input name="email" type="email" autoComplete="email" placeholder="name@mail.com" value={formData.email} onChange={handleChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all" />
+                  {formErrors.email && <span className="text-error text-xs mt-1 block">{formErrors.email}</span>}
                 </div>
                 <div>
-                  <InputField label="Mobile Number" id="signup-mobile" name="mobile" type="tel" inputMode="numeric" autoComplete="tel" placeholder="10-digit number" maxLength={10} value={formData.mobile} onChange={handleChange} />
-                  {formErrors.mobile && <span className="text-error text-[13px] pl-4">{formErrors.mobile}</span>}
+                  <label className="block text-sm font-medium text-ink-black mb-1">Mobile Number</label>
+                  <input name="mobile" type="tel" inputMode="numeric" autoComplete="tel" placeholder="10-digit number" maxLength={10} value={formData.mobile} onChange={handleChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all" />
+                  {formErrors.mobile && <span className="text-error text-xs mt-1 block">{formErrors.mobile}</span>}
                 </div>
                 <div>
-                  <InputField label="Password" id="signup-password" name="password" type="password" autoComplete="new-password" placeholder="Password" value={formData.password} onChange={handleChange} />
-                  {formErrors.password && <span className="text-error text-[13px] pl-4">{formErrors.password}</span>}
+                  <label className="block text-sm font-medium text-ink-black mb-1">Password</label>
+                  <input name="password" type="password" autoComplete="new-password" placeholder="Password" value={formData.password} onChange={handleChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all" />
+                  {formErrors.password && <span className="text-error text-xs mt-1 block">{formErrors.password}</span>}
                 </div>
               </div>
               <div className="max-w-[240px]">
-                <SelectField label="Registering As" id="signup-role" name="role" value={formData.role} onChange={handleChange}>
+                <label className="block text-sm font-medium text-ink-black mb-1">Registering As</label>
+                <select name="role" value={formData.role} onChange={handleChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all">
                   <option value="guardian">Guardian / Parent</option>
                   <option value="admin">School Admin</option>
-                </SelectField>
+                </select>
               </div>
             </section>
 
             {formData.role === 'guardian' && (
-              <section className="flex flex-col gap-4 pb-6 border-b border-outline-variant/40">
-                <span className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">Ward (Student) Details</span>
+              <section className="flex flex-col gap-4 pb-6 border-b border-gray-200">
+                <span className="text-xs font-medium text-module-dashboard uppercase tracking-wider">Ward (Student) Details</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <InputField label="Student Name" id="student-name" name="name" placeholder="Child's full name" value={studentData.name} onChange={handleStudentChange} />
-                    {formErrors.studentName && <span className="text-error text-[13px] pl-4">{formErrors.studentName}</span>}
+                    <label className="block text-sm font-medium text-ink-black mb-1">Student Name</label>
+                    <input name="name" placeholder="Child's full name" value={studentData.name} onChange={handleStudentChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all" />
+                    {formErrors.studentName && <span className="text-error text-xs mt-1 block">{formErrors.studentName}</span>}
                   </div>
                   <div>
-                    <SelectField label="Academic Class" id="student-class" name="class" value={studentData.class} onChange={handleStudentChange}>
+                    <label className="block text-sm font-medium text-ink-black mb-1">Academic Class</label>
+                    <select name="class" value={studentData.class} onChange={handleStudentChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all">
                       {CLASSES.map((c) => (
                         <option key={c} value={c}>{c}</option>
                       ))}
-                    </SelectField>
+                    </select>
                   </div>
                   <div>
-                    <InputField label="Date of Birth" id="student-dob" name="dob" type="date" value={studentData.dob} onChange={handleStudentChange} />
-                    {formErrors.studentDob && <span className="text-error text-[13px] pl-4">{formErrors.studentDob}</span>}
+                    <label className="block text-sm font-medium text-ink-black mb-1">Date of Birth</label>
+                    <input name="dob" type="date" value={studentData.dob} onChange={handleStudentChange} className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all" />
+                    {formErrors.studentDob && <span className="text-error text-xs mt-1 block">{formErrors.studentDob}</span>}
                   </div>
                 </div>
 
                 <div>
-                  <label className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider block mb-2">KYC Verification Document</label>
+                  <label className="block text-sm font-medium text-ink-black mb-2">KYC Verification Document</label>
                   <div className="flex gap-6 mb-3">
-                    <label className="flex items-center gap-2 font-body text-body text-ink-black cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm text-ink-black cursor-pointer">
                       <input type="radio" name="docType" checked={docType === 'aadhaar'} onChange={() => setDocType('aadhaar')} className="accent-ink-black" />
                       Aadhaar Card
                     </label>
-                    <label className="flex items-center gap-2 font-body text-body text-ink-black cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm text-ink-black cursor-pointer">
                       <input type="radio" name="docType" checked={docType === 'birth_certificate'} onChange={() => setDocType('birth_certificate')} className="accent-ink-black" />
                       Birth Certificate
                     </label>
@@ -237,10 +247,10 @@ export default function Signup({ onNavigate }) {
                 </div>
 
                 <OCRUpload docType={docType} onOCRComplete={handleOCRComplete} />
-                {formErrors.ocr && <span className="text-error text-[13px]">{formErrors.ocr}</span>}
+                {formErrors.ocr && <span className="text-error text-xs">{formErrors.ocr}</span>}
 
                 {ocrWarning && (
-                  <div className={`p-4 rounded-[20px] font-body text-[14px] ${warningTone === 'success' ? 'bg-success-container text-success' : 'bg-error-container text-on-error-container'}`}>
+                  <div className={`p-4 rounded-[12px] text-sm ${warningTone === 'success' ? 'bg-success-container text-success' : 'bg-error-container text-on-error-container'}`}>
                     {ocrWarning}
                   </div>
                 )}
@@ -254,24 +264,24 @@ export default function Signup({ onNavigate }) {
                 onChange={(e) => setConsentChecked(e.target.checked)}
                 className="mt-1 w-5 h-5 rounded accent-ink-black"
               />
-              <span className="font-body text-body text-on-surface-variant">
+              <span className="text-sm text-on-surface-variant">
                 <strong className="text-ink-black">DPDP Act 2023 Consent:</strong> I explicitly consent to the collection and processing of my ward&rsquo;s educational, financial, and personal minor data for school fee administration.
               </span>
             </label>
 
-            <PillButton type="submit" disabled={!consentChecked || loading} iconRight="arrow_forward">
+            <ActionButton type="submit" disabled={!consentChecked || loading}>
               {loading ? 'Processing Registration…' : 'Agree & Register Account'}
-            </PillButton>
+            </ActionButton>
           </form>
 
-          <p className="text-center mt-8 font-body text-body text-on-surface-variant">
+          <p className="text-center mt-8 text-sm text-on-surface-variant">
             Already have an account?{' '}
-            <button type="button" onClick={() => onNavigate('login')} className="text-ink-black font-medium underline underline-offset-4 hover:text-signal-orange transition-colors">
+            <button type="button" onClick={() => onNavigate('login')} className="text-ink-black font-medium underline underline-offset-4 hover:text-module-dashboard transition-colors">
               Log In
             </button>
           </p>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 }

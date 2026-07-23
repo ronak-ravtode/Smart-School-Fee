@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PaymentButton from '../../components/common/PaymentButton';
 import { Icon } from '../../components/Icon';
-import { Card, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
 
 export default function Payment() {
   const [students, setStudents] = useState([]);
@@ -11,7 +13,6 @@ export default function Payment() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 1. Fetch wards
   useEffect(() => {
     const fetchWards = async () => {
       try {
@@ -28,7 +29,6 @@ export default function Payment() {
     fetchWards();
   }, []);
 
-  // 2. Fetch assignments when selected ward changes
   useEffect(() => {
     if (!selectedStudentId) return;
     const fetchAssignments = async () => {
@@ -49,7 +49,6 @@ export default function Payment() {
 
   const handleDownloadReceipt = async (assignmentId) => {
     try {
-      // Find the success transaction for this assignment
       const txRes = await axios.get('/api/payments/transactions');
       const tx = txRes.data.find(t => t.feeAssignmentId === assignmentId && t.status === 'success');
       if (!tx) {
@@ -73,30 +72,27 @@ export default function Payment() {
   const selectedStudent = students.find(s => s.id.toString() === selectedStudentId);
 
   return (
-    <div className="flex flex-col gap-section-sm">
-      <header>
-        <Eyebrow>Pay Fees</Eyebrow>
-        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
-          Fee Ledger & Payments
-        </h1>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="Pay Fees"
+        title="Fee Ledger & Payments"
+      />
 
-      {/* Ward Selector Section */}
-      <Card>
-        <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Select Student Profile</h2>
-        <p className="font-body text-[14px] text-on-surface-variant mb-6">
+      <GlassCard className="mb-6">
+        <h2 className="font-medium text-ink-black mb-2">Select Student Profile</h2>
+        <p className="text-sm text-on-surface-variant mb-6">
           Select one of your linked children to view outstanding school fees and clear transactions.
         </p>
 
         {students.length === 0 ? (
-          <div className="text-on-surface-variant text-[14px]">No registered student records found.</div>
+          <div className="text-on-surface-variant text-sm">No registered student records found.</div>
         ) : (
           <div className="flex gap-2 flex-wrap">
             {students.map(s => (
               <button
                 key={s.id}
                 type="button"
-                className={`inline-flex items-center gap-2 rounded-full px-5 h-11 font-nav-button text-nav-button text-[14px] transition-colors ${selectedStudentId === s.id.toString() ? 'bg-ink-black text-canvas-cream' : 'border border-outline-variant text-ink-black hover:bg-surface-container-low'}`}
+                className={`inline-flex items-center gap-2 rounded-buttons px-5 h-11 text-sm font-medium transition-all ${selectedStudentId === s.id.toString() ? 'bg-ink-black text-white' : 'border border-gray-200 text-ink-black hover:bg-gray-50'}`}
                 onClick={() => setSelectedStudentId(s.id.toString())}
               >
                 {s.name} ({s.class})
@@ -104,36 +100,35 @@ export default function Payment() {
             ))}
           </div>
         )}
-      </Card>
+      </GlassCard>
 
-      {/* Outstanding Fees Panel */}
       {selectedStudent && (
-        <Card>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-5 border-b border-outline-variant/40">
+        <GlassCard>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-5 border-b border-gray-200">
             <div>
-              <h2 className="font-headline-sm text-headline-sm text-ink-black">Fee Ledger: {selectedStudent.name}</h2>
-              <p className="font-body text-[13px] text-on-surface-variant mt-1">
+              <h2 className="font-medium text-ink-black">Fee Ledger: {selectedStudent.name}</h2>
+              <p className="text-sm text-on-surface-variant mt-1">
                 Verify minor details and process payments safely. UPI transactions are zero-fee under NPCI guidelines.
               </p>
             </div>
-            <StatusBadge tone={selectedStudent.status === 'active' ? 'active' : 'pending'} className="capitalize">
+            <StatusChip variant={selectedStudent.status === 'active' ? 'success' : 'pending'} className="capitalize">
               KYC Status: {selectedStudent.status}
-            </StatusBadge>
+            </StatusChip>
           </div>
 
-          <Alert tone="error">{error}</Alert>
+          {error && <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>}
 
           {loading ? (
-            <div className="text-center py-12 text-on-surface-variant text-[14px]">Loading assigned fee schedules…</div>
+            <div className="text-center py-12 text-on-surface-variant text-sm">Loading assigned fee schedules…</div>
           ) : assignments.length === 0 ? (
-            <div className="text-center py-12 text-on-surface-variant text-[14px]">
+            <div className="text-center py-12 text-on-surface-variant text-sm">
               No outstanding fees have been assigned to {selectedStudent.name} for the active term.
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-[14px]">
+              <table className="w-full border-collapse text-left text-sm">
                 <thead>
-                  <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                  <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                     <th className="p-3">Fee Component</th>
                     <th className="p-3">Academic Term</th>
                     <th className="p-3">Amount Due</th>
@@ -146,22 +141,22 @@ export default function Payment() {
                   {assignments.map((asg) => {
                     const isOverdue = new Date(asg.dueDate) < new Date() && asg.status !== 'paid';
                     return (
-                      <tr key={asg.id} className="border-b border-outline-variant/20">
+                      <tr key={asg.id} className="border-b border-gray-100">
                         <td className="p-3 font-semibold text-ink-black">{asg.feeStructure.name}</td>
                         <td className="p-3 text-on-surface-variant">Term {asg.feeStructure.academicYear.label}</td>
                         <td className="p-3 font-bold text-ink-black">₹{Number(asg.feeStructure.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                         <td className="p-3 text-on-surface-variant">{new Date(asg.dueDate).toLocaleDateString()} {isOverdue && <span className="text-error">(Overdue)</span>}</td>
                         <td className="p-3">
-                          <StatusBadge tone={asg.status === 'paid' ? 'active' : 'pending'}>{asg.status}</StatusBadge>
+                          <StatusChip variant={asg.status === 'paid' ? 'success' : 'pending'}>{asg.status}</StatusChip>
                         </td>
                         <td className="p-3 text-right">
                           {asg.status === 'paid' ? (
                             <button
                               type="button"
-                              className="inline-flex items-center gap-1 px-3 h-9 rounded-full border border-outline-variant text-ink-black text-[13px] hover:bg-surface-container-low transition-colors"
+                              className="inline-flex items-center gap-1 px-3 h-9 rounded-buttons border border-gray-200 text-ink-black text-sm hover:bg-gray-50 transition-colors"
                               onClick={() => handleDownloadReceipt(asg.id)}
                             >
-                              <Icon name="download" className="text-[16px]" /> Receipt (PDF)
+                              <Icon name="download" className="text-base" /> Receipt (PDF)
                             </button>
                           ) : (
                             <PaymentButton
@@ -178,7 +173,7 @@ export default function Payment() {
               </table>
             </div>
           )}
-        </Card>
+        </GlassCard>
       )}
     </div>
   );

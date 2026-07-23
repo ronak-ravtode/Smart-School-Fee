@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, PillButton, InputField, Alert, Eyebrow, StatusBadge } from '../../components/ui/Primitives';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
 
 const statusTone = (status) =>
-  status === 'cleared' ? 'active' : status === 'bounced' ? 'error' : 'pending';
+  status === 'cleared' ? 'success' : status === 'bounced' ? 'error' : 'pending';
 
 export default function Deposits() {
   const [cheques, setCheques] = useState([]);
@@ -117,55 +120,52 @@ export default function Deposits() {
   };
 
   return (
-    <div className="flex flex-col gap-section-sm max-w-[960px] mx-auto w-full">
-      <header>
-        <Eyebrow>Cheque Deposits</Eyebrow>
-        <h1 className="font-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black leading-tight mt-2">
-          Cheque Lifecycle Manager
-        </h1>
-        <p className="font-body text-[14px] text-on-surface-variant mt-2">
-          View registered cheques, submit them for clearing at the bank, and process bounces.
-        </p>
-      </header>
+    <div className="max-w-[960px] mx-auto w-full">
+      <PageHeader
+        eyebrow="Cheque Deposits"
+        title="Cheque Lifecycle Manager"
+        subtitle="View registered cheques, submit them for clearing at the bank, and process bounces."
+      />
 
-      <Alert tone="error">{error}</Alert>
-      <Alert tone="success">{success}</Alert>
+      {error && <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>}
+      {success && <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{success}</div>}
 
-      {/* Bounce Dialog Overlay Form */}
       {bouncingId && (
-        <Card>
-          <h3 className="font-headline-sm text-headline-sm text-ink-black mb-4">Report Cheque Bounce</h3>
+        <GlassCard className="mb-6">
+          <h3 className="font-medium text-ink-black mb-4">Report Cheque Bounce</h3>
           <form onSubmit={handleBounceSubmit} className="flex flex-col gap-4">
-            <InputField
-              label="Reason for Bounce"
-              id="bounce-reason"
-              value={bounceReason}
-              onChange={(e) => setBounceReason(e.target.value)}
-              placeholder="e.g. Insufficient funds, signature mismatch"
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Reason for Bounce</label>
+              <input
+                value={bounceReason}
+                onChange={(e) => setBounceReason(e.target.value)}
+                placeholder="e.g. Insufficient funds, signature mismatch"
+                required
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-reconciliation/30 focus:border-module-reconciliation transition-all"
+              />
+            </div>
             <div className="flex gap-3">
-              <PillButton type="submit" className="bg-error hover:bg-error/90 text-white" disabled={loadingId !== null}>
+              <ActionButton type="submit" disabled={loadingId !== null}>
                 Confirm Bounce & Apply Penalty (₹500)
-              </PillButton>
-              <PillButton type="button" variant="outline" onClick={() => setBouncingId(null)}>
+              </ActionButton>
+              <ActionButton variant="secondary" type="button" onClick={() => setBouncingId(null)}>
                 Cancel
-              </PillButton>
+              </ActionButton>
             </div>
           </form>
-        </Card>
+        </GlassCard>
       )}
 
-      <Card>
+      <GlassCard>
         {cheques.length === 0 ? (
-          <div className="text-center py-16 text-on-surface-variant text-[14px]">
+          <div className="text-center py-16 text-on-surface-variant text-sm">
             No cheques registered in the system.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-[13px]">
+            <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-outline-variant/40 text-on-surface-variant font-eyebrow text-eyebrow uppercase tracking-wider">
+                <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
                   <th className="p-3">Student</th>
                   <th className="p-3">Bank</th>
                   <th className="p-3">Cheque No.</th>
@@ -176,40 +176,40 @@ export default function Deposits() {
               </thead>
               <tbody>
                 {cheques.map(cheque => (
-                  <tr key={cheque.id} className="border-b border-outline-variant/20">
+                  <tr key={cheque.id} className="border-b border-gray-100">
                     <td className="p-3 font-medium text-ink-black">{cheque.transaction.student.name}</td>
                     <td className="p-3 text-ink-black">{cheque.bank}</td>
-                    <td className="p-3 font-mono text-[12px] text-ink-black">{cheque.chequeNo}</td>
+                    <td className="p-3 font-mono text-xs text-ink-black">{cheque.chequeNo}</td>
                     <td className="p-3 font-semibold text-ink-black">₹{Number(cheque.transaction.amount).toLocaleString('en-IN')}</td>
                     <td className="p-3">
-                      <StatusBadge tone={statusTone(cheque.depositStatus)} className="capitalize">
+                      <StatusChip variant={statusTone(cheque.depositStatus)} className="capitalize">
                         {cheque.depositStatus.replace('_', ' ')}
-                      </StatusBadge>
+                      </StatusChip>
                     </td>
                     <td className="p-3">
                       <div className="flex gap-2 justify-center flex-wrap">
                         {cheque.depositStatus === 'deposit_pending' && (
-                          <PillButton type="button" className="h-9 px-4" disabled={loadingId !== null} onClick={() => handleDeposit(cheque.id)}>
+                          <ActionButton variant="ghost" disabled={loadingId !== null} onClick={() => handleDeposit(cheque.id)}>
                             Mark Deposited
-                          </PillButton>
+                          </ActionButton>
                         )}
 
                         {cheque.depositStatus === 'bank_pending' && (
                           <>
-                            <PillButton type="button" className="bg-success hover:bg-success/90 text-white h-9 px-4" disabled={loadingId !== null} onClick={() => handleClear(cheque.id)}>
+                            <ActionButton variant="ghost" disabled={loadingId !== null} onClick={() => handleClear(cheque.id)}>
                               Clear
-                            </PillButton>
-                            <PillButton type="button" className="bg-error hover:bg-error/90 text-white h-9 px-4" disabled={loadingId !== null} onClick={() => setBouncingId(cheque.id)}>
+                            </ActionButton>
+                            <ActionButton variant="ghost" disabled={loadingId !== null} onClick={() => setBouncingId(cheque.id)}>
                               Bounce
-                            </PillButton>
+                            </ActionButton>
                           </>
                         )}
 
                         {cheque.depositStatus === 'cleared' && (
-                          <span className="text-[13px] text-success">Completed</span>
+                          <span className="text-sm text-success">Completed</span>
                         )}
                         {cheque.depositStatus === 'bounced' && (
-                          <span className="text-[13px] text-error">Bounced</span>
+                          <span className="text-sm text-error">Bounced</span>
                         )}
                       </div>
                     </td>
@@ -219,7 +219,7 @@ export default function Deposits() {
             </table>
           </div>
         )}
-      </Card>
+      </GlassCard>
     </div>
   );
 }
