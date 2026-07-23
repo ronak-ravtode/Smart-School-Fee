@@ -1,340 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import BalanceCard from '../../components/dashboard/BalanceCard';
-import RevenueChart from '../../components/dashboard/RevenueChart';
-import DefaulterList from '../../components/dashboard/DefaulterList';
-import QuickActions from '../../components/dashboard/QuickActions';
-import Reports from './Reports';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { Icon } from '../../components/Icon';
+import GlassCard from '../../components/ui/GlassCard';
+import StatCard from '../../components/ui/StatCard';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
+import ActionButton from '../../components/ui/ActionButton';
 import { useDashboardQuery } from '../../hooks/useDashboardQuery';
 
-// React Icons replacement as clean SVGs
-const BankIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="3" y1="21" x2="21" y2="21"></line>
-    <rect x="3" y="10" width="18" height="11"></rect>
-    <path d="M12 2L2 7h20L12 2z"></path>
-    <line x1="7" y1="10" x2="7" y2="21"></line>
-    <line x1="12" y1="10" x2="12" y2="21"></line>
-    <line x1="17" y1="10" x2="17" y2="21"></line>
-  </svg>
-);
+const MODULE = 'dashboard';
 
-const CashIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-    <circle cx="12" cy="12" r="2"></circle>
-    <line x1="6" y1="12" x2="6" y2="12"></line>
-    <line x1="18" y1="12" x2="18" y2="12"></line>
-  </svg>
-);
+const statIcons = {
+  collected: (props) => <Icon name="payments" {...props} />,
+  pending: (props) => <Icon name="hourglass_empty" {...props} />,
+  overdue: (props) => <Icon name="warning" {...props} />,
+  defaulters: (props) => <Icon name="people" {...props} />,
+};
 
-const PendingIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="8" x2="12" y2="12"></line>
-    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-  </svg>
-);
+export default function Dashboard({ onNavigate }) {
+  const { data: metrics, loading } = useDashboardQuery('/api/dashboard/metrics', {}, 5000);
+  const { data: revenue } = useDashboardQuery('/api/dashboard/revenue-breakdown', { period: 'monthly' }, 5000);
+  const { data: paymentMethods } = useDashboardQuery('/api/dashboard/payment-methods', {}, 5000);
+  const { data: defaulters } = useDashboardQuery('/api/dashboard/defaulters', {}, 5000);
 
-const CollectionIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-  </svg>
-);
+  const m = metrics || {};
+  const revData = revenue?.labels?.map((l, i) => ({ name: l.toUpperCase(), value: Number(revenue.data[i]) || 0 })) || [];
+  const payMethodData = paymentMethods?.labels?.map((l, i) => ({ name: l.toUpperCase(), value: Number(paymentMethods.data[i]) || 0 })) || [];
 
-export default function Dashboard({ setAdminTab }) {
-  // Fetch real-time dashboard metrics
-  const { data: metrics, loading, refetch } = useDashboardQuery('/api/dashboard/metrics', {}, 5000);
+  const COLORS = ['#8b8fd4', '#6bc9a9', '#5bb98a', '#e8977a', '#e8b86a'];
 
-  // States for Quick Action Form Modals
-  const [showWaiverModal, setShowWaiverModal] = useState(false);
-  const [students, setStudents] = useState([]);
-  const [selectedStudentId, setSelectedStudentId] = useState('');
-  const [assignments, setAssignments] = useState([]);
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('');
-  const [waiverAmount, setWaiverAmount] = useState('');
-  const [waiverReason, setWaiverReason] = useState('');
-
-  // Alerts
-  const [toastMessage, setToastMessage] = useState(null);
-  const [formError, setFormError] = useState(null);
-  const [formSuccess, setFormSuccess] = useState(null);
-  const [submittingWaiver, setSubmittingWaiver] = useState(false);
-
-  // Fetch student roster for dropdown
-  const loadStudents = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('/api/admin/students', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStudents(res.data);
-    } catch (err) {
-      console.error('Failed to load students roster:', err);
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload?.length) {
+      return (
+        <div className="bg-white shadow-lg rounded-[12px] p-3 border border-gray-100 text-sm">
+          <p className="font-medium text-ink-black">{label}</p>
+          <p className="font-semibold" style={{ color: payload[0].color }}>₹{Number(payload[0].value).toLocaleString('en-IN')}</p>
+        </div>
+      );
     }
-  };
-
-  // Load fee assignments for selected student
-  useEffect(() => {
-    if (!selectedStudentId) {
-      setAssignments([]);
-      return;
-    }
-    const loadAssignments = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`/api/fees/assignments?studentId=${selectedStudentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        // Only keep unpaid/overdue assignments
-        const unpaid = res.data.filter(a => a.status === 'pending' || a.status === 'overdue');
-        setAssignments(unpaid);
-      } catch (err) {
-        console.error('Failed to load student assignments:', err);
-      }
-    };
-    loadAssignments();
-  }, [selectedStudentId]);
-
-  const handleActionClick = (action) => {
-    if (action === 'Add Expense') {
-      if (setAdminTab) setAdminTab('expenses');
-    } else if (action === 'Send Reminder') {
-      setToastMessage('🔔 SMS & Email overdue payment reminders dispatched to all defaulters!');
-      setTimeout(() => setToastMessage(null), 4000);
-    } else if (action === 'Waive Fee') {
-      loadStudents();
-      setFormError(null);
-      setFormSuccess(null);
-      setSelectedStudentId('');
-      setSelectedAssignmentId('');
-      setWaiverAmount('');
-      setWaiverReason('');
-      setShowWaiverModal(true);
-    }
-  };
-
-  const handleWaiverSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedStudentId || !selectedAssignmentId || !waiverAmount || !waiverReason) {
-      setFormError('All fields are required to request a fee waiver.');
-      return;
-    }
-    setSubmittingWaiver(true);
-    setFormError(null);
-    setFormSuccess(null);
-
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/waivers', {
-        student_id: selectedStudentId,
-        fee_assignment_id: selectedAssignmentId,
-        amount: waiverAmount,
-        type: 'waiver',
-        reason: waiverReason
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setFormSuccess('Waiver request submitted successfully for Admin approval!');
-      refetch(); // Reload metrics immediately
-      setTimeout(() => setShowWaiverModal(false), 2000);
-    } catch (err) {
-      setFormError(err.response?.data?.error || 'Waiver creation failed.');
-    } finally {
-      setSubmittingWaiver(false);
-    }
-  };
-
-  const activeMetrics = metrics || {
-    bank_balance: 0,
-    in_hand_cash: 0,
-    pending_fees: 0,
-    today_collections: 0
+    return null;
   };
 
   return (
-    <div className="pastel-gradient-bg" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '30px', borderRadius: '20px', position: 'relative' }}>
-      
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="alert alert-success" style={{ position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
-          {toastMessage}
-        </div>
-      )}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <PageHeader
+        eyebrow="Financial Dashboard"
+        title="School Financial Overview"
+        action={
+          <ActionButton icon={() => <Icon name="download" className="text-lg" />}>
+            Export Report
+          </ActionButton>
+        }
+      />
 
-      {/* Waive Fee Modal */}
-      {showWaiverModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 500
-        }}>
-          <div className="glass-panel" style={{ width: '450px', padding: '30px', background: 'rgba(15,23,42,0.95)', color: '#ffffff' }}>
-            <h2 style={{ fontSize: '1.2rem', marginBottom: '10px', color: '#ffffff' }}>Request Fee Waiver</h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '20px' }}>
-              Create a pending waiver request. It must be approved under Pending Approvals.
-            </p>
-
-            {formError && <div className="alert alert-error" style={{ fontSize: '0.8rem', padding: '10px' }}>{formError}</div>}
-            {formSuccess && <div className="alert alert-success" style={{ fontSize: '0.8rem', padding: '10px' }}>{formSuccess}</div>}
-
-            <form onSubmit={handleWaiverSubmit}>
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#f8fafc' }}>Select Student</label>
-                <select
-                  value={selectedStudentId}
-                  onChange={(e) => setSelectedStudentId(e.target.value)}
-                  className="form-input"
-                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
-                  required
-                >
-                  <option value="" style={{ color: '#000' }}>-- Choose Student --</option>
-                  {students.map(s => (
-                    <option key={s.id} value={s.id} style={{ color: '#000' }}>{s.name} ({s.class})</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#f8fafc' }}>Select Fee Component</label>
-                <select
-                  value={selectedAssignmentId}
-                  onChange={(e) => setSelectedAssignmentId(e.target.value)}
-                  className="form-input"
-                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
-                  required
-                  disabled={!selectedStudentId}
-                >
-                  <option value="" style={{ color: '#000' }}>-- Choose Assignment --</option>
-                  {assignments.map(a => (
-                    <option key={a.id} value={a.id} style={{ color: '#000' }}>
-                      {a.feeStructure.name} (Due: {new Date(a.dueDate).toLocaleDateString()})
-                    </option>
-                  ))}
-                </select>
-                {selectedStudentId && assignments.length === 0 && (
-                  <span style={{ fontSize: '0.7rem', color: 'var(--error)', marginTop: '4px', display: 'block' }}>
-                    No pending fee assignments found for this student.
-                  </span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#f8fafc' }}>Waiver Amount (₹)</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 1000"
-                  className="form-input"
-                  value={waiverAmount}
-                  onChange={(e) => setWaiverAmount(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" style={{ color: '#f8fafc' }}>Reason / Justification</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Academic scholarship rebate"
-                  className="form-input"
-                  value={waiverReason}
-                  onChange={(e) => setWaiverReason(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}
-                  required
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                <button type="submit" className="btn" style={{ flex: 1 }} disabled={submittingWaiver || assignments.length === 0}>
-                  {submittingWaiver ? 'Submitting...' : 'Submit Request'}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowWaiverModal(false)} disabled={submittingWaiver}>
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      
-      {/* Dashboard Top Statistics Row */}
-      {loading && !metrics ? (
-        <div style={{ textAlign: 'center', color: '#64748b', padding: '20px', fontSize: '0.9rem' }}>
-          Loading dashboard metrics...
-        </div>
-      ) : (
-        <div className="dashboard-grid-4">
-          <BalanceCard 
-            title="Bank Balance" 
-            value={activeMetrics.bank_balance} 
-            icon={<BankIcon />} 
-            color="rgba(99, 102, 241, 0.2)"
-          />
-          <BalanceCard 
-            title="In-Hand Cash" 
-            value={activeMetrics.in_hand_cash} 
-            icon={<CashIcon />} 
-            color="rgba(6, 185, 129, 0.2)"
-          />
-          <BalanceCard 
-            title="Pending Fees" 
-            value={activeMetrics.pending_fees} 
-            icon={<PendingIcon />} 
-            color="rgba(244, 63, 94, 0.2)"
-          />
-          <BalanceCard 
-            title="Today's Collections" 
-            value={activeMetrics.today_collections} 
-            icon={<CollectionIcon />} 
-            color="rgba(245, 158, 11, 0.2)"
-          />
-        </div>
-      )}
-
-      {/* Middle Analytics Row */}
-      <div className="dashboard-grid-2">
-        
-        {/* Recharts Analytics Panel */}
-        <div className="frosted-glass-card" style={{ padding: '30px', display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 5px 0', color: '#0f172a' }}>
-            Revenue Stream Breakdown
-          </h2>
-          <p style={{ color: '#475569', fontSize: '0.8rem', marginBottom: '20px' }}>
-            Visual distribution of collections by fee structure category.
-          </p>
-          <RevenueChart />
-        </div>
-
-        {/* Overdue Accounts Ledger Panel */}
-        <div className="frosted-glass-card" style={{ padding: '30px', display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 5px 0', color: '#0f172a' }}>
-            Outstanding Overdue Ledger
-          </h2>
-          <p style={{ color: '#475569', fontSize: '0.8rem', marginBottom: '20px' }}>
-            Defaulters roster matching overdue fee conditions.
-          </p>
-          <DefaulterList />
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard title="Collected Today" value={m.today_collections || 0} icon={statIcons.collected} accent="dashboard" />
+        <StatCard title="Pending Dues" value={m.pending_fees || 0} icon={statIcons.pending} accent="reports" />
+        <StatCard title="Overdue Amount" value={m.overdue_amount || 0} icon={statIcons.overdue} accent="defaulters" />
+        <StatCard title="Defaulters" value={m.defaulters_count || 0} icon={statIcons.defaulters} accent="defaulters" />
       </div>
 
-      {/* Bottom Filter & Report Generator Panel */}
-      <Reports />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <GlassCard className="lg:col-span-2">
+          <h3 className="font-medium text-ink-black mb-4">Revenue Trend</h3>
+          {revData.length > 0 ? (
+            <div className="h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revData}>
+                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line type="monotone" dataKey="value" stroke="#8b8fd4" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-[280px] flex items-center justify-center text-sm text-on-surface-variant">{loading ? 'Loading...' : 'No data'}</div>
+          )}
+        </GlassCard>
 
-      {/* Floating Action Trigger Bar */}
-      <QuickActions onAction={handleActionClick} />
+        <GlassCard>
+          <h3 className="font-medium text-ink-black mb-4">Payment Methods</h3>
+          {payMethodData.length > 0 ? (
+            <div className="h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={payMethodData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
+                    {payMethodData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-[280px] flex items-center justify-center text-sm text-on-surface-variant">{loading ? 'Loading...' : 'No data'}</div>
+          )}
+        </GlassCard>
+      </div>
 
-    </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <GlassCard>
+          <h3 className="font-medium text-ink-black mb-4">Priority Defaulters</h3>
+          {(defaulters || []).length > 0 ? (
+            <div className="space-y-3">
+              {defaulters.slice(0, 5).map((d, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-[10px] bg-gray-50">
+                  <div>
+                    <p className="text-sm font-medium text-ink-black">{d.name}</p>
+                    <p className="text-xs text-on-surface-variant">{d.class} • {d.overdue_days} days overdue</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <StatusChip variant={d.overdue_days > 60 ? 'error' : 'warning'}>
+                      ₹{Number(d.overdue_amount).toLocaleString('en-IN')}
+                    </StatusChip>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-on-surface-variant">No overdue accounts</p>
+          )}
+        </GlassCard>
+
+        <GlassCard>
+          <h3 className="font-medium text-ink-black mb-4">Recent Activity</h3>
+          <p className="text-sm text-on-surface-variant">Payment activity feed appears here</p>
+        </GlassCard>
+      </div>
+
+      <div className="flex gap-3">
+        <ActionButton icon={() => <Icon name="payments" className="text-lg" />} onClick={() => onNavigate?.('payments')}>Collect Fee</ActionButton>
+        <ActionButton variant="secondary" icon={() => <Icon name="add" className="text-lg" />} onClick={() => onNavigate?.('fee-engine')}>Create Invoice</ActionButton>
+        <ActionButton variant="secondary" icon={() => <Icon name="price_check" className="text-lg" />}>Apply Waiver</ActionButton>
+        <ActionButton variant="secondary" icon={() => <Icon name="gavel" className="text-lg" />}>Add Penalty</ActionButton>
+      </div>
+    </motion.div>
   );
 }

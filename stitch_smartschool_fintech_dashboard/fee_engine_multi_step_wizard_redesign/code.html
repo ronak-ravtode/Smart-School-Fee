@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en" style=""><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#dadad9",
+                        "light-signal-orange": "#F37338",
+                        "canvas-cream": "#F3F0EE",
+                        "outline-variant": "#c7c7c0",
+                        "on-surface-variant": "#464742",
+                        "background": "#faf9f8",
+                        "primary-fixed-dim": "#c9c6c4",
+                        "on-surface": "#1a1c1c",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "signal-orange": "#CF4500",
+                        "on-tertiary-fixed": "#380d00",
+                        "tertiary-fixed": "#ffdbcf",
+                        "on-primary-fixed-variant": "#474745",
+                        "primary": "#000000",
+                        "lifted-cream": "#FCFBFA",
+                        "surface": "#faf9f8",
+                        "surface-bright": "#faf9f8",
+                        "clay-brown": "#9A3A0A",
+                        "on-primary-container": "#858382",
+                        "secondary": "#5f5e5d",
+                        "on-secondary-fixed": "#1c1c1b",
+                        "surface-container-highest": "#e3e2e1",
+                        "secondary-fixed": "#e5e2e0",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "secondary-container": "#e2dfdd",
+                        "on-background": "#1a1c1c",
+                        "dust-taupe": "#D1CDC7",
+                        "on-tertiary-container": "#e45415",
+                        "outline": "#767872",
+                        "primary-fixed": "#e5e2e0",
+                        "on-primary-fixed": "#1c1c1a",
+                        "surface-variant": "#e3e2e1",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-fixed-variant": "#822800",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f1f0f0",
+                        "ink-black": "#141413",
+                        "on-error": "#ffffff",
+                        "primary-container": "#1c1c1a",
+                        "on-secondary-fixed-variant": "#474745",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#380d00",
+                        "surface-container-high": "#e9e8e7",
+                        "surface-tint": "#5f5e5d",
+                        "surface-container": "#eeeeed",
+                        "secondary-fixed-dim": "#c8c6c4",
+                        "surface-container-low": "#f4f3f2",
+                        "inverse-primary": "#c9c6c4",
+                        "tertiary": "#000000",
+                        "on-secondary-container": "#636261",
+                        "link-blue": "#3860BE",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "stadium": "40px"
+                    },
+                    "spacing": {
+                        "section-md": "96px",
+                        "gutter": "48px",
+                        "card-padding": "40px",
+                        "section-sm": "64px",
+                        "section-lg": "128px",
+                        "max-width": "1280px",
+                        "margin-mobile": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Hanken Grotesk"],
+                        "body": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "footer-link": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "nav-button": ["Hanken Grotesk"],
+                        "eyebrow": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["24px", { "lineHeight": "28.8px", "letterSpacing": "-0.48px", "fontWeight": "500" }],
+                        "body": ["16px", { "lineHeight": "22.4px", "fontWeight": "450" }],
+                        "headline-lg-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.8px", "fontWeight": "500" }],
+                        "footer-link": ["14px", { "lineHeight": "20px", "fontWeight": "450" }],
+                        "headline-md": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.72px", "fontWeight": "500" }],
+                        "headline-lg": ["64px", { "lineHeight": "64px", "letterSpacing": "-1.28px", "fontWeight": "500" }],
+                        "nav-button": ["16px", { "lineHeight": "16px", "letterSpacing": "-0.48px", "fontWeight": "500" }],
+                        "eyebrow": ["14px", { "lineHeight": "14px", "letterSpacing": "0.56px", "fontWeight": "700" }]
+                    },
+                    boxShadow: {
+                        'level-1': '0 4px 24px -4px rgba(0, 0, 0, 0.04)',
+                        'level-2': '0 12px 48px -12px rgba(0, 0, 0, 0.08)',
+                        'level-3': '0 24px 110px -24px rgba(0, 0, 0, 0.25)',
+                    }
+                }
+            }
+        }
+    }catch(_e){}</script><style>
+    /* Add basic styling for form inputs to maintain look without component classes */
+    .form-input-pill {
+        width: 100%;
+        border-radius: 9999px;
+        border: 1px solid #c7c7c0;
+        background-color: transparent;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: 16px;
+        color: #1a1c1c;
+    }
+    .form-input-pill:focus {
+        outline: none;
+        border-color: #1a1c1c;
+        box-shadow: 0 0 0 1px #1a1c1c;
+    }
+    .form-select-pill {
+        width: 100%;
+        border-radius: 9999px;
+        border: 1px solid #c7c7c0;
+        background-color: transparent;
+        padding-left: 1rem;
+        padding-right: 2.5rem;
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: 16px;
+        color: #1a1c1c;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23464742' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+    }
+    .form-select-pill:focus {
+        outline: none;
+        border-color: #1a1c1c;
+        box-shadow: 0 0 0 1px #1a1c1c;
+    }
+    .form-label {
+        display: block;
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: #464742;
+    }
+    .btn-primary {
+        width: 100%;
+        border-radius: 9999px;
+        background-color: #141413;
+        color: #ffffff;
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-weight: 500;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+    .btn-primary:hover {
+        background-color: #2f3130;
+    }
+    .btn-secondary {
+        width: 100%;
+        border-radius: 9999px;
+        background-color: transparent;
+        border: 1px solid #c7c7c0;
+        color: #1a1c1c;
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-weight: 500;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+    .btn-secondary:hover {
+        background-color: #f4f3f2;
+    }
+    .card-base {
+        background-color: #ffffff;
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.04);
+    }
+</style><meta charset="utf-8"/></head><body class="antialiased min-h-screen text-on-surface bg-background">
+<!-- Top Navigation Container -->
+<div class="fixed top-0 w-full z-50 px-gutter pt-6 pb-4">
+<!-- TopNavBar (Adapted for Floating Pill Style) -->
+<header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl border border-surface-container-highest shadow-level-1 rounded-full w-full max-w-max-width mx-auto px-8 py-3 flex justify-between items-center transition-all duration-300">
+<!-- -->
+<div class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary tracking-tight">
+                SmartSchool FinTech
+            </div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-primary transition-colors" href="#">Analytics</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-primary transition-colors" href="#">Cashier Setup</a>
+<a class="font-nav-button text-nav-button text-primary border-b-2 border-primary pb-1" href="#">Fee Engine</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-primary transition-colors" href="#">Collect Fees</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-primary transition-colors" href="#">Billing</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of an educational administrator in a modern office setting. The lighting is soft and natural, emphasizing a trustworthy and approachable demeanor. The background is a slightly blurred, high-end administrative office." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd1AecouPJWVpftwQ485lLH6eogqddAOYNO7nmfTts_XJRQ7bquZjardNwzbeX64s12Eyrrw0ZXuMDTmAH3A-GD2jsIsp4HMFny69Rr-VAm5kQOExZgcGZG7uwfbFFIaJxe_gyzVWzA0hKFH8NdEhTi5_vTMMYdgplO5IKXyNNu4YEjMopzCwfXTwJ1zubpfqmJQP8uUPvWV2c6Z2ak1Sj9N1hXuBf4FvTfoKf_fpjWJrReMAyQK9vLlGAp-8TANoQC9_5h5fb6Fc"/>
+</div>
+</div>
+</header>
+</div>
+<!-- Main Content Area -->
+<main class="max-w-max-width mx-auto px-gutter pt-[140px] pb-section-md">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Forms -->
+<div class="lg:col-span-4 flex flex-col gap-8">
+<!-- Wizard Form Container -->
+<section class="bg-canvas-cream rounded-stadium p-8 shadow-level-1 border border-outline-variant/30 flex flex-col h-full">
+<!-- Stepper Indicator -->
+<div class="mb-8">
+<div class="flex items-center justify-between relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-outline-variant/50 -z-10"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 h-0.5 bg-ink-black -z-10"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-ink-black text-on-primary flex items-center justify-center font-bold text-sm">1</div>
+<span class="font-eyebrow text-eyebrow text-ink-black">Define Fee</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-bold text-sm border border-outline-variant/50">2</div>
+<span class="font-eyebrow text-eyebrow text-on-surface-variant">Assign</span>
+</div>
+</div>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">Create Fee Structure</h2>
+<p class="font-body text-body text-on-surface-variant mb-6">Step 1: Define a new fee component and target scope linked to an academic year.</p>
+<form class="space-y-4 flex-grow flex flex-col">
+<div class="flex-grow space-y-4">
+<div>
+<label class="form-label mb-1" for="structure-name">Structure Name</label>
+<input class="form-input-pill py-2" id="structure-name" placeholder="e.g. Tuition Fee - Class 10" type="text"/>
+</div>
+<div>
+<label class="form-label mb-1" for="academic-year">Academic Year</label>
+<select class="form-select-pill py-2" id="academic-year">
+<option>AY 2026-27</option>
+<option>AY 2025-26</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="form-label mb-1" for="amount">Amount (INR)</label>
+<input class="form-input-pill py-2" id="amount" placeholder="e.g. 50000" type="number"/>
+</div>
+<div>
+<label class="form-label mb-1" for="fee-type">Fee Type</label>
+<select class="form-select-pill py-2" id="fee-type">
+<option>Tuition</option>
+<option>Transport</option>
+<option>Extracurricular</option>
+</select>
+</div>
+</div>
+<div>
+<label class="form-label mb-1" for="target-scope">Applies to (Target Class/Scope)</label>
+<input class="form-input-pill py-2" id="target-scope" placeholder="all" type="text"/>
+</div>
+</div>
+<div class="pt-4 mt-auto">
+<button class="btn-primary py-3 w-full bg-ink-black" type="button">
+                                Next Step
+                            </button>
+</div>
+</form>
+</section>
+</div>
+<!-- Right Column: Data Table -->
+<div class="lg:col-span-8">
+<section class="card-base h-full flex flex-col border border-outline-variant/30">
+<div class="mb-8">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">Active Fee Components</h2>
+<p class="font-body text-body text-on-surface-variant">Registered fee structures and version records stored in the system.</p>
+</div>
+<div class="overflow-x-auto flex-grow">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-container-highest">
+<th class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-widest pl-4 pb-2">Name</th>
+<th class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-widest pb-2">Year</th>
+<th class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-widest pb-2">Amount</th>
+<th class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-widest pb-2">Type</th>
+<th class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-widest pb-2">Scope</th>
+<th class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-widest text-center pb-2">Version</th>
+<th class="font-eyebrow text-eyebrow text-on-surface-variant uppercase tracking-widest text-right pr-4 pb-2">Action</th>
+</tr>
+</thead>
+<tbody class="font-body text-sm">
+<tr class="border-b border-surface-container-highest/50 hover:bg-surface-container-lowest/50 transition-colors">
+<td class="pl-4 font-medium text-on-surface py-3">Transport Fee - Q1</td>
+<td class="text-on-surface-variant py-3">AY 2026-27</td>
+<td class="font-medium py-3">₹5,000</td>
+<td class="text-on-surface-variant py-3">Transport</td>
+<td class="text-on-surface-variant py-3">Grade 5-A</td>
+<td class="text-center py-3">
+<span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold">V1</span>
+</td>
+<td class="text-right pr-4 py-3">
+<button class="px-4 rounded-full border border-outline-variant text-on-surface hover:bg-surface-container transition-colors text-sm font-medium py-1">Edit</button>
+</td>
+</tr>
+<tr class="border-b border-surface-container-highest/50 hover:bg-surface-container-lowest/50 transition-colors">
+<td class="pl-4 font-medium text-on-surface py-3">Tuition Fee - Term 1</td>
+<td class="text-on-surface-variant py-3">AY 2026-27</td>
+<td class="font-medium py-3">₹25,000</td>
+<td class="text-on-surface-variant py-3">Tuition</td>
+<td class="text-on-surface-variant py-3">Grade 5-A</td>
+<td class="text-center py-3">
+<span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold">V1</span>
+</td>
+<td class="text-right pr-4 py-3">
+<button class="px-4 rounded-full border border-outline-variant text-on-surface hover:bg-surface-container transition-colors text-sm font-medium py-1">Edit</button>
+</td>
+</tr>
+<tr class="border-b border-surface-container-highest/50 hover:bg-surface-container-lowest/50 transition-colors">
+<td class="pl-4 font-medium text-on-surface py-3">Extracurricular - Music</td>
+<td class="text-on-surface-variant py-3">AY 2026-27</td>
+<td class="font-medium py-3">₹8,000</td>
+<td class="text-on-surface-variant py-3">Activity</td>
+<td class="text-on-surface-variant py-3">All Grades</td>
+<td class="text-center py-3">
+<span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold">V2</span>
+</td>
+<td class="text-right pr-4 py-3">
+<button class="px-4 rounded-full border border-outline-variant text-on-surface hover:bg-surface-container transition-colors text-sm font-medium py-1">Edit</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="pl-4 font-medium text-on-surface py-3">Exam Fee - Final</td>
+<td class="text-on-surface-variant py-3">AY 2026-27</td>
+<td class="font-medium py-3">₹2,000</td>
+<td class="text-on-surface-variant py-3">Exam</td>
+<td class="text-on-surface-variant py-3">Grade 10</td>
+<td class="text-center py-3">
+<span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold">V1</span>
+</td>
+<td class="text-right pr-4 py-3">
+<button class="px-4 rounded-full border border-outline-variant text-on-surface hover:bg-surface-container transition-colors text-sm font-medium py-1">Edit</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

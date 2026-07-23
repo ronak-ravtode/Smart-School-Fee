@@ -1,0 +1,424 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SmartSchool FinTech - Admin Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;450;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#c9c6c4",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#e45415",
+                        "canvas-cream": "#F3F0EE",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e3e2e1",
+                        "secondary-fixed": "#e5e2e0",
+                        "inverse-on-surface": "#f1f0f0",
+                        "outline-variant": "#c7c7c0",
+                        "tertiary-fixed": "#ffdbcf",
+                        "surface-container-low": "#f4f3f2",
+                        "on-primary-fixed": "#1c1c1a",
+                        "primary": "#000000",
+                        "light-signal-orange": "#F37338",
+                        "secondary-container": "#e2dfdd",
+                        "secondary": "#5f5e5d",
+                        "on-secondary-container": "#636261",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed-variant": "#474745",
+                        "surface-container-high": "#e9e8e7",
+                        "on-tertiary-fixed": "#380d00",
+                        "surface-container-highest": "#e3e2e1",
+                        "primary-fixed": "#e5e2e0",
+                        "on-primary-container": "#858382",
+                        "error": "#ba1a1a",
+                        "background": "#faf9f8",
+                        "on-primary-fixed-variant": "#474745",
+                        "lifted-cream": "#FCFBFA",
+                        "on-surface-variant": "#464742",
+                        "inverse-surface": "#2f3130",
+                        "surface": "#faf9f8",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#1c1c1a",
+                        "on-secondary-fixed": "#1c1c1b",
+                        "surface-tint": "#5f5e5d",
+                        "inverse-primary": "#c9c6c4",
+                        "signal-orange": "#CF4500",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#380d00",
+                        "surface-dim": "#dadad9",
+                        "link-blue": "#3860BE",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eeeeed",
+                        "on-background": "#1a1c1c",
+                        "clay-brown": "#9A3A0A",
+                        "outline": "#767872",
+                        "secondary-fixed-dim": "#c8c6c4",
+                        "on-tertiary-fixed-variant": "#822800",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#faf9f8",
+                        "dust-taupe": "#D1CDC7",
+                        "ink-black": "#141413"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "24px",
+                        "card-padding": "40px",
+                        "section-md": "96px",
+                        "base": "8px",
+                        "section-sm": "64px",
+                        "section-lg": "128px",
+                        "max-width": "1280px",
+                        "gutter": "48px"
+                    },
+                    "fontFamily": {
+                        "nav-button": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "footer-link": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "eyebrow": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "nav-button": ["16px", { "lineHeight": "16px", "letterSpacing": "-0.48px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.8px", "fontWeight": "500" }],
+                        "footer-link": ["14px", { "lineHeight": "20px", "fontWeight": "450" }],
+                        "headline-sm": ["24px", { "lineHeight": "28.8px", "letterSpacing": "-0.48px", "fontWeight": "500" }],
+                        "eyebrow": ["14px", { "lineHeight": "14px", "letterSpacing": "0.56px", "fontWeight": "700" }],
+                        "headline-lg": ["64px", { "lineHeight": "64px", "letterSpacing": "-1.28px", "fontWeight": "500" }],
+                        "headline-md": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.72px", "fontWeight": "500" }],
+                        "body": ["16px", { "lineHeight": "22.4px", "fontWeight": "450" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-canvas-cream text-ink-black font-body text-body antialiased selection:bg-light-signal-orange selection:text-white">
+<!-- TopNavBar -->
+<div class="fixed top-0 left-0 right-0 z-50 px-margin-mobile md:px-gutter py-6 pointer-events-none hidden md:block">
+<div class="max-w-max-width mx-auto flex justify-center pointer-events-auto">
+<nav class="bg-lifted-cream rounded-full shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)] px-6 py-3 flex items-center gap-8 border border-white/50 backdrop-blur-md">
+<div class="flex items-center gap-3 flex-row">
+<div class="w-8 h-8 bg-ink-black rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px]">account_balance</span>
+</div>
+<span class="font-headline-sm text-[18px] font-bold text-ink-black tracking-tight">SmartSchool</span>
+</div>
+<div class="h-6 w-px bg-dust-taupe/30"></div>
+<div class="flex items-center gap-6 whitespace-nowrap">
+<a class="font-nav-button text-nav-button text-ink-black relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-ink-black" href="#">Analytics</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Cashier Setup</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Fee Engine</a>
+
+
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Pending Approval</a><a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Bank Reconciliation</a><a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Maintenance Expenses</a></div>
+<div class="h-6 w-px bg-dust-taupe/30"></div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-ink-black transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Administrator Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a school administrator in a modern office, soft lighting, sharp focus, institutional editorial style, neutral background, conveying trust and authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjqpNAY7Mi3Za2RhuFlRPCq6e2-wVDF_0W2wRCi4CXXYl-61lGPGbpCAX7o0zmkyWsABK0E7pr66uqyTRZklpvQx2AlqTuzFgiA2w3Xy3GSfVwf75KMmfWwTm7FCLUGwIIZWlQg6RXdmHU_z-kmMIsyRrJ2_YS5igYXX_xqnJdn0MDbO0RzY47ZY0V2cfhDJxx2_Sb5kPDHWz3QLcBI6VAM9tZAq5UpWhnq8Oq_RtAwVb-AeFWxI-AIeFXmNRNDXIBcJvGL0V630g">
+</div>
+</div>
+</nav>
+</div>
+</div>
+<!-- Mobile Top Nav Bar -->
+<div class="sticky top-0 z-50 bg-lifted-cream/90 backdrop-blur-md border-b border-dust-taupe/20 px-margin-mobile py-4 flex items-center justify-between md:hidden">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-ink-black rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px]">account_balance</span>
+</div>
+<span class="font-headline-sm text-[18px] font-bold text-ink-black">SmartSchool</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-canvas-cream flex items-center justify-center text-ink-black">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+<main class="max-w-max-width mx-auto px-margin-mobile md:px-gutter pt-8 md:pt-40 pb-section-md">
+<!-- Header Section -->
+<header class="mb-section-sm md:mb-section-md flex flex-col md:flex-row md:items-end justify-between gap-8">
+<div class="max-w-2xl">
+<p class="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider mb-4">Financial Dashboard</p>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-ink-black tracking-[-0.02em] leading-tight">
+                    School Financial Overview
+                </h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="h-12 px-6 rounded-full border-2 border-outline-variant text-ink-black font-nav-button text-nav-button hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                    Export Report
+                </button>
+<button class="h-12 px-6 rounded-full bg-ink-black text-white font-nav-button text-nav-button hover:bg-inverse-surface transition-colors">
+                    New Transaction
+                </button>
+</div>
+</header>
+<!-- KPI Asymmetric Grid -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 mb-section-sm md:mb-section-md">
+<!-- Main KPI -->
+<div class="md:col-span-7 bg-lifted-cream rounded-[40px] p-card-padding shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+<!-- Orbital decoration -->
+<div class="absolute -right-20 -top-20 w-64 h-64 border-[1.5px] border-light-signal-orange/20 rounded-full group-hover:scale-110 transition-transform duration-700 ease-out"></div>
+<div class="flex flex-col h-full justify-between relative z-10">
+<div class="flex items-start justify-between mb-12">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-canvas-cream flex items-center justify-center">
+<span class="material-symbols-outlined text-signal-orange">account_balance_wallet</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface-variant">Total Revenue</h3>
+</div>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] font-nav-button text-[14px]">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +12.5%
+                        </span>
+</div>
+<div>
+<p class="font-headline-lg-mobile text-[48px] md:font-headline-lg md:text-[80px] leading-none tracking-tight text-ink-black mb-2">$2.4M</p>
+<p class="font-body text-body text-on-surface-variant">YTD Collected across all campuses</p>
+</div>
+</div>
+</div>
+<div class="md:col-span-5 grid grid-rows-2 gap-6 md:gap-8">
+<!-- KPI 2 -->
+<div class="bg-lifted-cream rounded-[40px] p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-full bg-canvas-cream flex items-center justify-center">
+<span class="material-symbols-outlined text-ink-black">payments</span>
+</div>
+<h3 class="font-nav-button text-nav-button text-on-surface-variant">In-Hand Cash</h3>
+</div>
+<p class="font-headline-md text-headline-md text-ink-black tracking-tight">$450,000</p>
+</div>
+<!-- KPI 3 -->
+<div class="bg-lifted-cream rounded-[40px] p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)] flex flex-col justify-between border border-[#FFEBEE]">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-[#FFEBEE] flex items-center justify-center">
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<h3 class="font-nav-button text-nav-button text-on-surface-variant">Overdue Balances</h3>
+</div>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#FFEBEE] text-error font-nav-button text-[14px]">
+                            -3.2%
+                        </span>
+</div>
+<p class="font-headline-md text-headline-md text-ink-black tracking-tight">$124,500</p>
+</div>
+</div>
+</section>
+<!-- Charts & Analysis Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-section-sm md:mb-section-md">
+<!-- Revenue Trend Chart Placeholder -->
+<div class="bg-lifted-cream rounded-[40px] p-card-padding shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline-sm text-headline-sm text-ink-black tracking-tight">Collection Trends</h3>
+<select class="bg-canvas-cream border-none rounded-full px-4 py-2 font-nav-button text-nav-button text-on-surface-variant focus:ring-0 cursor-pointer">
+<option>This Year</option>
+<option>Last Year</option>
+</select>
+</div>
+<!-- Chart Visualization (Abstract representation) -->
+<div class="h-64 w-full relative flex items-end justify-between gap-2 pb-6 border-b border-dust-taupe/30">
+<!-- Bars -->
+<div class="w-full bg-surface-variant rounded-t-xl h-[40%] relative group cursor-pointer hover:bg-light-signal-orange transition-colors"></div>
+<div class="w-full bg-surface-variant rounded-t-xl h-[60%] relative group cursor-pointer hover:bg-light-signal-orange transition-colors"></div>
+<div class="w-full bg-surface-variant rounded-t-xl h-[45%] relative group cursor-pointer hover:bg-light-signal-orange transition-colors"></div>
+<div class="w-full bg-ink-black rounded-t-xl h-[80%] relative group cursor-pointer shadow-[0_-8px_24px_rgba(20,20,19,0.15)]"></div>
+<div class="w-full bg-surface-variant rounded-t-xl h-[55%] relative group cursor-pointer hover:bg-light-signal-orange transition-colors"></div>
+<div class="w-full bg-surface-variant rounded-t-xl h-[70%] relative group cursor-pointer hover:bg-light-signal-orange transition-colors"></div>
+<!-- Line overlay concept -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
+<path d="M0,60 Q20,40 40,55 T80,20 L100,20" fill="none" stroke="#CF4500" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+<div class="flex justify-between mt-4 font-body text-[14px] text-on-surface-variant">
+<span>Q1</span>
+<span>Q2</span>
+<span>Q3</span>
+<span class="font-bold text-ink-black">Q4 (Current)</span>
+</div>
+</div>
+<!-- Demographics/Breakdown -->
+<div class="bg-lifted-cream rounded-[40px] p-card-padding shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline-sm text-headline-sm text-ink-black tracking-tight">Revenue Breakdown</h3>
+</div>
+<div class="flex flex-col gap-6">
+<!-- Item -->
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-canvas-cream flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-ink-black">school</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between mb-1">
+<span class="font-nav-button text-nav-button text-ink-black">Tuition Fees</span>
+<span class="font-nav-button text-nav-button text-ink-black">65%</span>
+</div>
+<div class="h-2 w-full bg-canvas-cream rounded-full overflow-hidden">
+<div class="h-full bg-ink-black rounded-full" style="width: 65%"></div>
+</div>
+</div>
+</div>
+<!-- Item -->
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-canvas-cream flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-light-signal-orange">directions_bus</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between mb-1">
+<span class="font-nav-button text-nav-button text-ink-black">Transport</span>
+<span class="font-nav-button text-nav-button text-ink-black">20%</span>
+</div>
+<div class="h-2 w-full bg-canvas-cream rounded-full overflow-hidden">
+<div class="h-full bg-light-signal-orange rounded-full" style="width: 20%"></div>
+</div>
+</div>
+</div>
+<!-- Item -->
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-canvas-cream flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-outline-variant">restaurant</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between mb-1">
+<span class="font-nav-button text-nav-button text-ink-black">Cafeteria &amp; Extras</span>
+<span class="font-nav-button text-nav-button text-ink-black">15%</span>
+</div>
+<div class="h-2 w-full bg-canvas-cream rounded-full overflow-hidden">
+<div class="h-full bg-outline-variant rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Defaulter Roster - Circular Portraits Layout -->
+<section class="mb-section-md">
+<div class="flex items-end justify-between mb-8">
+<div>
+<h2 class="font-headline-md text-headline-md text-ink-black tracking-tight mb-2">Priority Attention Required</h2>
+<p class="font-body text-body text-on-surface-variant">Top accounts requiring immediate follow-up</p>
+</div>
+<a class="font-nav-button text-nav-button text-ink-black border-b border-ink-black pb-0.5 hover:text-light-signal-orange hover:border-light-signal-orange transition-colors hidden md:block" href="#">View All Accounts</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Portrait Card 1 -->
+<div class="relative group flex flex-col items-center">
+<div class="w-[240px] h-[240px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden relative shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] mb-6">
+<img alt="Parent Portrait" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A portrait of a concerned parent in a clean, brightly lit modern setting. Institutional editorial style photography, soft depth of field, high quality, neutral background, calm but serious expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQUI0ewYfPOP1jNHU50kok9fF67IuBqu70s3KYj2drvjglVq8lS8OleRRKBh-vQBIsi0PeAMi6qsH-Kab0H62xi9oVMgkGESAZQi6wnhJ07e2VUiQNymW9N9y1nNmoo4Eyu5NdPBNj6llvI3e84C2-24opyS1VQeBXMZbA6hTyKa5wzBlci5U2ST7bQ0JhY4n9z7Q4_f8jku1c8AuE7ksDwGqQfkvH8I5bvC36sN2OJCeFxBG4Mzj2PChf6J3b-85iVHyXthr_rpo">
+<!-- Satellite CTA -->
+<button class="absolute bottom-4 right-4 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform group-hover:bg-ink-black group-hover:text-white text-ink-black">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="text-center">
+<h4 class="font-headline-sm text-[20px] text-ink-black mb-1">Sarah Jenkins</h4>
+<p class="font-body text-[14px] text-on-surface-variant mb-2">Grade 10 Parent</p>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-[#FFEBEE] text-error font-nav-button text-[14px]">
+                            90 Days Overdue
+                        </span>
+</div>
+</div>
+<!-- Portrait Card 2 -->
+<div class="relative group flex flex-col items-center pt-0 md:pt-12">
+<div class="w-[240px] h-[240px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden relative shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] mb-6">
+<img alt="Parent Portrait" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A portrait of a father looking thoughtful in a bright, modern office space. Institutional editorial style photography, soft natural lighting, high quality, neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB__uCAWldnzZEAYwiaDQVgap8ytdvLzdiPtz3WJMIfC88H7wBJ_zp0z96IdbIyn-PTy0YYoi1-Ph3PDETmjo8t31160PWHn56hYj7NVcooBtIDANyt9atZ5nhOua8vHU0lhV1U2jJHhn1GkWSjLs3FCbpJuG9Jb4txaVyPVIH9tPa-JDRisSHIKsU4yF9IVKJkT6mtdOhf0lqxMc7IQEPd1zfv8YFC5UDB1h7_foDJmpw29wbYGo43IWWQpobC2vZZDYj84SVQbDk">
+<!-- Satellite CTA -->
+<button class="absolute bottom-4 right-4 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform group-hover:bg-ink-black group-hover:text-white text-ink-black">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="text-center">
+<h4 class="font-headline-sm text-[20px] text-ink-black mb-1">Michael Chang</h4>
+<p class="font-body text-[14px] text-on-surface-variant mb-2">Grade 8 Parent</p>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-[#FFF3E0] text-[#E65100] font-nav-button text-[14px]">
+                            60 Days Overdue
+                        </span>
+</div>
+</div>
+<!-- Portrait Card 3 -->
+<div class="relative group flex flex-col items-center">
+<div class="w-[240px] h-[240px] md:w-[280px] md:h-[280px] rounded-full overflow-hidden relative shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] mb-6">
+<img alt="Parent Portrait" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A portrait of a mother with a neutral expression in a minimalist, light-filled room. Institutional editorial style photography, premium magazine aesthetic, high quality, soft focus background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXDqs-axLLGnk6UTh2rLFf1cQVDH93JJ4qp9V0sf40OEKizUooHmRMwtRGCfXsXc3IrTOPypTlbTuHJ5V9R0dFw_z6Ns_Vjrt64v0XQKo-ukCOHX4eVmKWC68th_zYnFC8fOJ1im5mJVxp3loY4wGYKRAArOgUGwO34DxUOHul0I0EUF8yUTYsjez7zrpGQ_y0mK0wthRv3S0J1_gSkTd3OrxS8XhkU5CQcZIAon3awtuj9ggv8MLnHz10sNbmnP_u7nGVUGXe_GY">
+<!-- Satellite CTA -->
+<button class="absolute bottom-4 right-4 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform group-hover:bg-ink-black group-hover:text-white text-ink-black">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="text-center">
+<h4 class="font-headline-sm text-[20px] text-ink-black mb-1">Elena Rodriguez</h4>
+<p class="font-body text-[14px] text-on-surface-variant mb-2">Grade 12 Parent</p>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-[#FFF3E0] text-[#E65100] font-nav-button text-[14px]">
+                            45 Days Overdue
+                        </span>
+</div>
+</div>
+<!-- Card 4 (View All abstract) -->
+<div class="relative group flex flex-col items-center pt-0 md:pt-12">
+<div class="w-[240px] h-[240px] md:w-[280px] md:h-[280px] rounded-full bg-lifted-cream border border-dust-taupe/30 flex items-center justify-center relative shadow-sm mb-6 hover:border-ink-black transition-colors cursor-pointer">
+<div class="text-center">
+<span class="material-symbols-outlined text-[40px] text-on-surface-variant mb-2">group</span>
+<p class="font-nav-button text-nav-button text-ink-black">View All 42<br>Flagged Accounts</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center md:hidden">
+<a class="inline-block font-nav-button text-nav-button text-ink-black border-b border-ink-black pb-0.5" href="#">View All Accounts</a>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-ink-black text-white rounded-t-[40px] md:rounded-t-[80px] pt-16 md:pt-24 pb-8 px-margin-mobile md:px-gutter mt-section-md">
+<div class="max-w-max-width mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+<div>
+<h2 class="font-headline-md text-headline-md tracking-tight mb-4 max-w-md">Empowering education through financial clarity.</h2>
+<p class="font-body text-body text-dust-taupe max-w-sm">SmartSchool FinTech provides the institutional tools needed to maintain healthy school operations.</p>
+</div>
+<div class="flex flex-col md:items-end justify-end gap-6">
+<div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-white">account_balance</span>
+</div>
+<div class="flex gap-8">
+<a class="font-footer-link text-footer-link text-dust-taupe hover:text-white transition-colors" href="#">Support</a>
+<a class="font-footer-link text-footer-link text-dust-taupe hover:text-white transition-colors" href="#">Documentation</a>
+<a class="font-footer-link text-footer-link text-dust-taupe hover:text-white transition-colors" href="#">System Status</a>
+</div>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+<p class="font-footer-link text-[12px] text-dust-taupe/60">© 2024 SmartSchool FinTech. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="font-footer-link text-[12px] text-dust-taupe/60 hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="font-footer-link text-[12px] text-dust-taupe/60 hover:text-white transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+
+
+
+</body></html>

@@ -143,89 +143,79 @@ export default function OCRUpload({ docType, onOCRComplete }) {
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '20px', marginTop: '15px', background: 'rgba(255,255,255,0.02)' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-            IDENTITY DOCUMENT OCR ({docType.toUpperCase()})
-          </span>
-          {file && (
-            <button 
-              type="button" 
-              className="btn btn-secondary" 
-              onClick={processOCR}
-              disabled={loading}
-              style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-            >
-              {loading ? 'Processing...' : 'Run OCR Scanner'}
-            </button>
-          )}
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: preview ? '80px 1fr' : '1fr', gap: '15px', alignItems: 'center' }}>
-          {preview && (
-            <img 
-              src={preview} 
-              alt="Document Preview" 
-              style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--glass-border)' }} 
-            />
-          )}
-          
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleFileChange}
+    <div className="bg-surface-container-lowest rounded-[20px] p-5 border border-outline-variant/40 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <span className="font-nav-button text-nav-button text-on-surface-variant uppercase tracking-wider text-[13px]">
+          Identity Document OCR ({docType.replace('_', ' ')})
+        </span>
+        {file && (
+          <button
+            type="button"
+            onClick={processOCR}
             disabled={loading}
-            style={{ fontSize: '0.85rem', width: '100%' }}
-          />
-        </div>
-
-        {status && (
-          <p style={{ fontSize: '0.75rem', color: loading ? 'var(--secondary)' : 'var(--text-secondary)' }}>
-            {status}
-          </p>
-        )}
-
-        {/* Development Mock Tools */}
-        <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed var(--glass-border)' }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
-            🔧 DEVELOPMENT MOCKING ACTIONS:
-          </span>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '0.7rem', border: '1px dashed var(--success)' }}
-              onClick={() => loadDemoData('match')}
-            >
-              Simulate Match
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '0.7rem', border: '1px dashed var(--error)' }}
-              onClick={() => loadDemoData('mismatch')}
-            >
-              Simulate Mismatch
-            </button>
-          </div>
-        </div>
-
-        {parsedData && (
-          <div style={{ background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px', fontSize: '0.8rem' }}>
-            <span style={{ fontWeight: 'bold', display: 'block', color: 'var(--secondary)', marginBottom: '5px' }}>
-              Extracted OCR Fields:
-            </span>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
-              <div><strong>Parsed Name:</strong> {parsedData.name || 'Not detected'}</div>
-              <div><strong>Parsed DOB:</strong> {parsedData.dob || 'Not detected'}</div>
-              <div style={{ gridColumn: 'span 2' }}>
-                <strong>Doc Ref:</strong> {parsedData.docRef ? `**** **** ${parsedData.docRef.replace(/\s/g, '').slice(-4)}` : 'Not detected'}
-              </div>
-            </div>
-          </div>
+            className="inline-flex items-center gap-2 bg-ink-black text-canvas-cream rounded-full px-4 h-9 font-nav-button text-nav-button text-[13px] hover:bg-inverse-surface transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-signal-orange"
+          >
+            {loading ? 'Processing…' : 'Run OCR Scanner'}
+          </button>
         )}
       </div>
+
+      <div className={`grid items-center gap-4 ${preview ? 'grid-cols-[80px_1fr]' : 'grid-cols-1'}`}>
+        {preview && (
+          <img
+            src={preview}
+            alt="Document Preview"
+            className="w-20 h-20 object-cover rounded-[12px] border border-outline-variant"
+          />
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          disabled={loading}
+          aria-label="Upload identity document"
+          className="w-full text-[14px] text-ink-black file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-surface-container-low file:text-ink-black file:font-nav-button file:cursor-pointer hover:file:bg-surface-container-high"
+        />
+      </div>
+
+      {status && (
+        <p className={`font-body text-[13px] ${loading ? 'text-secondary' : 'text-on-surface-variant'}`}>{status}</p>
+      )}
+
+      <div className="pt-3 border-t border-dashed border-outline-variant/50">
+        <span className="font-footer-link text-footer-link text-on-surface-variant text-[12px] block mb-2">
+          Development Mocking Actions
+        </span>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => loadDemoData('match')}
+            className="px-4 py-1.5 rounded-full border border-dashed border-success text-success font-nav-button text-nav-button text-[13px] hover:bg-success-container transition-colors"
+          >
+            Simulate Match
+          </button>
+          <button
+            type="button"
+            onClick={() => loadDemoData('mismatch')}
+            className="px-4 py-1.5 rounded-full border border-dashed border-error text-error font-nav-button text-nav-button text-[13px] hover:bg-error-container transition-colors"
+          >
+            Simulate Mismatch
+          </button>
+        </div>
+      </div>
+
+      {parsedData && (
+        <div className="bg-surface-container-low p-3 rounded-[12px] font-body text-[13px] text-ink-black">
+          <span className="font-eyebrow text-[12px] uppercase tracking-wider text-on-surface-variant block mb-2">Extracted OCR Fields</span>
+          <div className="grid grid-cols-2 gap-2">
+            <div><strong>Parsed Name:</strong> {parsedData.name || 'Not detected'}</div>
+            <div><strong>Parsed DOB:</strong> {parsedData.dob || 'Not detected'}</div>
+            <div className="col-span-2">
+              <strong>Doc Ref:</strong> {parsedData.docRef ? `**** **** ${parsedData.docRef.replace(/\s/g, '').slice(-4)}` : 'Not detected'}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

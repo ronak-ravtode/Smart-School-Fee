@@ -1,0 +1,313 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Cashier Setup - SmartSchool FinTech</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;450;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "clay-brown": "#9A3A0A",
+                        "surface": "#faf9f8",
+                        "primary-fixed": "#e5e2e0",
+                        "secondary-fixed-dim": "#c8c6c4",
+                        "on-tertiary-fixed": "#380d00",
+                        "background": "#faf9f8",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#380d00",
+                        "surface-container-low": "#f4f3f2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474745",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#1c1c1a",
+                        "surface-tint": "#5f5e5d",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "light-signal-orange": "#F37338",
+                        "on-secondary-fixed-variant": "#474745",
+                        "surface-variant": "#e3e2e1",
+                        "surface-container-high": "#e9e8e7",
+                        "on-secondary-fixed": "#1c1c1b",
+                        "signal-orange": "#CF4500",
+                        "on-primary-container": "#858382",
+                        "on-tertiary-container": "#e45415",
+                        "canvas-cream": "#F3F0EE",
+                        "outline": "#767872",
+                        "primary-fixed-dim": "#c9c6c4",
+                        "inverse-primary": "#c9c6c4",
+                        "primary": "#000000",
+                        "surface-dim": "#dadad9",
+                        "error-container": "#ffdad6",
+                        "ink-black": "#141413",
+                        "on-primary-fixed": "#1c1c1a",
+                        "dust-taupe": "#D1CDC7",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed": "#e5e2e0",
+                        "surface-container-highest": "#e3e2e1",
+                        "on-tertiary": "#ffffff",
+                        "link-blue": "#3860BE",
+                        "inverse-surface": "#2f3130",
+                        "on-surface-variant": "#464742",
+                        "lifted-cream": "#FCFBFA",
+                        "secondary-container": "#e2dfdd",
+                        "outline-variant": "#c7c7c0",
+                        "error": "#ba1a1a",
+                        "secondary": "#5f5e5d",
+                        "on-secondary-container": "#636261",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "surface-container": "#eeeeed",
+                        "surface-bright": "#faf9f8",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#000000",
+                        "tertiary-fixed": "#ffdbcf",
+                        "inverse-on-surface": "#f1f0f0",
+                        "on-tertiary-fixed-variant": "#822800"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "frame": "40px"
+                    },
+                    "spacing": {
+                        "section-lg": "128px",
+                        "section-sm": "64px",
+                        "gutter": "48px",
+                        "max-width": "1280px",
+                        "card-padding": "40px",
+                        "base": "8px",
+                        "section-md": "96px",
+                        "margin-mobile": "24px"
+                    },
+                    "fontFamily": {
+                        "nav-button": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "footer-link": ["Hanken Grotesk"],
+                        "eyebrow": ["Hanken Grotesk"],
+                        "body": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "nav-button": ["16px", { "lineHeight": "16px", "letterSpacing": "-0.48px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.8px", "fontWeight": "500" }],
+                        "headline-lg": ["64px", { "lineHeight": "64px", "letterSpacing": "-1.28px", "fontWeight": "500" }],
+                        "headline-sm": ["24px", { "lineHeight": "28.8px", "letterSpacing": "-0.48px", "fontWeight": "500" }],
+                        "headline-md": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.72px", "fontWeight": "500" }],
+                        "footer-link": ["14px", { "lineHeight": "20px", "fontWeight": "450" }],
+                        "eyebrow": ["14px", { "lineHeight": "14px", "letterSpacing": "0.56px", "fontWeight": "700" }],
+                        "body": ["16px", { "lineHeight": "22.4px", "fontWeight": "450" }]
+                    },
+                    "boxShadow": {
+                        "subtle": "0 10px 24px -10px rgba(0, 0, 0, 0.04)",
+                        "lifted": "0 20px 48px -12px rgba(0, 0, 0, 0.08)",
+                        "deep": "0 30px 110px -20px rgba(0, 0, 0, 0.25)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-canvas-cream text-ink-black font-body antialiased min-h-screen flex flex-col">
+<!-- TopNavBar Shared Component -->
+<div class="fixed top-0 left-0 right-0 z-50 px-margin-mobile md:px-gutter py-6 pointer-events-none hidden md:block">
+<div class="max-w-max-width mx-auto flex justify-center pointer-events-auto">
+<nav class="bg-lifted-cream rounded-full shadow-[0_24px_48px_-12px_rgba(0,0,0,0.04)] px-6 py-3 flex items-center gap-8 border border-white/50 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-ink-black rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px]">account_balance</span>
+</div>
+<span class="font-headline-sm text-[18px] font-bold text-ink-black tracking-tight">SmartSchool FinTech</span>
+</div>
+<div class="h-6 w-px bg-dust-taupe/30"></div>
+<div class="flex items-center gap-6">
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Analytics</a>
+<a class="font-nav-button text-nav-button text-ink-black relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-ink-black" href="#">Cashier Setup</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Fee Engine</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Collect Fees</a>
+<a class="font-nav-button text-nav-button text-on-surface-variant hover:text-ink-black transition-colors" href="#">Billing</a>
+</div>
+<div class="h-6 w-px bg-dust-taupe/30"></div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-ink-black transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-ink-black transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Administrator Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP7m6KUp5UAK4lINCGzSIRH2goUEsmBq9HRDhXYfziA4xhiXCzfudOnZxzbHItDdInP_Ejl62mX99NQBLopfBg5JqepsqXg-Yd0BBSV-mftt7mTuUQwh4UYH8qAQUqspPDLWPn9hEndx3p-NLVR-OWmEgc-Sa7V_7yr30XdSwTaCBP4T8vXWTx-x_f1Hed5Y3FuoY67RwTQ-Gw737ZSvtQGLwYUkBGpbb6eTeF1LYmCJWZV9aqaAynk4G49xHofjhyYXcQLY1_7E8">
+</div>
+</div>
+</nav>
+</div>
+</div>
+<main class="flex-grow flex justify-center py-section-sm md:py-section-md px-margin-mobile md:px-gutter mt-12">
+<div class="max-w-max-width w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: Registration Form (4 cols) -->
+<div class="lg:col-span-4 bg-lifted-cream rounded-frame p-card-padding shadow-lifted border border-white flex flex-col gap-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-canvas-cream rounded-full blur-3xl -mr-32 -mt-32 opacity-50 pointer-events-none"></div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-ink-black mb-2">Register New Cashier</h2>
+<p class="font-body text-body text-on-surface-variant">Create secure cashier accounts. Cashiers can receive fee payments but cannot modify structural configurations.</p>
+</div>
+<form class="flex flex-col gap-6">
+<div class="flex flex-col gap-2">
+<label class="font-eyebrow text-eyebrow text-on-surface uppercase tracking-widest">FULL NAME</label>
+<input class="w-full h-12 px-4 rounded-full border border-outline-variant/50 bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body text-body transition-all" placeholder="Cashier's name" type="text">
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-eyebrow text-eyebrow text-on-surface uppercase tracking-widest">EMAIL ADDRESS</label>
+<div class="relative">
+<input class="w-full h-12 pl-4 pr-12 rounded-full border border-outline-variant/50 bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body text-body transition-all" placeholder="cashier@school.com" type="email">
+
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-eyebrow text-eyebrow text-on-surface uppercase tracking-widest">MOBILE NUMBER</label>
+<input class="w-full h-12 px-4 rounded-full border border-outline-variant/50 bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body text-body transition-all" placeholder="10-digit number" type="tel">
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-eyebrow text-eyebrow text-on-surface uppercase tracking-widest">PASSWORD</label>
+<input class="w-full h-12 px-4 rounded-full border border-outline-variant/50 bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body text-body transition-all" placeholder="Initial password" type="password">
+</div>
+<button class="mt-4 w-full h-14 bg-ink-black text-canvas-cream rounded-[20px] font-nav-button text-nav-button flex items-center justify-center hover:bg-surface-tint transition-colors shadow-subtle group" type="button">
+                        Create Cashier
+                        <span class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+</div>
+<!-- Right Column: Lists (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-8">
+<!-- Registered Staff Card -->
+<div class="bg-lifted-cream rounded-frame p-card-padding shadow-lifted border border-white">
+<div class="mb-8">
+<h2 class="font-headline-sm text-headline-sm text-ink-black mb-2">Registered Cashier Staff</h2>
+<p class="font-body text-body text-on-surface-variant">Showing active cashier staff accounts fetched dynamically from the database.</p>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant">
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant">Name</th>
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant">Email</th>
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant">Mobile</th>
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant">Created By</th>
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant text-right">Status</th>
+</tr>
+</thead>
+<tbody class="font-body text-body text-ink-black divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="py-4 font-medium">Primary Cashier</td>
+<td class="py-4 text-on-surface-variant">cashier@smartschool.com</td>
+<td class="py-4">9898989898</td>
+<td class="py-4 text-on-surface-variant">Super Admin</td>
+<td class="py-4 text-right">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#E8F5E9] text-[#2E7D32]">ACTIVE</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="py-4 font-medium">Jane Doe</td>
+<td class="py-4 text-on-surface-variant">jane.doe@smartschool.com</td>
+<td class="py-4">5551234567</td>
+<td class="py-4 text-on-surface-variant">Super Admin</td>
+<td class="py-4 text-right">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#E8F5E9] text-[#2E7D32]">ACTIVE</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Audit Logs Card -->
+<div class="bg-lifted-cream rounded-frame p-card-padding shadow-lifted border border-white">
+<div class="mb-8">
+<h2 class="font-headline-sm text-headline-sm text-ink-black mb-2">System Audit Logs (Recent Operations)</h2>
+<p class="font-body text-body text-on-surface-variant">Showing mutations tracked in the PostgreSQL `audit_logs` table (read-only for security auditing).</p>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant">
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant w-24">Time</th>
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant w-48">Actor &amp; Action</th>
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant">Description (Real Data)</th>
+<th class="py-4 font-eyebrow text-eyebrow text-on-surface-variant text-right w-24">Details</th>
+</tr>
+</thead>
+<tbody class="font-body text-body text-ink-black divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-4 text-on-surface-variant text-sm">17:17:18</td>
+<td class="py-4">
+<div class="flex flex-col">
+<span class="font-medium">Admin</span>
+<span class="text-sm text-link-blue">login</span>
+</div>
+</td>
+<td class="py-4">User logged in (ID: 117)</td>
+<td class="py-4 text-right">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-xs font-bold hover:bg-surface-variant transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">Inspect</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-4 text-on-surface-variant text-sm">17:14:38</td>
+<td class="py-4">
+<div class="flex flex-col">
+<span class="font-medium">Cashier</span>
+<span class="text-sm text-link-blue">login</span>
+</div>
+</td>
+<td class="py-4">User logged in (ID: 118)</td>
+<td class="py-4 text-right">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-xs font-bold hover:bg-surface-variant transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">Inspect</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-4 text-on-surface-variant text-sm">17:12:28</td>
+<td class="py-4">
+<div class="flex flex-col">
+<span class="font-medium">Admin</span>
+<span class="text-sm text-link-blue">login</span>
+</div>
+</td>
+<td class="py-4">User logged in (ID: 117)</td>
+<td class="py-4 text-right">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-xs font-bold hover:bg-surface-variant transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">Inspect</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-4 text-on-surface-variant text-sm">15:37:03</td>
+<td class="py-4">
+<div class="flex flex-col">
+<span class="font-medium">Admin</span>
+<span class="text-sm text-link-blue">login</span>
+</div>
+</td>
+<td class="py-4">User logged in (ID: 117)</td>
+<td class="py-4 text-right">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-xs font-bold hover:bg-surface-variant transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">Inspect</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>

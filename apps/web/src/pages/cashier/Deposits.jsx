@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
+import PageHeader from '../../components/ui/PageHeader';
+import StatusChip from '../../components/ui/StatusChip';
+
+const statusTone = (status) =>
+  status === 'cleared' ? 'success' : status === 'bounced' ? 'error' : 'pending';
 
 export default function Deposits() {
   const [cheques, setCheques] = useState([]);
@@ -113,135 +120,106 @@ export default function Deposits() {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '30px', color: '#ffffff' }} className="glass-panel">
-      <h2 style={{ fontSize: '1.25rem', marginBottom: '15px', color: '#ffffff' }}>Cheque Lifecycle Manager</h2>
-      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '25px' }}>
-        View registered cheques, submit them for clearing at the bank, and process bounces.
-      </p>
+    <div className="max-w-[960px] mx-auto w-full">
+      <PageHeader
+        eyebrow="Cheque Deposits"
+        title="Cheque Lifecycle Manager"
+        subtitle="View registered cheques, submit them for clearing at the bank, and process bounces."
+      />
 
-      {error && <div className="alert alert-error">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      {error && <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>}
+      {success && <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{success}</div>}
 
-      {/* Bounce Dialog Overlay Form */}
       {bouncingId && (
-        <div style={{
-          background: 'rgba(15, 23, 42, 0.95)',
-          border: '1px solid var(--glass-border)',
-          borderRadius: '8px',
-          padding: '20px',
-          marginBottom: '20px',
-          color: '#ffffff'
-        }}>
-          <form onSubmit={handleBounceSubmit}>
-            <h3 style={{ fontSize: '1rem', marginTop: 0, color: '#ffffff' }}>Report Cheque Bounce</h3>
-            <div className="form-group">
-              <label className="form-label">Reason for Bounce</label>
+        <GlassCard className="mb-6">
+          <h3 className="font-medium text-ink-black mb-4">Report Cheque Bounce</h3>
+          <form onSubmit={handleBounceSubmit} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Reason for Bounce</label>
               <input
-                type="text"
-                className="form-input"
                 value={bounceReason}
                 onChange={(e) => setBounceReason(e.target.value)}
                 placeholder="e.g. Insufficient funds, signature mismatch"
                 required
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-reconciliation/30 focus:border-module-reconciliation transition-all"
               />
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button type="submit" className="btn btn-error" style={{ background: 'var(--error)' }}>
+            <div className="flex gap-3">
+              <ActionButton type="submit" disabled={loadingId !== null}>
                 Confirm Bounce & Apply Penalty (₹500)
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={() => setBouncingId(null)}>
+              </ActionButton>
+              <ActionButton variant="secondary" type="button" onClick={() => setBouncingId(null)}>
                 Cancel
-              </button>
+              </ActionButton>
             </div>
           </form>
-        </div>
+        </GlassCard>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
+      <GlassCard>
         {cheques.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: '#cbd5e1' }}>
+          <div className="text-center py-16 text-on-surface-variant text-sm">
             No cheques registered in the system.
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.825rem', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--glass-border)', color: '#cbd5e1' }}>
-                <th style={{ padding: '12px' }}>Student</th>
-                <th style={{ padding: '12px' }}>Bank</th>
-                <th style={{ padding: '12px' }}>Cheque No.</th>
-                <th style={{ padding: '12px' }}>Amount</th>
-                <th style={{ padding: '12px' }}>Deposit Status</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cheques.map(cheque => (
-                <tr key={cheque.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                  <td style={{ padding: '12px', fontWeight: 500 }}>
-                    {cheque.transaction.student.name}
-                  </td>
-                  <td style={{ padding: '12px' }}>{cheque.bank}</td>
-                  <td style={{ padding: '12px', fontFamily: 'monospace' }}>{cheque.chequeNo}</td>
-                  <td style={{ padding: '12px' }}>₹{Number(cheque.transaction.amount).toLocaleString('en-IN')}</td>
-                  <td style={{ padding: '12px' }}>
-                    <span className={`badge ${
-                      cheque.depositStatus === 'cleared' ? 'badge-active' :
-                      cheque.depositStatus === 'bounced' ? 'badge-flagged' :
-                      'badge-pending'
-                    }`} style={{ textTransform: 'capitalize' }}>
-                      {cheque.depositStatus.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                      
-                      {cheque.depositStatus === 'deposit_pending' && (
-                        <button
-                          className="btn"
-                          style={{ padding: '4px 8px', fontSize: '0.7rem' }}
-                          disabled={loadingId !== null}
-                          onClick={() => handleDeposit(cheque.id)}
-                        >
-                          Mark Deposited
-                        </button>
-                      )}
-
-                      {cheque.depositStatus === 'bank_pending' && (
-                        <>
-                          <button
-                            className="btn"
-                            style={{ padding: '4px 8px', fontSize: '0.7rem', background: '#10b981' }}
-                            disabled={loadingId !== null}
-                            onClick={() => handleClear(cheque.id)}
-                          >
-                            Clear
-                          </button>
-                          <button
-                            className="btn"
-                            style={{ padding: '4px 8px', fontSize: '0.7rem', background: '#ef4444' }}
-                            disabled={loadingId !== null}
-                            onClick={() => setBouncingId(cheque.id)}
-                          >
-                            Bounce
-                          </button>
-                        </>
-                      )}
-
-                      {cheque.depositStatus === 'cleared' && (
-                        <span style={{ color: 'var(--success)', fontSize: '0.75rem' }}>Completed</span>
-                      )}
-                      {cheque.depositStatus === 'bounced' && (
-                        <span style={{ color: 'var(--error)', fontSize: '0.75rem' }}>Bounced</span>
-                      )}
-
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 text-on-surface-variant text-xs uppercase tracking-wider">
+                  <th className="p-3">Student</th>
+                  <th className="p-3">Bank</th>
+                  <th className="p-3">Cheque No.</th>
+                  <th className="p-3">Amount</th>
+                  <th className="p-3">Deposit Status</th>
+                  <th className="p-3 text-center">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cheques.map(cheque => (
+                  <tr key={cheque.id} className="border-b border-gray-100">
+                    <td className="p-3 font-medium text-ink-black">{cheque.transaction.student.name}</td>
+                    <td className="p-3 text-ink-black">{cheque.bank}</td>
+                    <td className="p-3 font-mono text-xs text-ink-black">{cheque.chequeNo}</td>
+                    <td className="p-3 font-semibold text-ink-black">₹{Number(cheque.transaction.amount).toLocaleString('en-IN')}</td>
+                    <td className="p-3">
+                      <StatusChip variant={statusTone(cheque.depositStatus)} className="capitalize">
+                        {cheque.depositStatus.replace('_', ' ')}
+                      </StatusChip>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex gap-2 justify-center flex-wrap">
+                        {cheque.depositStatus === 'deposit_pending' && (
+                          <ActionButton variant="ghost" disabled={loadingId !== null} onClick={() => handleDeposit(cheque.id)}>
+                            Mark Deposited
+                          </ActionButton>
+                        )}
+
+                        {cheque.depositStatus === 'bank_pending' && (
+                          <>
+                            <ActionButton variant="ghost" disabled={loadingId !== null} onClick={() => handleClear(cheque.id)}>
+                              Clear
+                            </ActionButton>
+                            <ActionButton variant="ghost" disabled={loadingId !== null} onClick={() => setBouncingId(cheque.id)}>
+                              Bounce
+                            </ActionButton>
+                          </>
+                        )}
+
+                        {cheque.depositStatus === 'cleared' && (
+                          <span className="text-sm text-success">Completed</span>
+                        )}
+                        {cheque.depositStatus === 'bounced' && (
+                          <span className="text-sm text-error">Bounced</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </GlassCard>
     </div>
   );
 }

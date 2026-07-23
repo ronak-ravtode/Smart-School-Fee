@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { Card, PillButton, InputField, Alert } from '../../components/ui/Primitives';
 
 export default function Stage2KYC({ studentId, onSuccess, onCancel }) {
   const [bankAccount, setBankAccount] = useState('');
   const [ifsc, setIfsc] = useState('');
   const [passbookFile, setPassbookFile] = useState(null);
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -24,7 +25,7 @@ export default function Stage2KYC({ studentId, onSuccess, onCancel }) {
     try {
       const token = localStorage.getItem('token');
       // Create passbook URL (fake passbook url for simulation)
-      const fakePhotoUrl = passbookFile 
+      const fakePhotoUrl = passbookFile
         ? `/uploads/passbook-${studentId}-${Date.now()}.jpg`
         : '/uploads/default-passbook.jpg';
 
@@ -60,68 +61,62 @@ export default function Stage2KYC({ studentId, onSuccess, onCancel }) {
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '20px auto' }} className="glass-panel glass-panel-glow">
-      <div style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>Stage 2 KYC: Banking Details</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
+    <Card>
+      <div className="p-card-padding">
+        <h2 className="font-headline-sm text-headline-sm text-ink-black mb-2">Stage 2 KYC: Banking Details</h2>
+        <p className="font-body text-[14px] text-on-surface-variant mb-6">
           Under DPDP guidelines, banking details are collected only when a refund is requested. They are encrypted at rest for security.
         </p>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        <Alert tone="error">{error}</Alert>
+        <Alert tone="success">{success}</Alert>
 
-        <form onSubmit={handleSubmit}>
-          
-          <div className="form-group">
-            <label className="form-label">Bank Account Number</label>
-            <input
-              type="text"
-              className="form-input"
-              value={bankAccount}
-              onChange={(e) => setBankAccount(e.target.value)}
-              placeholder="e.g. 123456789012"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-2">
+          <InputField
+            label="Bank Account Number"
+            id="kyc-account"
+            value={bankAccount}
+            onChange={(e) => setBankAccount(e.target.value)}
+            placeholder="e.g. 123456789012"
+            required
+          />
 
-          <div className="form-group">
-            <label className="form-label">IFSC Code</label>
-            <input
-              type="text"
-              className="form-input"
-              value={ifsc}
-              onChange={(e) => setIfsc(e.target.value)}
-              placeholder="e.g. SBIN0001234"
-              required
-              maxLength="11"
-              style={{ textTransform: 'uppercase' }}
-            />
-          </div>
+          <InputField
+            label="IFSC Code"
+            id="kyc-ifsc"
+            value={ifsc}
+            onChange={(e) => setIfsc(e.target.value)}
+            placeholder="e.g. SBIN0001234"
+            required
+            maxLength={11}
+            className="uppercase"
+          />
 
-          <div className="form-group">
-            <label className="form-label">Passbook Photo / Cancelled Cheque</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="kyc-passbook" className="font-eyebrow text-eyebrow text-light-signal-orange uppercase tracking-wider">
+              Passbook Photo / Cancelled Cheque
+            </label>
             <input
+              id="kyc-passbook"
               type="file"
-              className="form-input"
               onChange={(e) => setPassbookFile(e.target.files[0])}
               accept="image/*,.pdf"
-              style={{ padding: '8px' }}
+              className="w-full h-12 px-4 rounded-full border border-outline-variant/50 bg-surface font-body text-body text-ink-black file:mr-4 file:border-0 file:bg-ink-black file:text-canvas-cream file:rounded-full file:px-4 file:h-9 file:font-nav-button file:text-nav-button"
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            <button type="submit" className="btn" style={{ flex: 1 }} disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Details'}
-            </button>
+          <div className="flex gap-3 mt-1">
+            <PillButton type="submit" disabled={loading} className="flex-1">
+              {loading ? 'Submitting…' : 'Submit Details'}
+            </PillButton>
             {onCancel && (
-              <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={loading}>
+              <PillButton type="button" variant="outline" onClick={onCancel} disabled={loading}>
                 Cancel
-              </button>
+              </PillButton>
             )}
           </div>
-
         </form>
       </div>
-    </div>
+    </Card>
   );
 }

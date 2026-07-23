@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
+import { Icon } from '../../components/Icon';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
 
 export default function Login({ onNavigate }) {
   const { login, verifyOtp, error, successMessage, loading, tempMobile, receivedOtp, clearAlerts } = useAuthStore();
-  const [step, setStep] = useState(1); // 1 = Password, 2 = OTP
+  const [step, setStep] = useState(1);
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
@@ -11,19 +14,13 @@ export default function Login({ onNavigate }) {
 
   useEffect(() => {
     clearAlerts();
-    if (tempMobile) {
-      setStep(2);
-    } else {
-      setStep(1);
-    }
+    setStep(tempMobile ? 2 : 1);
   }, [tempMobile]);
 
   const validatePasswordStep = () => {
     const errors = {};
-    const mobileRegex = /^[0-9]{10}$/;
-    if (!mobileRegex.test(mobile)) errors.mobile = 'Mobile number must be exactly 10 digits';
+    if (!/^[0-9]{10}$/.test(mobile)) errors.mobile = 'Mobile number must be exactly 10 digits';
     if (!password) errors.password = 'Password is required';
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -31,13 +28,9 @@ export default function Login({ onNavigate }) {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (!validatePasswordStep()) return;
-
     try {
       await login(mobile, password);
-      // Success will update tempMobile and trigger useEffect to step 2
-    } catch (err) {
-      // Handled by store
-    }
+    } catch (err) {}
   };
 
   const handleOtpSubmit = async (e) => {
@@ -46,143 +39,113 @@ export default function Login({ onNavigate }) {
       setFormErrors({ otp: 'OTP must be exactly 6 digits' });
       return;
     }
-
     try {
       await verifyOtp(otp);
       onNavigate('dashboard');
-    } catch (err) {
-      // Handled by store
-    }
+    } catch (err) {}
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="glass-panel glass-panel-glow auth-card">
-        <h1 className="logo-text">SMART SCHOOL FINTECH</h1>
-        <h2 style={{ textAlign: 'center', marginBottom: '24px', fontSize: '1.25rem', color: 'var(--text-secondary)' }}>
-          {step === 1 ? 'Log In to Account' : '2-Factor OTP Verification'}
-        </h2>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f8f6f3' }}>
+      <GlassCard className="w-full max-w-[460px]">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 bg-ink-black rounded-xl flex items-center justify-center">
+            <Icon name="account_balance" className="text-white text-[20px]" />
+          </div>
+          <span className="font-semibold text-xl text-ink-black">SmartSchool</span>
+        </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {successMessage && <div className="alert alert-success">{successMessage}</div>}
+        <p className="text-xs font-medium text-module-dashboard uppercase tracking-wider mb-1">Secure Access</p>
+        <h1 className="text-2xl font-semibold text-ink-black mb-6">
+          {step === 1 ? 'Log In to Your Account' : 'Two-Factor Verification'}
+        </h1>
+
+        {error && (
+          <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>
+        )}
+        {successMessage && (
+          <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{successMessage}</div>
+        )}
 
         {step === 1 ? (
-          <form onSubmit={handlePasswordSubmit}>
-            <div className="form-group">
-              <label className="form-label">Mobile Number</label>
+          <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-5" noValidate>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Mobile Number</label>
               <input
                 type="tel"
-                className="form-input pulse-focus"
+                inputMode="numeric"
+                autoComplete="tel"
                 placeholder="10-digit mobile number"
                 value={mobile}
-                onChange={(e) => {
-                  setMobile(e.target.value);
-                  setFormErrors({ ...formErrors, mobile: null });
-                }}
-                maxLength="10"
+                maxLength={10}
+                onChange={(e) => { setMobile(e.target.value); setFormErrors({ ...formErrors, mobile: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
               />
-              {formErrors.mobile && <span style={{ color: 'var(--error)', fontSize: '0.75rem' }}>{formErrors.mobile}</span>}
+              {formErrors.mobile && <span className="text-error text-xs mt-1 block">{formErrors.mobile}</span>}
             </div>
-
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label className="form-label">Password</label>
-                <a
-                  href="#"
-                  onClick={(e) => { e.preventDefault(); onNavigate('forgot-password'); }}
-                  style={{ color: 'var(--primary)', fontSize: '0.75rem', textDecoration: 'none' }}
-                >
-                  Forgot password?
-                </a>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-ink-black">Password</label>
+                <button type="button" onClick={() => onNavigate('forgot-password')} className="text-xs text-link-blue hover:underline">Forgot password?</button>
               </div>
               <input
                 type="password"
-                className="form-input pulse-focus"
+                autoComplete="current-password"
                 placeholder="Enter password"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setFormErrors({ ...formErrors, password: null });
-                }}
+                onChange={(e) => { setPassword(e.target.value); setFormErrors({ ...formErrors, password: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
               />
-              {formErrors.password && <span style={{ color: 'var(--error)', fontSize: '0.75rem' }}>{formErrors.password}</span>}
+              {formErrors.password && <span className="text-error text-xs mt-1 block">{formErrors.password}</span>}
             </div>
-
-            <button
-              type="submit"
-              className="btn"
-              style={{ width: '100%', marginTop: '10px' }}
-              disabled={loading}
-            >
-              {loading ? 'Verifying...' : 'Next Step'}
-            </button>
+            <ActionButton type="submit" disabled={loading}>
+              {loading ? 'Verifying…' : 'Next Step'}
+            </ActionButton>
           </form>
         ) : (
-          <form onSubmit={handleOtpSubmit}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px', textAlign: 'center' }}>
-              We have sent a security code to <strong>{tempMobile}</strong>.
+          <form onSubmit={handleOtpSubmit} className="flex flex-col gap-5" noValidate>
+            <p className="text-sm text-on-surface-variant">
+              We sent a security code to <strong className="text-ink-black">{tempMobile}</strong>.
             </p>
-
             {receivedOtp && (
-              <div className="alert alert-success" style={{ background: 'rgba(6, 182, 212, 0.12)', borderColor: 'rgba(6, 182, 212, 0.3)', color: '#22d3ee', textAlign: 'center', marginBottom: '20px' }}>
-                <strong>[Dev Helper] Mock SMS OTP:</strong>
-                <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '4px', marginTop: '5px' }}>
-                  {receivedOtp}
-                </span>
+              <div className="bg-success-container text-success rounded-[12px] p-4 text-center text-sm">
+                <span className="text-xs">Dev helper — Mock SMS OTP</span>
+                <p className="text-xl font-semibold tracking-[0.3em] mt-1">{receivedOtp}</p>
               </div>
             )}
-
-            <div className="form-group">
-              <label className="form-label">Enter 6-Digit OTP</label>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Enter 6-Digit OTP</label>
               <input
-                type="text"
-                className="form-input pulse-focus"
+                inputMode="numeric"
+                autoComplete="one-time-code"
                 placeholder="e.g. 123456"
                 value={otp}
-                onChange={(e) => {
-                  setOtp(e.target.value);
-                  setFormErrors({ ...formErrors, otp: null });
-                }}
-                maxLength="6"
-                style={{ textAlign: 'center', letterSpacing: '8px', fontSize: '1.25rem' }}
+                maxLength={6}
+                onChange={(e) => { setOtp(e.target.value); setFormErrors({ ...formErrors, otp: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
               />
-              {formErrors.otp && <span style={{ color: 'var(--error)', fontSize: '0.75rem', display: 'block', textAlign: 'center' }}>{formErrors.otp}</span>}
+              {formErrors.otp && <span className="text-error text-xs mt-1 block">{formErrors.otp}</span>}
             </div>
-
-            <button
-              type="submit"
-              className="btn"
-              style={{ width: '100%', marginTop: '10px' }}
-              disabled={loading}
-            >
-              {loading ? 'Verifying...' : 'Verify & Log In'}
-            </button>
-
+            <ActionButton type="submit" disabled={loading}>
+              {loading ? 'Verifying…' : 'Verify & Log In'}
+            </ActionButton>
             <button
               type="button"
-              className="btn btn-secondary"
-              style={{ width: '100%', marginTop: '12px' }}
-              onClick={() => {
-                useAuthStore.setState({ tempMobile: null });
-                setStep(1);
-              }}
+              className="text-sm text-on-surface-variant hover:text-ink-black transition-colors"
+              onClick={() => { useAuthStore.setState({ tempMobile: null }); setStep(1); }}
             >
               Back to Password
             </button>
           </form>
         )}
 
-        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-          Don't have an account?{' '}
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); onNavigate('signup'); }}
-            style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
-          >
+        <p className="text-center mt-8 text-sm text-on-surface-variant">
+          Don&rsquo;t have an account?{' '}
+          <button type="button" onClick={() => onNavigate('signup')} className="text-ink-black font-medium underline underline-offset-4 hover:text-module-dashboard transition-colors">
             Sign Up
-          </a>
+          </button>
         </p>
-      </div>
+      </GlassCard>
     </div>
   );
 }

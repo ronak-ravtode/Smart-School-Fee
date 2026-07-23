@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
+import { Icon } from '../../components/Icon';
+import GlassCard from '../../components/ui/GlassCard';
+import ActionButton from '../../components/ui/ActionButton';
 
 export default function ForgotPassword({ onNavigate }) {
   const { forgotPassword, resetPassword, error, successMessage, loading, tempMobile, receivedOtp, clearAlerts } = useAuthStore();
-  const [step, setStep] = useState(1); // 1 = Mobile, 2 = Reset
+  const [step, setStep] = useState(1);
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -11,27 +14,18 @@ export default function ForgotPassword({ onNavigate }) {
 
   useEffect(() => {
     clearAlerts();
-    if (tempMobile) {
-      setStep(2);
-    } else {
-      setStep(1);
-    }
+    setStep(tempMobile ? 2 : 1);
   }, [tempMobile]);
 
   const handleMobileSubmit = async (e) => {
     e.preventDefault();
-    const mobileRegex = /^[0-9]{10}$/;
-    if (!mobileRegex.test(mobile)) {
+    if (!/^[0-9]{10}$/.test(mobile)) {
       setFormErrors({ mobile: 'Enter a valid 10-digit mobile number' });
       return;
     }
-
     try {
       await forgotPassword(mobile);
-      // Store will set tempMobile and trigger step 2
-    } catch (err) {
-      // Handled by store
-    }
+    } catch (err) {}
   };
 
   const handleResetSubmit = async (e) => {
@@ -39,139 +33,113 @@ export default function ForgotPassword({ onNavigate }) {
     const errors = {};
     if (otp.length !== 6) errors.otp = 'OTP must be exactly 6 digits';
     if (newPassword.length < 6) errors.newPassword = 'Password must be at least 6 characters';
-
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
-
     try {
       await resetPassword(otp, newPassword);
-      // Wait a moment and redirect to login
       setTimeout(() => {
         useAuthStore.setState({ tempMobile: null });
         onNavigate('login');
       }, 1500);
-    } catch (err) {
-      // Handled by store
-    }
+    } catch (err) {}
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="glass-panel glass-panel-glow auth-card">
-        <h1 className="logo-text">SMART SCHOOL FINTECH</h1>
-        <h2 style={{ textAlign: 'center', marginBottom: '24px', fontSize: '1.25rem', color: 'var(--text-secondary)' }}>
-          {step === 1 ? 'Reset Password' : 'Enter New Password'}
-        </h2>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#f8f6f3' }}>
+      <GlassCard className="w-full max-w-[460px]">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 bg-ink-black rounded-xl flex items-center justify-center">
+            <Icon name="account_balance" className="text-white text-[20px]" />
+          </div>
+          <span className="font-semibold text-xl text-ink-black">SmartSchool</span>
+        </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {successMessage && <div className="alert alert-success">{successMessage}</div>}
+        <p className="text-xs font-medium text-module-dashboard uppercase tracking-wider mb-1">Account Recovery</p>
+        <h1 className="text-2xl font-semibold text-ink-black mb-6">
+          {step === 1 ? 'Reset Password' : 'Set New Password'}
+        </h1>
+
+        {error && (
+          <div className="p-4 rounded-[12px] bg-error-container text-error text-sm mb-4">{error}</div>
+        )}
+        {successMessage && (
+          <div className="p-4 rounded-[12px] bg-success-container text-success text-sm mb-4">{successMessage}</div>
+        )}
 
         {step === 1 ? (
-          <form onSubmit={handleMobileSubmit}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px', textAlign: 'center' }}>
-              Enter your registered mobile number below, and we will send you an OTP to reset your password.
+          <form onSubmit={handleMobileSubmit} className="flex flex-col gap-5" noValidate>
+            <p className="text-sm text-on-surface-variant">
+              Enter your registered mobile number and we will send an OTP to reset your password.
             </p>
-
-            <div className="form-group">
-              <label className="form-label">Mobile Number</label>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">Mobile Number</label>
               <input
                 type="tel"
-                className="form-input pulse-focus"
+                inputMode="numeric"
+                autoComplete="tel"
                 placeholder="10-digit mobile number"
                 value={mobile}
-                onChange={(e) => {
-                  setMobile(e.target.value);
-                  setFormErrors({});
-                }}
-                maxLength="10"
+                maxLength={10}
+                onChange={(e) => { setMobile(e.target.value); setFormErrors({}); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
               />
-              {formErrors.mobile && <span style={{ color: 'var(--error)', fontSize: '0.75rem' }}>{formErrors.mobile}</span>}
+              {formErrors.mobile && <span className="text-error text-xs mt-1 block">{formErrors.mobile}</span>}
             </div>
-
-            <button
-              type="submit"
-              className="btn"
-              style={{ width: '100%', marginTop: '10px' }}
-              disabled={loading}
-            >
-              {loading ? 'Sending OTP...' : 'Send OTP'}
-            </button>
+            <ActionButton type="submit" disabled={loading}>
+              {loading ? 'Sending OTP…' : 'Send OTP'}
+            </ActionButton>
           </form>
         ) : (
-          <form onSubmit={handleResetSubmit}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px', textAlign: 'center' }}>
-              OTP code sent to <strong>{tempMobile}</strong>.
+          <form onSubmit={handleResetSubmit} className="flex flex-col gap-5" noValidate>
+            <p className="text-sm text-on-surface-variant">
+              OTP sent to <strong className="text-ink-black">{tempMobile}</strong>.
             </p>
-
             {receivedOtp && (
-              <div className="alert alert-success" style={{ background: 'rgba(6, 182, 212, 0.12)', borderColor: 'rgba(6, 182, 212, 0.3)', color: '#22d3ee', textAlign: 'center', marginBottom: '20px' }}>
-                <strong>[Dev Helper] Mock SMS OTP:</strong>
-                <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '4px', marginTop: '5px' }}>
-                  {receivedOtp}
-                </span>
+              <div className="bg-success-container text-success rounded-[12px] p-4 text-center text-sm">
+                <span className="text-xs">Dev helper — Mock SMS OTP</span>
+                <p className="text-xl font-semibold tracking-[0.3em] mt-1">{receivedOtp}</p>
               </div>
             )}
-
-            <div className="form-group">
-              <label className="form-label">6-Digit OTP</label>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">6-Digit OTP</label>
               <input
-                type="text"
-                className="form-input pulse-focus"
+                inputMode="numeric"
+                autoComplete="one-time-code"
                 placeholder="e.g. 123456"
                 value={otp}
-                onChange={(e) => {
-                  setOtp(e.target.value);
-                  setFormErrors({ ...formErrors, otp: null });
-                }}
-                maxLength="6"
-                style={{ textAlign: 'center', letterSpacing: '8px', fontSize: '1.25rem' }}
+                maxLength={6}
+                onChange={(e) => { setOtp(e.target.value); setFormErrors({ ...formErrors, otp: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
               />
-              {formErrors.otp && <span style={{ color: 'var(--error)', fontSize: '0.75rem' }}>{formErrors.otp}</span>}
+              {formErrors.otp && <span className="text-error text-xs mt-1 block">{formErrors.otp}</span>}
             </div>
-
-            <div className="form-group">
-              <label className="form-label">New Password</label>
+            <div>
+              <label className="block text-sm font-medium text-ink-black mb-1">New Password</label>
               <input
                 type="password"
-                className="form-input pulse-focus"
+                autoComplete="new-password"
                 placeholder="At least 6 characters"
                 value={newPassword}
-                onChange={(e) => {
-                  setNewPassword(e.target.value);
-                  setFormErrors({ ...formErrors, newPassword: null });
-                }}
+                onChange={(e) => { setNewPassword(e.target.value); setFormErrors({ ...formErrors, newPassword: null }); }}
+                className="w-full h-12 px-4 rounded-inputs border border-gray-200 bg-white text-sm text-ink-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-module-dashboard/30 focus:border-module-dashboard transition-all"
               />
-              {formErrors.newPassword && <span style={{ color: 'var(--error)', fontSize: '0.75rem' }}>{formErrors.newPassword}</span>}
+              {formErrors.newPassword && <span className="text-error text-xs mt-1 block">{formErrors.newPassword}</span>}
             </div>
-
-            <button
-              type="submit"
-              className="btn"
-              style={{ width: '100%', marginTop: '10px' }}
-              disabled={loading}
-            >
-              {loading ? 'Resetting Password...' : 'Reset Password'}
-            </button>
+            <ActionButton type="submit" disabled={loading}>
+              {loading ? 'Resetting…' : 'Reset Password'}
+            </ActionButton>
           </form>
         )}
 
-        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+        <p className="text-center mt-8 text-sm text-on-surface-variant">
           Back to{' '}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              useAuthStore.setState({ tempMobile: null });
-              onNavigate('login');
-            }}
-            style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
-          >
+          <button type="button" onClick={() => { useAuthStore.setState({ tempMobile: null }); onNavigate('login'); }} className="text-ink-black font-medium underline underline-offset-4 hover:text-module-dashboard transition-colors">
             Log In
-          </a>
+          </button>
         </p>
-      </div>
+      </GlassCard>
     </div>
   );
 }

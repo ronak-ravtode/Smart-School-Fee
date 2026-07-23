@@ -1,192 +1,90 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import PageHeader from '../../components/ui/PageHeader';
+import GlassCard from '../../components/ui/GlassCard';
+import StatusChip from '../../components/ui/StatusChip';
+import ActionButton from '../../components/ui/ActionButton';
+import DataTable from '../../components/ui/DataTable';
+import { Icon } from '../../components/Icon';
+import { toast } from '../../components/ui/Toast';
+import axios from 'axios';
 
 export default function Reconciliation() {
   const [csvText, setCsvText] = useState('');
   const [matched, setMatched] = useState([]);
   const [unmatched, setUnmatched] = useState([]);
-  
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setCsvText(event.target.result);
-    };
-    reader.onerror = () => {
-      setError('Failed to read file.');
-    };
-    reader.readAsText(file);
-  };
-
-  const handleReconcile = async (e) => {
-    e.preventDefault();
+  const handleReconcile = async () => {
+    if (!csvText.trim()) { toast('Paste CSV data first', 'error'); return; }
     setLoading(true);
-    setError(null);
-    setSuccess(null);
-    setMatched([]);
-    setUnmatched([]);
-
-    if (!csvText.trim()) {
-      setError('Please paste CSV text or upload a CSV file.');
-      setLoading(false);
-      return;
-    }
-
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/reconciliation/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ csvText })
-      });
-
-      const data = await res.json();
-      if (res.status === 200) {
-        setMatched(data.matched);
-        setUnmatched(data.unmatched);
-        setSuccess(`Reconciliation process finished! Auto-matched ${data.matched.length} deposits. Flagged ${data.unmatched.length} unmatched entries.`);
-      } else {
-        setError(data.error || 'Reconciliation failed.');
-      }
-    } catch (err) {
-      console.error(err);
-      setError('Network error occurred.');
+      const res = await axios.post('/api/reconciliation/upload', { csvText }, { headers: { Authorization: `Bearer ${token}` } });
+      setMatched(res.data.matched || []);
+      setUnmatched(res.data.unmatched || []);
+      toast(`Matched ${res.data.matched?.length || 0}, Unmatched ${res.data.unmatched?.length || 0}`);
+    } catch (e) {
+      toast(e.response?.data?.error || 'Reconciliation failed', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  const matchColumns = [
+    { key: 'date', label: 'Date' },
+    { key: 'amount', label: 'Amount', render: (v) => `₹${Number(v).toLocaleString('en-IN')}` },
+    { key: 'studentName', label: 'Student' },
+    { key: 'receiptNumber', label: 'Receipt', render: (v) => v || '—' },
+  ];
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-      
-      {/* Upload/Paste Form */}
-      <div className="glass-panel" style={{ padding: '30px' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '15px' }}>Bank Statement Reconciliation</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          Upload your bank statement spreadsheet or copy-paste CSV records to auto-match deposits with cashier records.
-        </p>
-
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
-
-        <form onSubmit={handleReconcile}>
-          
-          <div className="form-group">
-            <label className="form-label">Upload Statement File (CSV)</label>
-            <input
-              type="file"
-              accept=".csv"
-              className="form-input"
-              onChange={handleFileUpload}
-              style={{ padding: '8px' }}
-            />
+    <div>
+      <PageHeader
+        eyebrow="Reconciliation"
+        title="Bank Statement Matching"
+        subtitle="Upload CSV to auto-match deposits with system records"
+        action={
+          <div className="flex gap-2">
+            <ActionButton onClick={handleReconcile} disabled={loading}>
+              {loading ? 'Processing...' : 'Run Reconciliation'}
+            </ActionButton>
+            <ActionButton variant="secondary" icon={() => <Icon name="download" className="text-lg" />}>Export</ActionButton>
           </div>
+        }
+      />
 
-          <div className="form-group">
-            <label className="form-label">Or Paste CSV Data (Format: date,amount)</label>
-            <textarea
-              className="form-input"
-              rows={5}
-              placeholder="date,amount&#10;2026-07-18,25000&#10;2026-07-18,65000"
-              value={csvText}
-              onChange={(e) => setCsvText(e.target.value)}
-              style={{ fontFamily: 'monospace', fontSize: '0.8rem', resize: 'vertical' }}
-            />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+        <GlassCard className="lg:col-span-3">
+          <h3 className="text-sm font-medium text-ink-black mb-3">Paste CSV Data</h3>
+          <p className="text-xs text-on-surface-variant mb-3">Format: date,amount,description (one per line)</p>
+          <textarea
+            className="w-full h-40 p-4 rounded-[12px] border border-gray-200 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-module-reconciliation/30"
+            placeholder={"2026-07-18,25000,Tuition fee deposit\n2026-07-18,65000,Transport fee"}
+            value={csvText}
+            onChange={(e) => setCsvText(e.target.value)}
+          />
+        </GlassCard>
 
-          <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Processing Bank Statement...' : 'Reconcile Statement'}
-          </button>
-        </form>
+        <GlassCard className="lg:col-span-2 flex flex-col justify-center items-center text-center">
+          <div className="text-3xl font-semibold text-success">{matched.length}</div>
+          <p className="text-sm text-on-surface-variant">Matched</p>
+          <div className="text-3xl font-semibold mt-4" style={{ color: '#e8977a' }}>{unmatched.length}</div>
+          <p className="text-sm text-on-surface-variant">Unmatched</p>
+        </GlassCard>
       </div>
 
-      {/* Results Section */}
-      {(matched.length > 0 || unmatched.length > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', alignItems: 'start' }}>
-          
-          {/* Matched Panel */}
-          <div className="glass-panel" style={{ padding: '30px' }}>
-            <h3 style={{ fontSize: '1rem', marginTop: 0, color: 'var(--success)', marginBottom: '15px' }}>
-              Matched Deposits ({matched.length})
-            </h3>
-            <div style={{ overflowX: 'auto' }}>
-              {matched.length === 0 ? (
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '20px 0' }}>
-                  No matches found.
-                </div>
-              ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.775rem', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                      <th style={{ padding: '8px' }}>Date</th>
-                      <th style={{ padding: '8px' }}>Amount</th>
-                      <th style={{ padding: '8px' }}>Student</th>
-                      <th style={{ padding: '8px' }}>Receipt</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {matched.map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                        <td style={{ padding: '8px' }}>{row.date}</td>
-                        <td style={{ padding: '8px', fontWeight: 600 }}>₹{row.amount.toLocaleString()}</td>
-                        <td style={{ padding: '8px' }}>{row.studentName}</td>
-                        <td style={{ padding: '8px', fontFamily: 'monospace' }}>{row.receiptNumber || 'Pending'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-
-          {/* Unmatched Panel */}
-          <div className="glass-panel" style={{ padding: '30px' }}>
-            <h3 style={{ fontSize: '1rem', marginTop: 0, color: 'var(--error)', marginBottom: '15px' }}>
-              Unmatched Statement Rows ({unmatched.length})
-            </h3>
-            <div style={{ overflowX: 'auto' }}>
-              {unmatched.length === 0 ? (
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', padding: '20px 0' }}>
-                  No unmatched rows! Balance is fully cleared.
-                </div>
-              ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.775rem', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-secondary)' }}>
-                      <th style={{ padding: '8px' }}>Date</th>
-                      <th style={{ padding: '8px' }}>Amount</th>
-                      <th style={{ padding: '8px' }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {unmatched.map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                        <td style={{ padding: '8px' }}>{row.date}</td>
-                        <td style={{ padding: '8px', fontWeight: 600 }}>₹{Number(row.amount).toLocaleString()}</td>
-                        <td style={{ padding: '8px' }}>
-                          <span className="badge badge-flagged" style={{ fontSize: '0.65rem', padding: '2px 6px' }}>
-                            Unmatched
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-
+      {matched.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <GlassCard>
+            <h3 className="text-sm font-medium text-success mb-4">Matched ({matched.length})</h3>
+            <DataTable columns={matchColumns} data={matched} emptyMessage="No matches" />
+          </GlassCard>
+          <GlassCard>
+            <h3 className="text-sm font-medium mb-4" style={{ color: '#e8977a' }}>Unmatched ({unmatched.length})</h3>
+            <DataTable columns={matchColumns} data={unmatched} emptyMessage="All matched!" />
+          </GlassCard>
         </div>
       )}
-
     </div>
   );
 }
