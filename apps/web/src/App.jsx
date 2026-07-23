@@ -3,16 +3,22 @@ import axios from 'axios';
 import { useAuthStore } from './stores/authStore';
 import TopNavBar from './components/layout/TopNavBar';
 import Footer from './components/layout/Footer';
-import { PageShell } from './components/layout/PageShell';
+import PageShell from './components/layout/PageShell';
+import ToastContainer from './components/ui/Toast';
 import WardsPanel from './components/guardian/WardsPanel';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Dashboard from './pages/admin/Dashboard';
+import FeeEngine from './pages/admin/FeeEngine';
+import StudentProfile from './pages/admin/StudentProfile';
+import Payments from './pages/admin/Payments';
+import Defaulters from './pages/admin/Defaulters';
+import Reconciliation from './pages/admin/Reconciliation';
+import ReportsAnalytics from './pages/admin/ReportsAnalytics';
 import FeeSetup from './pages/admin/FeeSetup';
 import Approvals from './pages/admin/Approvals';
 import CashierSetup from './pages/admin/CashierSetup';
-import Reconciliation from './pages/admin/Reconciliation';
 import Expenses from './pages/admin/Expenses';
 import Collections from './pages/cashier/Collections';
 import OfflineQueue from './pages/cashier/OfflineQueue';
@@ -25,8 +31,9 @@ export default function App() {
   const { user, token, logout, submitConsent } = useAuthStore();
   const [page, setPage] = useState('login');
   const [dashboardTab, setDashboardTab] = useState('Analytics');
+  const [activeModule, setActiveModule] = useState('dashboard');
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
 
-  // Guardians manage students + DPDP consent
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
@@ -51,6 +58,11 @@ export default function App() {
     setPage('login');
   };
 
+  const handleNavigate = (module) => {
+    setActiveModule(module);
+    setDashboardTab(null);
+  };
+
   const fetchMyStudents = async () => {
     try {
       const response = await axios.get('/api/guardians/students', {
@@ -71,7 +83,20 @@ export default function App() {
     }
   };
 
-  // Map nav labels (TopNavBar) to page components
+  const renderModule = () => {
+    switch (activeModule) {
+      case 'dashboard': return <Dashboard onNavigate={handleNavigate} />;
+      case 'students': return <StudentProfile studentId={selectedStudentId} />;
+      case 'fee-engine': return <FeeEngine />;
+      case 'payments': return <Payments />;
+      case 'defaulters': return <Defaulters />;
+      case 'reconciliation': return <Reconciliation />;
+      case 'reports': return <ReportsAnalytics />;
+      case 'settings': return <div className="text-sm text-on-surface-variant">Settings (coming soon)</div>;
+      default: return <Dashboard onNavigate={handleNavigate} />;
+    }
+  };
+
   const renderDashboard = () => {
     switch (dashboardTab) {
       case 'Analytics':
@@ -118,6 +143,19 @@ export default function App() {
         return <PaymentSuccess onNavigate={setPage} />;
       case 'dashboard':
         if (!user) return <Login onNavigate={setPage} />;
+        if (user.role === 'admin') {
+          return (
+            <PageShell
+              module={activeModule}
+              user={user}
+              onNavigate={handleNavigate}
+              onLogout={handleLogout}
+            >
+              <ToastContainer />
+              {renderModule()}
+            </PageShell>
+          );
+        }
         return (
           <>
             <TopNavBar role={user.role} activeTab={dashboardTab} onNavigate={setDashboardTab} user={user} onLogout={handleLogout} />

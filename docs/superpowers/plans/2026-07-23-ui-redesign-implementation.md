@@ -750,7 +750,7 @@ export default function ToastContainer() {
             initial={{ opacity: 0, x: 50, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 50, scale: 0.95 }}
-            className={`pointer-events-auto px-5 py-3 rounded-[12px] shadow-lg backdrop-blur-md text-sm font-medium flex items-center gap-3 ${
+            className={`pointer-events-auto px-5 py-3 rounded-cards shadow-lg backdrop-blur-md text-sm font-medium flex items-center gap-3 ${
               t.type === 'success'
                 ? 'bg-success-container text-success'
                 : t.type === 'error'
@@ -1229,7 +1229,7 @@ export default function Dashboard({ onNavigate }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload?.length) {
       return (
-        <div className="bg-white shadow-lg rounded-[12px] p-3 border border-gray-100 text-sm">
+        <div className="bg-white shadow-lg rounded-cards p-3 border border-gray-100 text-sm">
           <p className="font-medium text-ink-black">{label}</p>
           <p className="font-semibold text-ink-black">₹{Number(payload[0].value).toLocaleString('en-IN')}</p>
         </div>
@@ -1936,7 +1936,7 @@ export default function Reconciliation() {
           <h3 className="text-sm font-medium text-ink-black mb-3">Paste CSV Data</h3>
           <p className="text-xs text-on-surface-variant mb-3">Format: date,amount,description (one per line)</p>
           <textarea
-            className="w-full h-40 p-4 rounded-[12px] border border-gray-200 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-[#e8977a]/30"
+            className="w-full h-40 p-4 rounded-buttons border border-gray-200 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-module-reconciliation/30"
             placeholder={"2026-07-18,25000,Tuition fee deposit\n2026-07-18,65000,Transport fee"}
             value={csvText}
             onChange={(e) => setCsvText(e.target.value)}
@@ -1997,7 +1997,7 @@ const CHART_COLORS = ['var(--color-module-dashboard)', 'var(--color-module-stude
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
     return (
-      <div className="bg-white shadow-lg rounded-[12px] p-3 border border-gray-100 text-sm">
+      <div className="bg-white shadow-lg rounded-cards p-3 border border-gray-100 text-sm">
         <p className="font-medium text-ink-black">{label}</p>
         {payload.map((p, i) => (
           <p key={i} className="text-xs" style={{ color: p.color }}>₹{Number(p.value).toLocaleString('en-IN')}</p>
@@ -2049,7 +2049,7 @@ export default function ReportsAnalytics() {
         </GlassCard>
         <GlassCard>
           <p className="text-xs text-on-surface-variant uppercase">Avg Collection/Day</p>
-          <p className="text-2xl font-semibold text-[#8b8fd4] mt-1">₹{Number(report?.avg_daily || 0).toLocaleString('en-IN')}</p>
+          <p className="text-2xl font-semibold text-module-dashboard mt-1">₹{Number(report?.avg_daily || 0).toLocaleString('en-IN')}</p>
         </GlassCard>
       </div>
 
@@ -2060,10 +2060,10 @@ export default function ReportsAnalytics() {
             <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={revenueData}>
-                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
+                  <XAxis dataKey="name" stroke="var(--color-gray-400)" fontSize={11} tickLine={false} />
+                  <YAxis stroke="var(--color-gray-400)" fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Line type="monotone" dataKey="value" stroke="#e8b86a" strokeWidth={2} dot={{ fill: '#e8b86a' }} />
+                  <Line type="monotone" dataKey="value" stroke="var(--color-module-reports)" strokeWidth={2} dot={{ fill: 'var(--color-module-reports)' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -2076,10 +2076,10 @@ export default function ReportsAnalytics() {
             <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueData}>
-                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
+                  <XAxis dataKey="name" stroke="var(--color-gray-400)" fontSize={11} tickLine={false} />
+                  <YAxis stroke="var(--color-gray-400)" fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]} fill="#6bc9a9" />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} fill="var(--color-module-students)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
