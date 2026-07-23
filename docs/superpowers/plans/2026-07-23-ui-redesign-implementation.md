@@ -694,7 +694,7 @@ export default function Drawer({ open, onClose, title, children, width = '480px'
 
 ```jsx
 export default function ActionButton({ children, variant = 'primary', icon: Icon, className = '', ...props }) {
-  const base = 'inline-flex items-center justify-center gap-2 font-medium text-sm rounded-[10px] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const base = 'inline-flex items-center justify-center gap-2 font-medium text-sm rounded-buttons transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   const variants = {
     primary: 'text-white px-5 h-10 hover:opacity-90',
     secondary: 'border border-gray-200 text-ink-black px-5 h-10 hover:bg-gray-50',
@@ -825,7 +825,7 @@ export default function TabBar({ tabs, active, onChange, className = '' }) {
           <button
             key={tab.key}
             onClick={() => onChange(tab.key)}
-            className={`px-4 py-2 rounded-[10px] text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-buttons text-sm font-medium transition-all ${
               isActive
                 ? 'bg-white text-ink-black shadow-sm'
                 : 'text-on-surface-variant hover:text-ink-black'
@@ -1026,7 +1026,7 @@ export default function Sidebar({ activeModule, onNavigate, user, onLogout }) {
             <button
               key={item.key}
               onClick={() => onNavigate(item.key)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium transition-all relative ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-buttons text-sm font-medium transition-all relative ${
                 isActive
                   ? 'bg-gray-50'
                   : 'text-on-surface-variant hover:bg-gray-50 hover:text-ink-black'
@@ -1302,7 +1302,7 @@ export default function Dashboard({ onNavigate }) {
           {(defaulters || []).length > 0 ? (
             <div className="space-y-3">
               {defaulters.slice(0, 5).map((d, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-[10px] bg-gray-50">
+                <div key={i} className="flex items-center justify-between p-3 rounded-buttons bg-gray-50">
                   <div>
                     <p className="text-sm font-medium text-ink-black">{d.name}</p>
                     <p className="text-xs text-on-surface-variant">{d.class} • {d.overdue_days} days overdue</p>
@@ -1488,8 +1488,8 @@ export default function FeeEngine() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#141413] mb-1">Applies To</label>
-            <input className="w-full h-10 px-3 rounded-[10px] border border-gray-200 text-sm" value={form.appliesTo} onChange={(e) => setForm({ ...form, appliesTo: e.target.value })} placeholder="e.g. class_10, all" />
+            <label className="block text-sm font-medium text-ink-black mb-1">Applies To</label>
+            <input className="w-full h-10 px-3 rounded-buttons border border-gray-200 text-sm" value={form.appliesTo} onChange={(e) => setForm({ ...form, appliesTo: e.target.value })} placeholder="e.g. class_10, all" />
           </div>
           <div className="flex gap-3 pt-2">
             <ActionButton type="submit">{editing ? 'Update' : 'Create'}</ActionButton>
@@ -1569,7 +1569,7 @@ export default function StudentProfile({ studentId }) {
 
   if (!studentId) {
     return (
-      <div className="flex items-center justify-center h-64 text-sm text-[#5f5e5d]">
+      <div className="flex items-center justify-center h-64 text-sm text-on-surface-variant">
         Select a student to view their profile
       </div>
     );
@@ -1591,31 +1591,31 @@ export default function StudentProfile({ studentId }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
         <GlassCard className="lg:col-span-1 flex flex-col items-center text-center">
-          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-[#5f5e5d] mb-3">
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-on-surface-variant mb-3">
             {student?.name?.[0] || '?'}
           </div>
-          <p className="font-medium text-[#141413]">{student?.name}</p>
-          <p className="text-sm text-[#5f5e5d]">{student?.class}</p>
+          <p className="font-medium text-ink-black">{student?.name}</p>
+          <p className="text-sm text-on-surface-variant">{student?.class}</p>
           {student?.status && <StatusChip variant={student.status === 'active' ? 'success' : 'pending'} className="mt-2">{student.status}</StatusChip>}
         </GlassCard>
 
         <GlassCard className="lg:col-span-1">
-          <p className="text-xs text-[#5f5e5d] uppercase tracking-wider">Outstanding</p>
-          <p className="text-2xl font-semibold text-[#d46a7a] mt-1">
+          <p className="text-xs text-on-surface-variant uppercase tracking-wider">Outstanding</p>
+          <p className="text-2xl font-semibold text-module-defaulters mt-1">
             ₹{assignments.filter(a => a.status === 'pending' || a.status === 'overdue').reduce((s, a) => s + Number(a.feeStructure?.amount || 0), 0).toLocaleString('en-IN')}
           </p>
         </GlassCard>
 
         <GlassCard className="lg:col-span-1">
-          <p className="text-xs text-[#5f5e5d] uppercase tracking-wider">Total Paid</p>
-          <p className="text-2xl font-semibold text-[#16a34a] mt-1">
+          <p className="text-xs text-on-surface-variant uppercase tracking-wider">Total Paid</p>
+          <p className="text-2xl font-semibold text-green-600 mt-1">
             ₹{transactions.filter(t => t.status === 'success').reduce((s, t) => s + Number(t.amount || 0), 0).toLocaleString('en-IN')}
           </p>
         </GlassCard>
 
         <GlassCard className="lg:col-span-1">
-          <p className="text-xs text-[#5f5e5d] uppercase tracking-wider">Waivers</p>
-          <p className="text-2xl font-semibold text-[#e8b86a] mt-1">₹0</p>
+          <p className="text-xs text-on-surface-variant uppercase tracking-wider">Waivers</p>
+          <p className="text-2xl font-semibold text-module-reports mt-1">₹0</p>
         </GlassCard>
       </div>
 
@@ -1650,7 +1650,7 @@ export default function StudentProfile({ studentId }) {
         )}
 
         {activeTab !== 'overview' && activeTab !== 'payments' && (
-          <p className="text-sm text-[#5f5e5d] py-8 text-center">Section coming soon</p>
+          <p className="text-sm text-on-surface-variant py-8 text-center">Section coming soon</p>
         )}
       </GlassCard>
     </div>
@@ -1741,7 +1741,7 @@ export default function Payments() {
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <SearchInput value={search} onChange={setSearch} placeholder="Search by student or receipt..." className="flex-1" />
           <FilterBar>
-            <select className="h-10 px-3 rounded-[10px] border border-gray-200 text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <select className="h-10 px-3 rounded-buttons border border-gray-200 text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="">All Status</option>
               <option value="success">Success</option>
               <option value="pending">Pending</option>
@@ -1754,7 +1754,7 @@ export default function Payments() {
       </GlassCard>
 
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="Record Payment" width="480px">
-        <p className="text-sm text-[#5f5e5d] mb-4">Search for a student and record a payment.</p>
+        <p className="text-sm text-on-surface-variant mb-4">Search for a student and record a payment.</p>
         <SearchInput value={search} onChange={setSearch} placeholder="Search student..." className="mb-4" />
         <ActionButton className="w-full" onClick={() => { setDrawerOpen(false); toast('Payment recorded'); }}>Submit Payment</ActionButton>
       </Drawer>
@@ -1804,7 +1804,7 @@ export default function Defaulters() {
   const columns = [
     { key: 'name', label: 'Student' },
     { key: 'class', label: 'Class' },
-    { key: 'overdue_amount', label: 'Overdue', render: (v) => <span className="font-semibold text-[#d46a7a]">₹{Number(v || 0).toLocaleString('en-IN')}</span> },
+    { key: 'overdue_amount', label: 'Overdue', render: (v) => <span className="font-semibold text-module-defaulters">₹{Number(v || 0).toLocaleString('en-IN')}</span> },
     { key: 'overdue_days', label: 'Days', render: (v) => {
       const map = v > 60 ? 'error' : v > 30 ? 'warning' : 'pending';
       return <StatusChip variant={map}>{v || 0}d</StatusChip>;
@@ -1817,9 +1817,9 @@ export default function Defaulters() {
         return (
           <div className="flex items-center gap-2">
             <div className="w-20 h-1.5 rounded-full bg-gray-200">
-              <div className="h-full rounded-full bg-[#d46a7a]" style={{ width: `${pct}%` }} />
+              <div className="h-full rounded-full bg-module-defaulters" style={{ width: `${pct}%` }} />
             </div>
-            <span className="text-xs text-[#5f5e5d]">{pct}%</span>
+            <span className="text-xs text-on-surface-variant">{pct}%</span>
           </div>
         );
       },
@@ -1846,7 +1846,7 @@ export default function Defaulters() {
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <SearchInput value={search} onChange={setSearch} placeholder="Search student..." className="flex-1" />
           <FilterBar>
-            <select className="h-10 px-3 rounded-[10px] border border-gray-200 text-sm" value={daysFilter} onChange={(e) => setDaysFilter(e.target.value)}>
+            <select className="h-10 px-3 rounded-buttons border border-gray-200 text-sm" value={daysFilter} onChange={(e) => setDaysFilter(e.target.value)}>
               <option value="all">All Days</option>
               <option value="30">30+ Days</option>
               <option value="60">60+ Days</option>
@@ -1933,8 +1933,8 @@ export default function Reconciliation() {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
         <GlassCard className="lg:col-span-3">
-          <h3 className="text-sm font-medium text-[#141413] mb-3">Paste CSV Data</h3>
-          <p className="text-xs text-[#5f5e5d] mb-3">Format: date,amount,description (one per line)</p>
+          <h3 className="text-sm font-medium text-ink-black mb-3">Paste CSV Data</h3>
+          <p className="text-xs text-on-surface-variant mb-3">Format: date,amount,description (one per line)</p>
           <textarea
             className="w-full h-40 p-4 rounded-[12px] border border-gray-200 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-[#e8977a]/30"
             placeholder={"2026-07-18,25000,Tuition fee deposit\n2026-07-18,65000,Transport fee"}
@@ -1944,21 +1944,21 @@ export default function Reconciliation() {
         </GlassCard>
 
         <GlassCard className="lg:col-span-2 flex flex-col justify-center items-center text-center">
-          <div className="text-3xl font-semibold text-[#16a34a]">{matched.length}</div>
-          <p className="text-sm text-[#5f5e5d]">Matched</p>
-          <div className="text-3xl font-semibold text-[#e8977a] mt-4">{unmatched.length}</div>
-          <p className="text-sm text-[#5f5e5d]">Unmatched</p>
+          <div className="text-3xl font-semibold text-green-600">{matched.length}</div>
+          <p className="text-sm text-on-surface-variant">Matched</p>
+          <div className="text-3xl font-semibold text-module-reconciliation mt-4">{unmatched.length}</div>
+          <p className="text-sm text-on-surface-variant">Unmatched</p>
         </GlassCard>
       </div>
 
       {matched.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <GlassCard>
-            <h3 className="text-sm font-medium text-[#16a34a] mb-4">Matched ({matched.length})</h3>
+            <h3 className="text-sm font-medium text-green-600 mb-4">Matched ({matched.length})</h3>
             <DataTable columns={matchColumns} data={matched} emptyMessage="No matches" />
           </GlassCard>
           <GlassCard>
-            <h3 className="text-sm font-medium text-[#e8977a] mb-4">Unmatched ({unmatched.length})</h3>
+            <h3 className="text-sm font-medium text-module-reconciliation mb-4">Unmatched ({unmatched.length})</h3>
             <DataTable columns={matchColumns} data={unmatched} emptyMessage="All matched!" />
           </GlassCard>
         </div>
@@ -1992,13 +1992,13 @@ import GlassCard from '../../components/ui/GlassCard';
 import ActionButton from '../../components/ui/ActionButton';
 import { Icon } from '../../components/Icon';
 
-const CHART_COLORS = ['#8b8fd4', '#6bc9a9', '#5bb98a', '#e8977a', '#e8b86a', '#d46a7a'];
+const CHART_COLORS = ['var(--color-module-dashboard)', 'var(--color-module-students)', 'var(--color-module-payments)', 'var(--color-module-reconciliation)', 'var(--color-module-reports)', 'var(--color-module-defaulters)'];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white shadow-lg rounded-[12px] p-3 border border-gray-100 text-sm">
-        <p className="font-medium text-[#141413]">{label}</p>
+        <p className="font-medium text-ink-black">{label}</p>
         {payload.map((p, i) => (
           <p key={i} className="text-xs" style={{ color: p.color }}>₹{Number(p.value).toLocaleString('en-IN')}</p>
         ))}
@@ -2024,7 +2024,7 @@ export default function ReportsAnalytics() {
         title="Analytics & Insights"
         action={
           <div className="flex gap-2">
-            <select className="h-10 px-3 rounded-[10px] border border-gray-200 text-sm" value={period} onChange={(e) => setPeriod(e.target.value)}>
+            <select className="h-10 px-3 rounded-buttons border border-gray-200 text-sm" value={period} onChange={(e) => setPeriod(e.target.value)}>
               <option value="daily">Daily</option>
               <option value="monthly">Monthly</option>
               <option value="session">Session</option>
@@ -2036,26 +2036,26 @@ export default function ReportsAnalytics() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <GlassCard>
-          <p className="text-xs text-[#5f5e5d] uppercase">Total Collected</p>
-          <p className="text-2xl font-semibold text-[#141413] mt-1">₹{Number(report?.total_collected || 0).toLocaleString('en-IN')}</p>
+          <p className="text-xs text-on-surface-variant uppercase">Total Collected</p>
+          <p className="text-2xl font-semibold text-ink-black mt-1">₹{Number(report?.total_collected || 0).toLocaleString('en-IN')}</p>
         </GlassCard>
         <GlassCard>
-          <p className="text-xs text-[#5f5e5d] uppercase">Total Pending</p>
-          <p className="text-2xl font-semibold text-[#e8b86a] mt-1">₹{Number(report?.total_pending || 0).toLocaleString('en-IN')}</p>
+          <p className="text-xs text-on-surface-variant uppercase">Total Pending</p>
+          <p className="text-2xl font-semibold text-module-reports mt-1">₹{Number(report?.total_pending || 0).toLocaleString('en-IN')}</p>
         </GlassCard>
         <GlassCard>
-          <p className="text-xs text-[#5f5e5d] uppercase">Defaulters</p>
-          <p className="text-2xl font-semibold text-[#d46a7a] mt-1">{report?.defaulters_count || 0}</p>
+          <p className="text-xs text-on-surface-variant uppercase">Defaulters</p>
+          <p className="text-2xl font-semibold text-module-defaulters mt-1">{report?.defaulters_count || 0}</p>
         </GlassCard>
         <GlassCard>
-          <p className="text-xs text-[#5f5e5d] uppercase">Avg Collection/Day</p>
+          <p className="text-xs text-on-surface-variant uppercase">Avg Collection/Day</p>
           <p className="text-2xl font-semibold text-[#8b8fd4] mt-1">₹{Number(report?.avg_daily || 0).toLocaleString('en-IN')}</p>
         </GlassCard>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <GlassCard>
-          <h3 className="font-medium text-[#141413] mb-4">Revenue Trend</h3>
+          <h3 className="font-medium text-ink-black mb-4">Revenue Trend</h3>
           {!loading && revenueData.length > 0 ? (
             <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -2067,11 +2067,11 @@ export default function ReportsAnalytics() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          ) : <div className="h-[280px] flex items-center justify-center text-sm text-[#5f5e5d]">{loading ? 'Loading...' : 'No data'}</div>}
+          ) : <div className="h-[280px] flex items-center justify-center text-sm text-on-surface-variant">{loading ? 'Loading...' : 'No data'}</div>}
         </GlassCard>
 
         <GlassCard>
-          <h3 className="font-medium text-[#141413] mb-4">Collection by Fee Type</h3>
+          <h3 className="font-medium text-ink-black mb-4">Collection by Fee Type</h3>
           {!loading && revenueData.length > 0 ? (
             <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -2083,13 +2083,13 @@ export default function ReportsAnalytics() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          ) : <div className="h-[280px] flex items-center justify-center text-sm text-[#5f5e5d]">{loading ? 'Loading...' : 'No data'}</div>}
+          ) : <div className="h-[280px] flex items-center justify-center text-sm text-on-surface-variant">{loading ? 'Loading...' : 'No data'}</div>}
         </GlassCard>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <GlassCard>
-          <h3 className="font-medium text-[#141413] mb-4">Payment Methods</h3>
+          <h3 className="font-medium text-ink-black mb-4">Payment Methods</h3>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -2103,8 +2103,8 @@ export default function ReportsAnalytics() {
         </GlassCard>
 
         <GlassCard className="lg:col-span-2">
-          <h3 className="font-medium text-[#141413] mb-4">Defaulter Aging</h3>
-          <p className="text-sm text-[#5f5e5d]">Defaulter aging analysis appears here</p>
+          <h3 className="font-medium text-ink-black mb-4">Defaulter Aging</h3>
+          <p className="text-sm text-on-surface-variant">Defaulter aging analysis appears here</p>
         </GlassCard>
       </div>
     </div>
@@ -2162,7 +2162,7 @@ const renderModule = () => {
     case 'defaulters': return <Defaulters />;
     case 'reconciliation': return <Reconciliation />;
     case 'reports': return <ReportsAnalytics />;
-    case 'settings': return <div className="text-sm text-[#5f5e5d]">Settings (coming soon)</div>;
+    case 'settings': return <div className="text-sm text-on-surface-variant">Settings (coming soon)</div>;
     default: return <Dashboard onNavigate={handleNavigate} />;
   }
 };
@@ -2203,7 +2203,7 @@ git commit -m "feat(routing): add module-based sidebar navigation for new pages"
 
 Replace the outer card wrapper:
 - Use `GlassCard` instead of `bg-lifted-cream rounded-frame...`
-- Inputs get `rounded-[10px]` class
+- Inputs get `rounded-buttons` class
 - Button uses `ActionButton` with periwinkle accent
 - Keep all state, form handlers, validation, store calls identical
 
