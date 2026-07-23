@@ -21,10 +21,12 @@ const statIcons = {
 export default function Dashboard({ onNavigate }) {
   const { data: metrics, loading } = useDashboardQuery('/api/dashboard/metrics', {}, 5000);
   const { data: revenue } = useDashboardQuery('/api/dashboard/revenue-breakdown', { period: 'monthly' }, 5000);
+  const { data: paymentMethods } = useDashboardQuery('/api/dashboard/payment-methods', {}, 5000);
   const { data: defaulters } = useDashboardQuery('/api/dashboard/defaulters', {}, 5000);
 
   const m = metrics || {};
   const revData = revenue?.labels?.map((l, i) => ({ name: l.toUpperCase(), value: Number(revenue.data[i]) || 0 })) || [];
+  const payMethodData = paymentMethods?.labels?.map((l, i) => ({ name: l.toUpperCase(), value: Number(paymentMethods.data[i]) || 0 })) || [];
 
   const COLORS = ['#8b8fd4', '#6bc9a9', '#5bb98a', '#e8977a', '#e8b86a'];
 
@@ -80,12 +82,12 @@ export default function Dashboard({ onNavigate }) {
 
         <GlassCard>
           <h3 className="font-medium text-ink-black mb-4">Payment Methods</h3>
-          {revData.length > 0 ? (
+          {payMethodData.length > 0 ? (
             <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={revData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
-                    {revData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  <Pie data={payMethodData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
+                    {payMethodData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />

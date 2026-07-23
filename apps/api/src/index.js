@@ -335,6 +335,13 @@ app.get(
   dashboardController.getReports
 );
 
+app.get(
+  '/api/dashboard/payment-methods',
+  authenticate,
+  checkRole(['admin']),
+  dashboardController.getPaymentMethods
+);
+
 // Protected Cashier Testing Route (RBAC verification)
 app.get(
   '/api/cashier/dashboard',

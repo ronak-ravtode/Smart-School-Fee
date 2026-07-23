@@ -25,11 +25,14 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function ReportsAnalytics() {
   const [period, setPeriod] = useState('monthly');
   const { data: report, loading } = useDashboardQuery('/api/dashboard/reports', { period }, 5000);
+  const { data: paymentMethods } = useDashboardQuery('/api/dashboard/payment-methods', {}, 5000);
 
   const revenueData = report?.breakdown?.map((item) => ({
     name: item.type?.toUpperCase(),
     value: Number(item.total || 0),
   })) || [];
+
+  const payMethodData = paymentMethods?.labels?.map((l, i) => ({ name: l.toUpperCase(), value: Number(paymentMethods.data[i]) || 0 })) || [];
 
   return (
     <div>
@@ -107,8 +110,8 @@ export default function ReportsAnalytics() {
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={revenueData.slice(0, 5)} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={2} dataKey="value">
-                  {revenueData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                <Pie data={payMethodData.slice(0, 5)} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={2} dataKey="value">
+                  {payMethodData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                 </Pie>
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 10 }} />
               </PieChart>

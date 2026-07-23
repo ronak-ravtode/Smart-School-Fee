@@ -38,7 +38,8 @@ export default function CashierSetup() {
 
   const fetchCashiers = async () => {
     try {
-      const response = await axios.get('/api/admin/cashiers');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/admin/cashiers', { headers: { Authorization: `Bearer ${token}` } });
       setCashiersList(response.data);
     } catch (err) {
       console.error('Failed to fetch cashiers:', err);
@@ -47,7 +48,8 @@ export default function CashierSetup() {
 
   const fetchAuditLogs = async () => {
     try {
-      const response = await axios.get('/api/admin/audit-logs');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/admin/audit-logs', { headers: { Authorization: `Bearer ${token}` } });
       setAuditLogs(response.data);
     } catch (err) {
       console.error('Failed to fetch audit logs:', err);

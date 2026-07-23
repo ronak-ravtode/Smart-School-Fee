@@ -297,9 +297,34 @@ const getReports = async (req, res) => {
   }
 };
 
+// /api/dashboard/payment-methods
+const getPaymentMethods = async (req, res) => {
+  try {
+    const txs = await prisma.transaction.findMany({
+      where: { status: 'success' },
+      select: { method: true, amount: true }
+    });
+
+    const breakdown = {};
+    txs.forEach(t => {
+      const method = t.method || 'OTHER';
+      breakdown[method] = (breakdown[method] || 0) + Number(t.amount);
+    });
+
+    const labels = Object.keys(breakdown);
+    const data = Object.values(breakdown);
+
+    return res.status(200).json({ labels, data });
+  } catch (error) {
+    console.error('Get payment methods error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getMetrics,
   getRevenueBreakdown,
   getDefaulters,
-  getReports
+  getReports,
+  getPaymentMethods
 };

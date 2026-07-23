@@ -12,16 +12,22 @@ import { toast } from '../../components/ui/Toast';
 
 export default function FeeEngine() {
   const [structures, setStructures] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name: '', amount: '', type: 'tuition', appliesTo: 'all' });
+  const [form, setForm] = useState({ name: '', amount: '', type: 'tuition', appliesTo: 'all', academicYearId: '' });
 
   const fetch = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('/api/fees/structures', { headers: { Authorization: `Bearer ${token}` } });
-      setStructures(res.data);
+      const headers = { Authorization: `Bearer ${token}` };
+      const [structRes, yearsRes] = await Promise.all([
+        axios.get('/api/fees/structures', { headers }),
+        axios.get('/api/academic-years', { headers })
+      ]);
+      setStructures(structRes.data);
+      setAcademicYears(yearsRes.data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -33,13 +39,13 @@ export default function FeeEngine() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ name: '', amount: '', type: 'tuition', appliesTo: 'all' });
+    setForm({ name: '', amount: '', type: 'tuition', appliesTo: 'all', academicYearId: academicYears[0]?.id || '' });
     setDrawerOpen(true);
   };
 
   const openEdit = (row) => {
     setEditing(row.id);
-    setForm({ name: row.name, amount: row.amount, type: row.type, appliesTo: row.appliesTo });
+    setForm({ name: row.name, amount: row.amount, type: row.type, appliesTo: row.appliesTo, academicYearId: row.academicYearId || '' });
     setDrawerOpen(true);
   };
 
@@ -55,7 +61,7 @@ export default function FeeEngine() {
         await axios.post('/api/fees/structures', {
           ...form,
           amount: Number(form.amount),
-          academicYearId: 1,
+          academicYearId: Number(form.academicYearId) || 1,
         }, { headers });
         toast('Fee structure created');
       }
@@ -118,6 +124,14 @@ export default function FeeEngine() {
           <div>
             <label className="block text-sm font-medium text-ink-black mb-1">Name</label>
             <input className="w-full h-10 px-3 rounded-inputs border border-gray-200 text-sm" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-ink-black mb-1">Academic Year</label>
+            <select className="w-full h-10 px-3 rounded-inputs border border-gray-200 text-sm" value={form.academicYearId} onChange={(e) => setForm({ ...form, academicYearId: e.target.value })} disabled={editing !== null}>
+              {academicYears.map(year => (
+                <option key={year.id} value={year.id}>{year.label}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-ink-black mb-1">Amount (₹)</label>

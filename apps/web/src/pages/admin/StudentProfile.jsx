@@ -81,7 +81,7 @@ export default function StudentProfile({ studentId }) {
 
         <GlassCard className="lg:col-span-1">
           <p className="text-xs text-on-surface-variant uppercase tracking-wider">Outstanding</p>
-          <p className="text-2xl font-semibold" style={{ color: '#d46a7a' }} mt-1>
+          <p className="text-2xl font-semibold mt-1" style={{ color: '#d46a7a' }}>
             ₹{assignments.filter(a => a.status === 'pending' || a.status === 'overdue').reduce((s, a) => s + Number(a.feeStructure?.amount || 0), 0).toLocaleString('en-IN')}
           </p>
         </GlassCard>
@@ -95,7 +95,7 @@ export default function StudentProfile({ studentId }) {
 
         <GlassCard className="lg:col-span-1">
           <p className="text-xs text-on-surface-variant uppercase tracking-wider">Waivers</p>
-          <p className="text-2xl font-semibold" style={{ color: '#e8b86a' }} mt-1>₹0</p>
+          <p className="text-2xl font-semibold mt-1" style={{ color: '#e8b86a' }}>₹0</p>
         </GlassCard>
       </div>
 
@@ -129,8 +129,64 @@ export default function StudentProfile({ studentId }) {
           />
         )}
 
-        {activeTab !== 'overview' && activeTab !== 'payments' && (
-          <p className="text-sm text-on-surface-variant py-8 text-center">Section coming soon</p>
+        {activeTab === 'fees' && (
+          <div className="space-y-3">
+            {assignments.length === 0 ? (
+              <p className="text-sm text-on-surface-variant py-8 text-center">No fee assignments</p>
+            ) : (
+              assignments.map(a => (
+                <div key={a.id} className="flex items-center justify-between p-3 rounded-[10px] bg-gray-50">
+                  <div>
+                    <p className="text-sm font-medium text-ink-black">{a.feeStructure?.name}</p>
+                    <p className="text-xs text-on-surface-variant">Due: {new Date(a.dueDate).toLocaleDateString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-ink-black">₹{Number(a.feeStructure?.amount || 0).toLocaleString('en-IN')}</p>
+                    <StatusChip variant={a.status === 'paid' ? 'success' : a.status === 'overdue' ? 'error' : 'pending'}>{a.status}</StatusChip>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === 'waivers' && (
+          <div className="space-y-3">
+            {assignments.filter(a => a.waiverPenalties?.length > 0).length === 0 ? (
+              <p className="text-sm text-on-surface-variant py-8 text-center">No waivers or penalties applied</p>
+            ) : (
+              assignments.filter(a => a.waiverPenalties?.length > 0).flatMap(a =>
+                a.waiverPenalties.map(wp => (
+                  <div key={wp.id} className="flex items-center justify-between p-3 rounded-[10px] bg-gray-50">
+                    <div>
+                      <p className="text-sm font-medium text-ink-black capitalize">{wp.type}: {a.feeStructure?.name}</p>
+                      <p className="text-xs text-on-surface-variant">{wp.reason}</p>
+                    </div>
+                    <StatusChip variant={wp.type === 'waiver' ? 'success' : 'error'}>
+                      {wp.type === 'waiver' ? '-' : '+'}₹{Number(wp.amount).toLocaleString('en-IN')}
+                    </StatusChip>
+                  </div>
+                ))
+              )
+            )}
+          </div>
+        )}
+
+        {activeTab === 'receipts' && (
+          <DataTable
+            columns={[
+              { key: 'receiptNumber', label: 'Receipt' },
+              { key: 'amount', label: 'Amount', render: (v) => `₹${Number(v).toLocaleString('en-IN')}` },
+              { key: 'method', label: 'Method' },
+              { key: 'createdAt', label: 'Date', render: (v) => new Date(v).toLocaleDateString() },
+            ]}
+            data={transactions.filter(t => t.status === 'success' || t.status === 'reversed')}
+            emptyMessage="No receipts available"
+          />
+        )}
+
+        {activeTab === 'notes' && (
+          <p className="text-sm text-on-surface-variant py-8 text-center">Notes — coming soon (deferred)</p>
         )}
       </GlassCard>
     </div>
