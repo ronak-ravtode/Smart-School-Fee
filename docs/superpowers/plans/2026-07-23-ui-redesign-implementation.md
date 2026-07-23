@@ -1470,16 +1470,16 @@ export default function FeeEngine() {
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title={editing ? 'Edit Fee Structure' : 'Create Fee Structure'} width="500px">
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[#141413] mb-1">Name</label>
-            <input className="w-full h-10 px-3 rounded-[10px] border border-gray-200 text-sm" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            <label className="block text-sm font-medium text-ink-black mb-1">Name</label>
+            <input className="w-full h-10 px-3 rounded-buttons border border-gray-200 text-sm" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#141413] mb-1">Amount (₹)</label>
-            <input className="w-full h-10 px-3 rounded-[10px] border border-gray-200 text-sm" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
+            <label className="block text-sm font-medium text-ink-black mb-1">Amount (₹)</label>
+            <input className="w-full h-10 px-3 rounded-buttons border border-gray-200 text-sm" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#141413] mb-1">Type</label>
-            <select className="w-full h-10 px-3 rounded-[10px] border border-gray-200 text-sm" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+            <label className="block text-sm font-medium text-ink-black mb-1">Type</label>
+            <select className="w-full h-10 px-3 rounded-buttons border border-gray-200 text-sm" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
               <option value="tuition">Tuition</option>
               <option value="transport">Transport</option>
               <option value="late_fee">Late Fee</option>
