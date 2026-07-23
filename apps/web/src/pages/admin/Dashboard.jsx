@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Icon } from '../../components/Icon';
 import GlassCard from '../../components/ui/GlassCard';
@@ -40,7 +41,7 @@ export default function Dashboard({ onNavigate }) {
   };
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <PageHeader
         eyebrow="Financial Dashboard"
         title="School Financial Overview"
@@ -133,6 +134,6 @@ export default function Dashboard({ onNavigate }) {
         <ActionButton variant="secondary" icon={() => <Icon name="price_check" className="text-lg" />}>Apply Waiver</ActionButton>
         <ActionButton variant="secondary" icon={() => <Icon name="gavel" className="text-lg" />}>Add Penalty</ActionButton>
       </div>
-    </div>
+    </motion.div>
   );
 }

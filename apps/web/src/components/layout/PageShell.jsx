@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import ContextRibbon from './ContextRibbon';
 import { useUIStore } from '../../stores/uiStore';
@@ -30,9 +31,14 @@ export default function PageShell({
           breadcrumbs={breadcrumbs}
           actions={actions}
         />
-        <main className={`flex-1 p-8 ${className}`}>
+        <motion.main
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className={`flex-1 p-8 ${className}`}
+        >
           {children}
-        </main>
+        </motion.main>
       </div>
     </div>
   );
